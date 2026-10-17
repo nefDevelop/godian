@@ -81,8 +81,8 @@ func TestBuildEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
-	if summary.Published != 2 {
-		t.Errorf("posts publicados = %d, want 2", summary.Published)
+	if summary.Published != 7 {
+		t.Errorf("posts publicados = %d, want 7", summary.Published)
 	}
 	if summary.Scheduled != 1 {
 		t.Errorf("posts programados = %d, want 1", summary.Scheduled)
@@ -94,6 +94,7 @@ func TestBuildEndToEnd(t *testing.T) {
 	for _, f := range []string{
 		"index.html",
 		"blog/index.html",
+		"blog/2/index.html",
 		"blog/hello/index.html",
 		"blog/adios/index.html",
 		"tags/index.html",
@@ -124,6 +125,11 @@ func TestBuildEndToEnd(t *testing.T) {
 		if !strings.Contains(hello, want) {
 			t.Errorf("blog/hello no contiene %q", want)
 		}
+	}
+
+	blog := readFile(t, filepath.Join(out, "blog/index.html"))
+	if !strings.Contains(blog, `rel="next"`) {
+		t.Errorf("blog/index.html sin rel=next (paginación)")
 	}
 
 	if problems, err := verify.Dist(out); err != nil {

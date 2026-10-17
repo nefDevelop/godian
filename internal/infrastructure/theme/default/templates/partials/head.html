@@ -6,6 +6,8 @@
 	<title>{{ if and .Title (ne .Title .Site.Title) }}{{ .Title }} · {{ end }}{{ .Site.Title }}</title>
 	{{ if .Description }}<meta name="description" content="{{ .Description }}">{{ end }}
 	{{ if .Canonical }}<link rel="canonical" href="{{ .Canonical }}">{{ end }}
+	{{ if .Page.HasPrev }}<link rel="prev" href="{{ .Site.URL }}{{ .Page.PrevURL }}">{{ end }}
+	{{ if .Page.HasNext }}<link rel="next" href="{{ .Site.URL }}{{ .Page.NextURL }}">{{ end }}
 	<meta name="theme-color" content="{{ if .Site.Color }}{{ .Site.Color }}{{ else }}#2563eb{{ end }}">
 	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 	<link rel="manifest" href="/site.webmanifest">

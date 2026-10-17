@@ -151,6 +151,12 @@
 - [x] Comando **`godian check`**: imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos
 - [x] Docs (`/docs/obsidian/`), tests (linkindex + check) y ejemplos
 
+### F17 — SEO / rendimiento
+- [x] `rel="prev"`/`rel="next"` en listados paginados
+- [x] `sizes` en el `srcset` de las imágenes
+- [x] JSON-LD **CollectionPage** (taxonomías) y **Person** (autores)
+- [x] Tests (integración: paginación + rel=next)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

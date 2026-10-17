@@ -169,7 +169,7 @@ func (b *Build) Run() (Summary, error) {
 	}
 
 	// Blog paginado.
-	blogPaths, err := b.renderList("blog", "/blog/", "Blog", "Thoughts, notes, and everything in between.", sortPinned(posts))
+	blogPaths, err := b.renderList("blog", "/blog/", "Blog", "Thoughts, notes, and everything in between.", sortPinned(posts), nil)
 	if err != nil {
 		return Summary{}, err
 	}
@@ -421,7 +421,7 @@ func seriesNav(p domain.BlogPost, series map[string]domain.Series, bySlug map[st
 }
 
 // renderList genera un listado paginado con la plantilla indicada.
-func (b *Build) renderList(tmpl, base, title, desc string, posts []domain.BlogPost) ([]string, error) {
+func (b *Build) renderList(tmpl, base, title, desc string, posts []domain.BlogPost, decorate func(*PageData, string)) ([]string, error) {
 	pages := paginate(posts, pageSize)
 	var paths []string
 	for i, chunk := range pages {
@@ -431,6 +431,9 @@ func (b *Build) renderList(tmpl, base, title, desc string, posts []domain.BlogPo
 		data.Page = newPagination(base, page, len(pages))
 		data.Total = len(posts)
 		url := pageURL(base, page)
+		if decorate != nil {
+			decorate(&data, url)
+		}
 		rel := strings.TrimPrefix(url, "/") + "index.html"
 		if err := b.writeTemplate(tmpl, rel, data); err != nil {
 			return nil, err
@@ -479,7 +482,9 @@ func (b *Build) renderTaxonomies(posts []domain.BlogPost) ([]string, []string, e
 			if desc == "" {
 				desc = "Posts in " + tc.Name + ": " + t.Name
 			}
-			termPaths, err := b.renderList("taxonomy", base+t.Name+"/", title, desc, filtered)
+			termPaths, err := b.renderList("taxonomy", base+t.Name+"/", title, desc, filtered, func(d *PageData, u string) {
+				d.JSONLD = b.collectionPageJSONLD(title, u)
+			})
 			if err != nil {
 				return nil, nil, err
 			}
@@ -578,6 +583,7 @@ func (b *Build) renderAuthors(c domain.Content, posts []domain.BlogPost) ([]stri
 			data.Page = newPagination(base, page, len(pages))
 			data.Total = len(filtered)
 			url := pageURL(base, page)
+			data.JSONLD = b.personJSONLD(a, url)
 			rel := strings.TrimPrefix(url, "/") + "index.html"
 			if err := b.writeTemplate("author", rel, data); err != nil {
 				return nil, err
@@ -798,6 +804,51 @@ func (b *Build) writeSiteMeta() error {
 		return err
 	}
 	return b.output.Write("site.webmanifest", manifest)
+}
+
+// collectionPageJSONLD describe una página de listado (tag/categoría).
+func (b *Build) collectionPageJSONLD(name, pageURL string) template.JS {
+	base := strings.TrimRight(b.opts.Site.URL, "/")
+	doc := map[string]any{
+		"@context": "https://schema.org",
+		"@type":    "CollectionPage",
+		"name":     name,
+		"url":      base + pageURL,
+		"isPartOf": map[string]any{"@type": "WebSite", "url": base + "/"},
+	}
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return ""
+	}
+	return template.JS(data)
+}
+
+// personJSONLD describe el perfil de un autor.
+func (b *Build) personJSONLD(a domain.Author, pageURL string) template.JS {
+	base := strings.TrimRight(b.opts.Site.URL, "/")
+	doc := map[string]any{
+		"@context": "https://schema.org",
+		"@type":    "Person",
+		"name":     a.Name,
+		"url":      base + pageURL,
+	}
+	if a.Avatar != "" {
+		doc["image"] = a.Avatar
+	}
+	var same []string
+	for _, u := range []string{a.Github, a.Twitter, a.Website} {
+		if u != "" {
+			same = append(same, u)
+		}
+	}
+	if len(same) > 0 {
+		doc["sameAs"] = same
+	}
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return ""
+	}
+	return template.JS(data)
 }
 
 func (b *Build) ogImage(slug string) string {

@@ -185,11 +185,12 @@ func (p *Processor) Picture(src, alt string) template.HTML {
 	if !ok {
 		return template.HTML(p.imgTag(src, alt, 0, 0))
 	}
+	const sizes = ` sizes="(min-width: 64rem) 64rem, 100vw"`
 	out := `<picture>`
 	if avs, ok := p.avif[src]; ok {
-		out += `<source type="image/avif" srcset="` + srcset(avs) + `">`
+		out += `<source type="image/avif" srcset="` + srcset(avs) + `"` + sizes + `>`
 	}
-	out += `<source type="image/webp" srcset="` + srcset(vs) + `">`
+	out += `<source type="image/webp" srcset="` + srcset(vs) + `"` + sizes + `>`
 	out += p.imgTag(src, alt, 0, 0)
 	out += `</picture>`
 	return template.HTML(out)

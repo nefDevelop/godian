@@ -360,7 +360,7 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Artículo**: progreso de lectura, volver arriba, prev/next, relacionados, navegación de serie y compartir.
 - **Home**: post destacado (pinned) y widgets (tags, categorías, stats).
 - **UI**: dark mode con persistencia, View Transitions, Giscus, KaTeX/Mermaid/PhotoSwipe (carga diferida).
-- **SEO/Meta**: canonical por página, favicon + manifest + `theme-color` generados, JSON-LD (WebSite/BlogPosting), OG/Twitter y **OG images nativas**, RSS/**Atom**/**JSON Feed**, sitemap y **`robots.txt`**.
+- **SEO/Meta**: canonical por página, favicon + manifest + `theme-color` generados, JSON-LD (WebSite/BlogPosting/**CollectionPage**/**Person**), **`rel=prev/next`** en paginación, **`sizes`** en `srcset`, OG/Twitter y **OG images nativas**, RSS/**Atom**/**JSON Feed**, sitemap y **`robots.txt`**.
 - **URLs**: **aliases/redirects** por frontmatter (páginas de redirección).
 - **Datos**: carpeta **`data/`** (JSON/YAML/CSV) accesible en plantillas (`{{ index .Data "…" }}`).
 - **Enlaces**: los externos en Markdown llevan `target="_blank" rel="noopener noreferrer"`.
