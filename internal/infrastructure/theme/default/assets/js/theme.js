@@ -49,9 +49,9 @@ document.addEventListener('click', function (e) {
 	try { localStorage.setItem('theme', next); } catch (err) {}
 });
 
-// Carga diferida de librerías de terceros (solo si la página las necesita).
+// Carga diferida de librerías (vendorizadas localmente, sin CDN).
 (function () {
-	var CDN = 'https://cdn.jsdelivr.net/npm/';
+	var BASE = '/assets/vendor/';
 
 	function loadStyle(href) {
 		var l = document.createElement('link');
@@ -59,26 +59,28 @@ document.addEventListener('click', function (e) {
 		l.href = href;
 		document.head.appendChild(l);
 	}
+	function loadScript(src, onload) {
+		var s = document.createElement('script');
+		s.src = src;
+		if (onload) s.onload = onload;
+		document.head.appendChild(s);
+	}
 
-	// Mermaid (diagramas)
+	// Mermaid (diagramas) — build IIFE que expone window.mermaid.
 	if (document.querySelector('.mermaid') && !window.mermaid) {
-		import(CDN + 'mermaid@11/dist/mermaid.esm.min.mjs').then(function (mod) {
-			var mermaid = mod.default || mod;
+		loadScript(BASE + 'mermaid/mermaid.min.js', function () {
+			if (!window.mermaid) return;
 			var dark = document.documentElement.classList.contains('dark');
-			mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
-			mermaid.run({ querySelector: '.mermaid' });
-		}).catch(function () {});
+			window.mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
+			window.mermaid.run({ querySelector: '.mermaid' });
+		});
 	}
 
 	// KaTeX (matemáticas)
 	if (document.querySelector('[data-math]') && !window.renderMathInElement) {
-		loadStyle(CDN + 'katex@0.16.9/dist/katex.min.css');
-		var k = document.createElement('script');
-		k.src = CDN + 'katex@0.16.9/dist/katex.min.js';
-		k.onload = function () {
-			var a = document.createElement('script');
-			a.src = CDN + 'katex@0.16.9/dist/contrib/auto-render.min.js';
-			a.onload = function () {
+		loadStyle(BASE + 'katex/katex.min.css');
+		loadScript(BASE + 'katex/katex.min.js', function () {
+			loadScript(BASE + 'katex/contrib/auto-render.min.js', function () {
 				if (!window.renderMathInElement) return;
 				window.renderMathInElement(document.querySelector('.prose') || document.body, {
 					delimiters: [
@@ -91,18 +93,16 @@ document.addEventListener('click', function (e) {
 					ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option']
 				});
 				document.querySelectorAll('[data-math]').forEach(function (el) { el.remove(); });
-			};
-			document.head.appendChild(a);
-		};
-		document.head.appendChild(k);
+			});
+		});
 	}
 
 	// PhotoSwipe (lightbox)
 	var pswpImgs = document.querySelectorAll('.prose picture img, .prose > img');
 	if (pswpImgs.length && !window.__pswpInit) {
 		window.__pswpInit = true;
-		loadStyle(CDN + 'photoswipe@5/dist/photoswipe.css');
-		import(CDN + 'photoswipe@5/dist/photoswipe.esm.min.js').then(function (mod) {
+		loadStyle(BASE + 'photoswipe/photoswipe.css');
+		import(BASE + 'photoswipe/photoswipe.esm.min.js').then(function (mod) {
 			var PhotoSwipe = mod.default || mod.PhotoSwipe;
 			pswpImgs.forEach(function (img) {
 				img.style.cursor = 'zoom-in';

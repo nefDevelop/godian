@@ -250,9 +250,22 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		return application.Summary{}, fmt.Errorf("cargando data/: %w", err)
 	}
 
-	imagesProc := images.New(cfg.Build.AssetsDir, filepath.FromSlash(cfg.Build.OutputDir), cfg.Build.Optimize)
+	imagesProc := images.New(cfg.Build.AssetsDir, filepath.FromSlash(cfg.Build.OutputDir), cfg.Build.Optimize, cfg.Build.ImagePresets)
 	md := markdown.New(
 		markdown.WithImageResolver(imagesProc.Picture),
+		markdown.WithImageShortcode(func(args map[string]string) (template.HTML, error) {
+			src := args["src"]
+			if src == "" {
+				return "", fmt.Errorf("{{image}}: falta src")
+			}
+			alt := args["alt"]
+			if preset := args["preset"]; preset != "" {
+				if h, ok := imagesProc.Preset(src, alt, preset); ok {
+					return h, nil
+				}
+			}
+			return imagesProc.Picture(src, alt), nil
+		}),
 		markdown.WithIslandResolver(reg.Resolve),
 		markdown.WithBlockResolver(reg.ResolveBlock),
 	)

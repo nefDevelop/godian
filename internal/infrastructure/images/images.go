@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/gen2brain/webp"
+	"github.com/nefdevelop/godian/internal/domain"
 	"golang.org/x/image/draw"
 
 	_ "image/gif"
@@ -28,10 +29,11 @@ var imageExts = map[string]bool{
 	".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true,
 }
 
-// Variant es una variante WebP generada.
+// Variant es una variante generada.
 type Variant struct {
-	URL   string
-	Width int
+	URL    string
+	Width  int
+	Height int
 }
 
 // Processor genera variantes de imagen y resuelve la etiqueta <picture>.
@@ -39,19 +41,25 @@ type Processor struct {
 	assetsDir  string
 	outputDir  string
 	optimize   bool
+	presets    map[string]domain.ImagePreset
 	variants   map[string][]Variant
 	avif       map[string][]Variant
+	presetVars map[string]map[string]Variant
+	lqip       map[string]string
 	dimensions map[string][2]int
 }
 
 // New crea un Processor.
-func New(assetsDir, outputDir string, optimize bool) *Processor {
+func New(assetsDir, outputDir string, optimize bool, presets map[string]domain.ImagePreset) *Processor {
 	return &Processor{
 		assetsDir:  assetsDir,
 		outputDir:  outputDir,
 		optimize:   optimize,
+		presets:    presets,
 		variants:   map[string][]Variant{},
 		avif:       map[string][]Variant{},
+		presetVars: map[string]map[string]Variant{},
+		lqip:       map[string]string{},
 		dimensions: map[string][2]int{},
 	}
 }
@@ -102,6 +110,9 @@ func (p *Processor) processImage(path, rel string) error {
 	b := img.Bounds()
 	origW, origH := b.Dx(), b.Dy()
 	p.dimensions[publicSrc] = [2]int{origW, origH}
+	if data, err := lqipData(img, b); err == nil {
+		p.lqip[publicSrc] = data
+	}
 
 	if err := p.copyFile(path, rel); err != nil {
 		return err
@@ -152,6 +163,19 @@ func (p *Processor) processImage(path, rel string) error {
 		sort.Slice(avs, func(i, j int) bool { return avs[i].Width < avs[j].Width })
 		p.avif[publicSrc] = avs
 	}
+
+	if len(p.presets) > 0 {
+		p.presetVars[publicSrc] = map[string]Variant{}
+		for name, pr := range p.presets {
+			v, err := p.makePreset(img, b, dir, base, name, pr)
+			if err != nil {
+				return err
+			}
+			if v != nil {
+				p.presetVars[publicSrc][name] = *v
+			}
+		}
+	}
 	return nil
 }
 
@@ -159,20 +183,48 @@ func (p *Processor) processImage(path, rel string) error {
 func (p *Processor) Picture(src, alt string) template.HTML {
 	vs, ok := p.variants[src]
 	if !ok {
-		return template.HTML(`<img src="` + template.HTMLEscapeString(src) + `" alt="` + template.HTMLEscapeString(alt) + `" loading="lazy" decoding="async">`)
+		return template.HTML(p.imgTag(src, alt, 0, 0))
 	}
-
 	out := `<picture>`
 	if avs, ok := p.avif[src]; ok {
 		out += `<source type="image/avif" srcset="` + srcset(avs) + `">`
 	}
 	out += `<source type="image/webp" srcset="` + srcset(vs) + `">`
-	out += `<img src="` + template.HTMLEscapeString(src) + `" alt="` + template.HTMLEscapeString(alt) + `" loading="lazy" decoding="async"`
-	if d, ok := p.dimensions[src]; ok {
-		out += fmt.Sprintf(` width="%d" height="%d"`, d[0], d[1])
-	}
-	out += `></picture>`
+	out += p.imgTag(src, alt, 0, 0)
+	out += `</picture>`
 	return template.HTML(out)
+}
+
+// Preset devuelve un <picture> con una variante de preset (false si no existe).
+func (p *Processor) Preset(src, alt, preset string) (template.HTML, bool) {
+	byName, ok := p.presetVars[src]
+	if !ok {
+		return "", false
+	}
+	v, ok := byName[preset]
+	if !ok {
+		return "", false
+	}
+	out := `<picture><source type="image/webp" srcset="` + v.URL + ` ` + fmt.Sprintf("%d", v.Width) + `w">` +
+		p.imgTag(src, alt, v.Width, v.Height) + `</picture>`
+	return template.HTML(out), true
+}
+
+// imgTag construye la etiqueta <img> (con dimensiones y LQIP si se conocen).
+func (p *Processor) imgTag(src, alt string, w, h int) string {
+	if w == 0 || h == 0 {
+		if d, ok := p.dimensions[src]; ok {
+			w, h = d[0], d[1]
+		}
+	}
+	s := `<img src="` + template.HTMLEscapeString(src) + `" alt="` + template.HTMLEscapeString(alt) + `" loading="lazy" decoding="async"`
+	if w > 0 && h > 0 {
+		s += fmt.Sprintf(` width="%d" height="%d"`, w, h)
+	}
+	if lq, ok := p.lqip[src]; ok {
+		s += ` style="background-image:url(` + lq + `);background-size:cover;background-position:center"`
+	}
+	return s + `>`
 }
 
 func srcset(vs []Variant) string {

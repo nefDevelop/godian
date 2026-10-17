@@ -60,8 +60,11 @@ build:
   data_dir: data              # datos estructurados (JSON/YAML/CSV)
   minify: true                # minifica HTML y CSS
   fingerprint: true           # hash en el nombre de CSS/JS
-  optimize_images: true       # variantes WebP + <picture>/srcset
+  optimize_images: true       # variantes WebP + <picture>/srcset + LQIP
   clean: true                 # limpia dist/ antes de cada build
+  image_presets:              # opcional; para {{image src=… preset=…}}
+    thumb: { width: 480, height: 270, fit: fill, focal: center }
+    wide:  { width: 1200, fit: fit }
 
 # Colecciones (opcional; por defecto: blog, docs, authors, series, pages)
 collections:
@@ -359,7 +362,8 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **URLs**: **aliases/redirects** por frontmatter (páginas de redirección).
 - **Datos**: carpeta **`data/`** (JSON/YAML/CSV) accesible en plantillas (`{{ index .Data "…" }}`).
 - **Enlaces**: los externos en Markdown llevan `target="_blank" rel="noopener noreferrer"`.
-- **Imágenes**: WebP + `srcset`; **AVIF opt-in** (`-tags avif`).
+- **Imágenes**: WebP + `srcset`, **LQIP** (placeholder difuminado) y **presets** (`fit`/`fill`/`focal`/`blur`) vía `{{image}}`; **AVIF opt-in** (`-tags avif`).
+- **Offline**: KaTeX, Mermaid y PhotoSwipe **vendorizados** (sin CDN).
 - **i18n** es/en (`site.language`).
 - **Verificación**: el build valida referencias (assets y enlaces internos) y **falla** si hay roturas.
 - **Assets**: fingerprinting y minificado propio de HTML/CSS.

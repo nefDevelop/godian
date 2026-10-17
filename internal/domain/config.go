@@ -61,6 +61,18 @@ type BuildConfig struct {
 	Fingerprint bool   `yaml:"fingerprint"`
 	Optimize    bool   `yaml:"optimize_images"`
 	Clean       bool   `yaml:"clean"`
+
+	ImagePresets map[string]ImagePreset `yaml:"image_presets"`
+}
+
+// ImagePreset define una variante de imagen con recorte/escala.
+type ImagePreset struct {
+	Width   int    `yaml:"width"`
+	Height  int    `yaml:"height"`
+	Fit     string `yaml:"fit"`   // fit | fill
+	Focal   string `yaml:"focal"` // center | top | bottom | left | right
+	Quality int    `yaml:"quality"`
+	Blur    int    `yaml:"blur"`
 }
 
 // CollectionConfig describe una colección de contenido dentro de ContentDir.

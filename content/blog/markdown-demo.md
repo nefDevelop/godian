@@ -86,3 +86,13 @@ Componente estático (partial):
 {{island carousel images="https://picsum.photos/id/10/800/450,https://picsum.photos/id/20/800/450,https://picsum.photos/id/30/800/450"}}
 
 Enlace externo: [go.dev](https://go.dev) y enlace interno: [Docs](/docs/).
+
+## Imágenes (LQIP + presets)
+
+Imagen normal (con LQIP y `srcset`):
+
+![Demo](/demo.jpg)
+
+Con el preset `thumb` (recorte 16:9 con foco centrado):
+
+{{image src="/demo.jpg" preset="thumb" alt="Miniatura 16:9"}}

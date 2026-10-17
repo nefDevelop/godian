@@ -137,6 +137,13 @@
 - [x] **Menús anidados**: `nav` con `children` (submenús desplegables; sublista en móvil)
 - [x] Docs (`/docs/publicacion/`), ejemplo en `site.yaml` y tests (integración + unit)
 
+### F15 — Imágenes (LQIP + presets) y vendorizado
+- [x] **LQIP**: placeholder diminuto difuminado (data URI) en el `<img>`
+- [x] **Presets** de imagen (`fit`/`fill`/`focal`/`quality`/`blur`) en `build.image_presets`
+- [x] Shortcode `{{image src=… preset=… alt=…}}`
+- [x] **Vendorizado** de KaTeX, Mermaid y PhotoSwipe (sin CDN; `assets/vendor/`), carga diferida local
+- [x] Docs (`/docs/imagenes/`), ejemplo (`assets/demo.jpg`) y tests
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.
@@ -148,17 +155,12 @@
 ### Datos y contenido
 - [ ] **Render hooks** adicionales configurables (imágenes, headings).
 - [ ] **Menús por idioma**.
-- [ ] **Page bundles / secciones anidadas** (recursos co-localizados con la página).
-
-### Imágenes
-- [ ] **LQIP/placeholder** difuminado y filtros (`fit` / `fill` / `blur`).
 
 ### Rendimiento / entrega
 - [ ] **Incremental builds** (reconstruir solo lo cambiado).
 - [ ] **HMR granular** (hot swap de CSS sin recargar).
 - [ ] **PWA / service worker** (offline).
 - [ ] **Minificado de JS** (o integrar un minificador seguro).
-- [ ] **Vendorizar** KaTeX/Mermaid/PhotoSwipe para funcionar 100% offline.
 
 ### Multilingüe (grande)
 - [ ] **Multilingüe real**: contenido por idioma, `hreflang` y selector. (Hoy solo i18n de UI.)
@@ -171,3 +173,4 @@
 - [x] **MDX / hidratación de frameworks** (Astro): usamos islas vanilla sin hidratación.
 - [x] **Sistema de módulos** (Hugo Modules): tema embebido + overlay.
 - [x] **Compatibilidad con `astro-cms`**: descartada (su editor escribe `category`/`author` como strings y en otra carpeta; no encaja sin modificarlo).
+- [x] **Page bundles**: no prioritario (los slugs con subrutas ya cubren el caso; no aporta al enfoque).

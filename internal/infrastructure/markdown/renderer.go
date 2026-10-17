@@ -12,9 +12,10 @@ import (
 )
 
 type customRenderer struct {
-	shortcodes map[string]Shortcode
-	images     func(src, alt string) template.HTML
-	islands    func(kind, name string, props map[string]string) (template.HTML, error)
+	shortcodes      map[string]Shortcode
+	images          func(src, alt string) template.HTML
+	islands         func(kind, name string, props map[string]string) (template.HTML, error)
+	imageShortcodes func(args map[string]string) (template.HTML, error)
 }
 
 func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
@@ -160,6 +161,16 @@ func (r *customRenderer) renderShortcode(w util.BufWriter, source []byte, node a
 		return ast.WalkContinue, nil
 	}
 	n := node.(*shortcodeNode)
+
+	// Imagen con preset: {{image src=… preset=… alt=…}}.
+	if n.Name == "image" && r.imageShortcodes != nil {
+		out, err := r.imageShortcodes(parseProps(tokenize(n.Inner)[1:]))
+		if err != nil {
+			return ast.WalkContinue, err
+		}
+		_, _ = w.WriteString(string(out))
+		return ast.WalkContinue, nil
+	}
 
 	// Islas y componentes: {{island nombre k=v}} / {{partial nombre k=v}}.
 	if (n.Name == "island" || n.Name == "partial") && r.islands != nil {

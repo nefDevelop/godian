@@ -13,7 +13,11 @@ build:
   assets_dir: assets      # imágenes/estáticos fuente (servidos desde /)
   minify: true
   fingerprint: true
-  optimize_images: true   # genera variantes WebP + srcset
+  optimize_images: true   # genera variantes WebP + srcset + LQIP
+  # Presets de imagen (opcionales) para usar con {{image src=… preset=…}}.
+  image_presets:
+    thumb: { width: 480, height: 270, fit: fill, focal: center, quality: 78 }
+    wide:  { width: 1200, fit: fit }
 
 # Si se omite, se usan las colecciones estándar (blog, docs, authors, series, pages).
 # collections:

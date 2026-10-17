@@ -110,6 +110,8 @@ func TestBuildEndToEnd(t *testing.T) {
 		"404.html",
 		"docs/index.html",
 		"assets/islands/manifest.json",
+		"assets/vendor/mermaid/mermaid.min.js",
+		"assets/vendor/katex/katex.min.css",
 		"blog/viejo-hola/index.html",
 	} {
 		if _, err := os.Stat(filepath.Join(out, filepath.FromSlash(f))); err != nil {

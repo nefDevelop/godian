@@ -36,6 +36,11 @@ func WithImageResolver(fn func(src, alt string) template.HTML) Option {
 	return func(r *Renderer) { r.imageResolver = fn }
 }
 
+// WithImageShortcode resuelve el shortcode {{image src=… preset=… alt=…}}.
+func WithImageShortcode(fn func(args map[string]string) (template.HTML, error)) Option {
+	return func(r *Renderer) { r.imageShortcode = fn }
+}
+
 // WithIslandResolver resuelve los shortcodes {{island}} y {{partial}}.
 func WithIslandResolver(fn func(kind, name string, props map[string]string) (template.HTML, error)) Option {
 	return func(r *Renderer) { r.islandResolver = fn }
@@ -56,6 +61,7 @@ type Renderer struct {
 	imageResolver  func(src, alt string) template.HTML
 	islandResolver func(kind, name string, props map[string]string) (template.HTML, error)
 	blockResolver  BlockResolver
+	imageShortcode func(args map[string]string) (template.HTML, error)
 }
 
 // New construye un Renderer con las extensiones del tema.
@@ -86,7 +92,7 @@ func New(opts ...Option) *Renderer {
 			html.WithUnsafe(),
 			// Prioridad menor que el renderer por defecto (1000): goldmark
 			// registra en orden inverso, así que gana el número más bajo.
-			renderer.WithNodeRenderers(util.Prioritized(&customRenderer{shortcodes: r.shortcodes, images: r.imageResolver, islands: r.islandResolver}, 500)),
+			renderer.WithNodeRenderers(util.Prioritized(&customRenderer{shortcodes: r.shortcodes, images: r.imageResolver, islands: r.islandResolver, imageShortcodes: r.imageShortcode}, 500)),
 		),
 	)
 	return r
