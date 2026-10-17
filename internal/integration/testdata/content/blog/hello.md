@@ -18,3 +18,7 @@ package main
 ```
 
 Contador: {{island counter start=2}}
+
+{{#partial note title="Aviso"}}
+Contenido **de bloque**.
+{{/partial}}

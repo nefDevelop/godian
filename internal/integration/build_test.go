@@ -62,7 +62,7 @@ func TestBuildEndToEnd(t *testing.T) {
 
 	builder := application.NewBuild(
 		content.NewLoader(cfg),
-		markdown.New(markdown.WithIslandResolver(reg.Resolve)),
+		markdown.New(markdown.WithIslandResolver(reg.Resolve), markdown.WithBlockResolver(reg.ResolveBlock)),
 		renderer,
 		output.NewWriter(out),
 		feed.New(),
@@ -112,7 +112,7 @@ func TestBuildEndToEnd(t *testing.T) {
 	}
 
 	hello := readFile(t, filepath.Join(out, "blog/hello/index.html"))
-	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`} {
+	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`, `class="note"`, "Aviso"} {
 		if !strings.Contains(hello, want) {
 			t.Errorf("blog/hello no contiene %q", want)
 		}

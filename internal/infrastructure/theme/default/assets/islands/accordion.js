@@ -1,5 +1,54 @@
-// Isla de acordeón: props.items = "Título=Contenido;Otro=Cuerpo".
+// Isla acordeón. Con contenido hijo usa los encabezados `##` como secciones;
+// sin contenido, usa props.items = "Título=Cuerpo;Otro=Cuerpo".
 export function mount(el, props) {
+	var sections = sectionsFromHeadings(el);
+	if (sections.length) {
+		buildFromSections(el, sections);
+		return;
+	}
+	buildFromItems(el, props);
+}
+
+function sectionsFromHeadings(el) {
+	var headings = Array.prototype.slice.call(el.children).filter(function (n) {
+		return n.tagName === 'H2';
+	});
+	if (!headings.length) return [];
+	return headings.map(function (h) {
+		var nodes = [];
+		var n = h.nextElementSibling;
+		while (n && n.tagName !== 'H2') {
+			nodes.push(n);
+			n = n.nextElementSibling;
+		}
+		return { title: headingText(h), nodes: nodes };
+	});
+}
+
+function headingText(h) {
+	var clone = h.cloneNode(true);
+	var anchor = clone.querySelector('.anchor');
+	if (anchor) anchor.remove();
+	return clone.textContent.trim();
+}
+
+function buildFromSections(el, sections) {
+	el.innerHTML = '';
+	sections.forEach(function (s) {
+		var d = document.createElement('details');
+		d.className = 'accordion-item';
+		var sum = document.createElement('summary');
+		sum.textContent = s.title;
+		var body = document.createElement('div');
+		body.className = 'accordion-body';
+		s.nodes.forEach(function (n) { body.appendChild(n); });
+		d.appendChild(sum);
+		d.appendChild(body);
+		el.appendChild(d);
+	});
+}
+
+function buildFromItems(el, props) {
 	var items = (props.items || '')
 		.split(';')
 		.map(function (s) {

@@ -123,11 +123,13 @@
 - [x] **AVIF opt-in** (build tag `avif`) + `<source type="image/avif">`
 - [x] Documentación en `/docs/publicacion/` y ejemplos en `data/` y contenido
 
-### F13 — Islas con contenido hijo (Tanda 2, planificada)
-- [ ] Shortcodes de **bloque** `{{#island nombre}}…{{/island}}` que envuelven Markdown.
-- [ ] Islas `tabs` / `accordion` / `callout` que aceptan **contenido hijo** (secciones).
-- [ ] Pasar el Markdown renderizado a las islas (props + contenido).
-- [ ] Documentación y ejemplos en `/docs/islands-gallery/`.
+### F13 — Islas con contenido hijo (Tanda 2)
+- [x] Shortcodes de **bloque** `{{#island nombre}}…{{/island}}` / `{{#partial …}}…{{/partial}}` que envuelven Markdown
+- [x] Contenido renderizado pasado como `content` (template.HTML) al componente
+- [x] `tabs`/`accordion` con **secciones** (`##`) como contenido hijo; partial `note`
+- [x] Los bloques dentro de fences de código se ignoran
+- [x] Documentación (`/docs/components/`) y ejemplos en `/docs/islands-gallery/`
+- [x] Tests (markdown + islands + integración)
 
 ## 🧭 Backlog (competencias y mejoras)
 

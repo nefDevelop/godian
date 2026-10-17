@@ -347,7 +347,7 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Contenido**: blog, docs, autores, series, páginas; drafts; pinned; series con capítulos; slugs con subrutas; detección de duplicados.
 - **Taxonomías configurables**: tags/categorías con descripción, aliases, peso, `strict`, `render_empty`, jerárquicas.
 - **Markdown extendido** y compatibilidad Obsidian (ver tabla arriba).
-- **Componentes/islas** data-driven (ver sección).
+- **Componentes/islas** data-driven, con **contenido hijo** (`{{#island …}}…{{/island}}` / `{{#partial …}}…{{/partial}}`) que envuelve Markdown.
 - **Código**: Chroma (temas claro/oscuro), números de línea, líneas resaltadas, bloques plegables, botón copiar.
 - **Imágenes**: variantes WebP + `<picture>`/`srcset` con `width`/`height`.
 - **Navegación**: TOC (sticky), paginación, archivo, búsqueda (índice propio en Go + JS) con **modal Ctrl/⌘K**, **docs** con sidebar y breadcrumbs.

@@ -112,6 +112,75 @@ func (r *Registry) Resolve(kind, name string, props map[string]string) (template
 	return r.Island(name, props)
 }
 
+// ResolveBlock resuelve un shortcode de bloque con contenido Markdown ya renderizado.
+func (r *Registry) ResolveBlock(kind, name string, props map[string]string, content template.HTML) (template.HTML, error) {
+	if kind == "partial" {
+		return r.PartialBlock(name, props, content)
+	}
+	return r.IslandBlock(name, props, content)
+}
+
+// IslandBlock renderiza una isla con contenido hijo (SSR opcional).
+func (r *Registry) IslandBlock(name string, props map[string]string, content template.HTML) (template.HTML, error) {
+	if !validName(name) {
+		return "", fmt.Errorf("isla inválida: %q", name)
+	}
+	load := props["load"]
+	if load == "" {
+		load = "idle"
+	}
+	clean := make(map[string]string, len(props))
+	for k, v := range props {
+		if k != "load" {
+			clean[k] = v
+		}
+	}
+
+	inner := string(content)
+	if r.templates[name] {
+		if r.renderer == nil {
+			return "", fmt.Errorf("isla %q: renderer no inicializado", name)
+		}
+		var buf strings.Builder
+		if err := r.renderer.Render(&buf, "islands/"+name+".html", blockData(clean, content)); err != nil {
+			return "", fmt.Errorf("isla %q: %w", name, err)
+		}
+		inner = buf.String()
+	}
+	if !r.assets[name] {
+		if inner == "" {
+			return "", fmt.Errorf("isla desconocida %q (sin template ni js)", name)
+		}
+		return template.HTML(inner), nil
+	}
+	return wrapper(name, clean, load, inner), nil
+}
+
+// PartialBlock ejecuta un partial con contenido hijo.
+func (r *Registry) PartialBlock(name string, props map[string]string, content template.HTML) (template.HTML, error) {
+	if !validName(name) {
+		return "", fmt.Errorf("partial inválido: %q", name)
+	}
+	if r.renderer == nil {
+		return "", fmt.Errorf("partial %q: renderer no inicializado", name)
+	}
+	var buf strings.Builder
+	if err := r.renderer.Render(&buf, "partials/"+name+".html", blockData(props, content)); err != nil {
+		return "", fmt.Errorf("partial %q: %w", name, err)
+	}
+	return template.HTML(buf.String()), nil
+}
+
+// blockData combina props (string) con el contenido renderizado (template.HTML).
+func blockData(props map[string]string, content template.HTML) map[string]any {
+	data := make(map[string]any, len(props)+1)
+	for k, v := range props {
+		data[k] = v
+	}
+	data["content"] = content
+	return data
+}
+
 func wrapper(name string, props map[string]string, load, inner string) template.HTML {
 	attrs := ` data-island="` + template.HTMLEscapeString(name) + `"`
 	if len(props) > 0 {

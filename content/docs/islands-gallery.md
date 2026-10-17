@@ -94,3 +94,34 @@ El código de uso va en `code span` para que puedas copiarlo.
 `{{partial kbd keys="Ctrl+K"}}` → {{partial kbd keys="Ctrl+K"}}
 
 `{{partial cta text="Ir a Docs" url="/docs/"}}` → {{partial cta text="Ir a Docs" url="/docs/"}}
+
+## Islas con contenido (bloque)
+
+Los shortcodes de bloque envuelven Markdown: `{{#island …}}` … `{{/island}}`
+(o `{{#partial …}}` … `{{/partial}}`).
+
+`{{#partial note title="Aviso"}}` … `{{/partial}}`
+
+{{#partial note title="Aviso"}}
+Esto es **Markdown** dentro de un partial (con enlaces, listas, etc.).
+{{/partial}}
+
+`{{#island tabs}}` con secciones `##`:
+
+{{#island tabs}}
+## Primera
+Contenido de la primera pestaña con **Markdown**.
+
+## Segunda
+Contenido de la segunda pestaña.
+{{/island}}
+
+`{{#island accordion}}` con secciones `##`:
+
+{{#island accordion}}
+## Sección uno
+Texto de la primera sección.
+
+## Sección dos
+Texto de la segunda sección.
+{{/island}}

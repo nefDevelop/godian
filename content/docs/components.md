@@ -39,6 +39,29 @@ Ejemplo en vivo:
 
 {{island counter start=5}}
 
+## Con contenido (shortcodes de bloque)
+
+Envuelven **Markdown** y se lo pasan al componente como `content`:
+
+```
+{{#partial note title="Aviso"}}
+Contenido **Markdown** dentro del componente.
+{{/partial}}
+
+{{#island tabs}}
+## Primera
+Contenido de la primera pestaña.
+
+## Segunda
+Contenido de la segunda.
+{{/island}}
+```
+
+- El partial recibe `{{ .content }}` (HTML ya renderizado) además de sus props.
+- Las islas `tabs` y `accordion`, si tienen contenido, usan los encabezados `##` como
+  secciones (no hace falta `items`).
+- Los bloques dentro de fences de código se ignoran (se muestran literales).
+
 ## Desde plantillas del tema
 
 ```

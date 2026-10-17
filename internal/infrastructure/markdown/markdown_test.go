@@ -163,6 +163,42 @@ func TestCodeHighlight(t *testing.T) {
 	}
 }
 
+func TestBlockShortcode(t *testing.T) {
+	var content string
+	r := New(WithBlockResolver(func(kind, name string, props map[string]string, c template.HTML) (template.HTML, error) {
+		content = string(c)
+		return template.HTML("<section>" + string(c) + "</section>"), nil
+	}))
+	out, err := r.ToHTML("{{#partial note title=\"A\"}}\nHola **mundo**\n{{/partial}}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(out), "<section>") || !strings.Contains(content, "<strong>mundo</strong>") {
+		t.Errorf("bloque no renderizado: out=%s content=%s", out, content)
+	}
+	if strings.Contains(string(out), "data-godian-block") {
+		t.Errorf("placeholder sin reemplazar: %s", out)
+	}
+}
+
+func TestBlockInsideFenceIgnored(t *testing.T) {
+	called := false
+	r := New(WithBlockResolver(func(kind, name string, props map[string]string, c template.HTML) (template.HTML, error) {
+		called = true
+		return c, nil
+	}))
+	out, err := r.ToHTML("```\n{{#partial note}}\nx\n{{/partial}}\n```")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if called {
+		t.Error("no debe procesar bloques dentro de fences de código")
+	}
+	if !strings.Contains(string(out), "{{#partial note}}") {
+		t.Errorf("se esperaba el literal: %s", out)
+	}
+}
+
 func TestExternalLinkHook(t *testing.T) {
 	ext := render(t, "[go](https://go.dev)")
 	if !strings.Contains(ext, `target="_blank" rel="noopener noreferrer"`) {

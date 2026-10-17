@@ -5,7 +5,9 @@ package markdown
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
+	"strings"
 
 	"github.com/nefdevelop/godian/internal/domain"
 	"github.com/yuin/goldmark"
@@ -39,12 +41,21 @@ func WithIslandResolver(fn func(kind, name string, props map[string]string) (tem
 	return func(r *Renderer) { r.islandResolver = fn }
 }
 
+// BlockResolver resuelve los shortcodes de bloque {{#island}}…{{/island}} con contenido.
+type BlockResolver func(kind, name string, props map[string]string, content template.HTML) (template.HTML, error)
+
+// WithBlockResolver resuelve los shortcodes de bloque (con contenido Markdown).
+func WithBlockResolver(fn BlockResolver) Option {
+	return func(r *Renderer) { r.blockResolver = fn }
+}
+
 // Renderer convierte documentos Markdown en HTML.
 type Renderer struct {
 	md             goldmark.Markdown
 	shortcodes     map[string]Shortcode
 	imageResolver  func(src, alt string) template.HTML
 	islandResolver func(kind, name string, props map[string]string) (template.HTML, error)
+	blockResolver  BlockResolver
 }
 
 // New construye un Renderer con las extensiones del tema.
@@ -83,14 +94,33 @@ func New(opts ...Option) *Renderer {
 
 // Render convierte Markdown a HTML y extrae los encabezados para el TOC.
 func (r *Renderer) Render(src string) (template.HTML, []domain.Heading, error) {
-	source := []byte(src)
+	processed, blocks := extractBlocks(src)
+	source := []byte(processed)
 	doc := r.md.Parser().Parse(text.NewReader(source))
 
 	var buf bytes.Buffer
 	if err := r.md.Renderer().Render(&buf, source, doc); err != nil {
 		return "", nil, err
 	}
-	return template.HTML(buf.String()), collectHeadings(doc, source), nil
+	html := buf.String()
+	headings := collectHeadings(doc, source)
+
+	for i, blk := range blocks {
+		content, innerHeadings, err := r.Render(blk.inner)
+		if err != nil {
+			return "", nil, err
+		}
+		headings = append(headings, innerHeadings...)
+		if r.blockResolver == nil {
+			return "", nil, fmt.Errorf("shortcode de bloque %q sin resolver", blk.kind)
+		}
+		out, err := r.blockResolver(blk.kind, blk.name, blk.props, content)
+		if err != nil {
+			return "", nil, err
+		}
+		html = strings.Replace(html, placeholderFor(i), string(out), 1)
+	}
+	return template.HTML(html), headings, nil
 }
 
 // ToHTML renderiza el Markdown de entrada a HTML (sin TOC).

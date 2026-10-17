@@ -254,6 +254,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	md := markdown.New(
 		markdown.WithImageResolver(imagesProc.Picture),
 		markdown.WithIslandResolver(reg.Resolve),
+		markdown.WithBlockResolver(reg.ResolveBlock),
 	)
 
 	ogGen, err := og.New(filepath.FromSlash(cfg.Build.OutputDir))

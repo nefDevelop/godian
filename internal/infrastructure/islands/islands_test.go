@@ -2,6 +2,7 @@ package islands
 
 import (
 	"fmt"
+	"html/template"
 	"io"
 	"strings"
 	"testing"
@@ -15,9 +16,22 @@ func (f fakeRenderer) Render(w io.Writer, name string, data any) error {
 	if !ok {
 		return fmt.Errorf("template %q no existe", name)
 	}
-	m, _ := data.(map[string]string)
-	body = strings.ReplaceAll(body, "{{start}}", m["start"])
-	body = strings.ReplaceAll(body, "{{text}}", m["text"])
+	var start, text, content, title string
+	switch m := data.(type) {
+	case map[string]string:
+		start, text, title = m["start"], m["text"], m["title"]
+	case map[string]any:
+		start, _ = m["start"].(string)
+		text, _ = m["text"].(string)
+		title, _ = m["title"].(string)
+		if c, ok := m["content"].(template.HTML); ok {
+			content = string(c)
+		}
+	}
+	body = strings.ReplaceAll(body, "{{start}}", start)
+	body = strings.ReplaceAll(body, "{{text}}", text)
+	body = strings.ReplaceAll(body, "{{title}}", title)
+	body = strings.ReplaceAll(body, "{{content}}", content)
 	_, _ = io.WriteString(w, body)
 	return nil
 }
@@ -33,8 +47,21 @@ func newTestRegistry() *Registry {
 	r.SetRenderer(fakeRenderer{templates: map[string]string{
 		"islands/counter.html": "<p>{{start}}</p>",
 		"partials/cta.html":    "<a>{{text}}</a>",
+		"partials/note.html":   `<div class="note">{{title}}{{content}}</div>`,
 	}})
 	return r
+}
+
+func TestResolveBlock(t *testing.T) {
+	r := newTestRegistry()
+	out, err := r.ResolveBlock("partial", "note", map[string]string{"title": "Aviso"}, template.HTML("<p>hi</p>"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(out)
+	if !strings.Contains(s, `class="note"`) || !strings.Contains(s, "Aviso") || !strings.Contains(s, "<p>hi</p>") {
+		t.Errorf("ResolveBlock = %s", s)
+	}
 }
 
 func TestIslandSSRAndWrapper(t *testing.T) {
