@@ -17,7 +17,8 @@
 	{{ if .SiteJSONLD }}<script type="application/ld+json">{{ .SiteJSONLD }}</script>{{ end }}
 	{{ if .JSONLD }}<script type="application/ld+json">{{ .JSONLD }}</script>{{ end }}
 	<link rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" href="/rss.xml">
-	<link rel="alternate" type="application/atom+xml" title="{{ .Site.Title }}" href="/atom.xml">
+	{{ if .FeedURL }}<link rel="alternate" type="application/rss+xml" href="{{ .FeedURL }}">
+	{{ end }}<link rel="alternate" type="application/atom+xml" title="{{ .Site.Title }}" href="/atom.xml">
 	<link rel="alternate" type="application/feed+json" title="{{ .Site.Title }}" href="/feed.json">
 	<link rel="sitemap" type="application/xml" href="/sitemap.xml">
 	<script>

@@ -482,13 +482,26 @@ func (b *Build) renderTaxonomies(posts []domain.BlogPost) ([]string, []string, e
 			if desc == "" {
 				desc = "Posts in " + tc.Name + ": " + t.Name
 			}
-			termPaths, err := b.renderList("taxonomy", base+t.Name+"/", title, desc, filtered, func(d *PageData, u string) {
+			termBase := base + t.Name + "/"
+			termPaths, err := b.renderList("taxonomy", termBase, title, desc, filtered, func(d *PageData, u string) {
 				d.JSONLD = b.collectionPageJSONLD(title, u)
+				d.FeedURL = termBase + "rss.xml"
 			})
 			if err != nil {
 				return nil, nil, err
 			}
 			paths = append(paths, termPaths...)
+
+			// Feed por término.
+			feedSite := b.opts.Site
+			feedSite.Title = b.opts.Site.Title + " · " + title
+			rss, err := b.feeds.RSS(feedSite, filtered)
+			if err != nil {
+				return nil, nil, err
+			}
+			if err := b.output.Write(strings.TrimPrefix(termBase, "/")+"rss.xml", rss); err != nil {
+				return nil, nil, err
+			}
 		}
 	}
 	return paths, warnings, nil

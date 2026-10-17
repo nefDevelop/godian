@@ -195,6 +195,7 @@ type PageData struct {
 	Stats       *SiteStats
 	NeedsMath   bool
 	OGImage     string
+	FeedURL     string
 	JSONLD      template.JS
 	SiteJSONLD  template.JS
 	Giscus      domain.GiscusConfig

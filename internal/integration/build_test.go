@@ -99,6 +99,7 @@ func TestBuildEndToEnd(t *testing.T) {
 		"blog/adios/index.html",
 		"tags/index.html",
 		"tags/go/index.html",
+		"tags/go/rss.xml",
 		"categories/dev/index.html",
 		"authors/nef/index.html",
 		"search/index.html",

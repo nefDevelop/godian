@@ -81,6 +81,7 @@ Contenido de la segunda.
 | `progress` | `value`, `max`, `label` | `{{island progress value=72 max=100}}` |
 | `theme-picker` | `colors` (coma) | `{{island theme-picker}}` |
 | `carousel` | `images` (coma) | `{{island carousel images="/a.jpg,/b.jpg"}}` |
+| `gallery` | `images` (coma) | `{{island gallery images="/a.jpg,/b.jpg"}}` |
 | `rating` | `max`, `value` | `{{island rating value=3}}` |
 
 Y el partial estático `cta`: `{{partial cta text="Docs" url="/docs/"}}`.

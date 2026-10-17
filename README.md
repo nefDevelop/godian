@@ -335,6 +335,7 @@ export function mount(el, props) {
 | `progress` | `value`, `max`, `label` | `{{island progress value=72 max=100}}` |
 | `theme-picker` | `colors` (coma) | `{{island theme-picker}}` |
 | `carousel` | `images` (coma) | `{{island carousel images="/a.jpg,/b.jpg"}}` |
+| `gallery` | `images` (coma) | `{{island gallery images="/a.jpg,/b.jpg"}}` |
 | `rating` | `max`, `value` | `{{island rating value=3}}` |
 | `video` | `id`, `title` | `{{island video id="dQw4w9WgXcQ"}}` |
 | `share` | `url`, `title` | `{{island share}}` |

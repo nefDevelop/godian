@@ -157,6 +157,11 @@
 - [x] JSON-LD **CollectionPage** (taxonomías) y **Person** (autores)
 - [x] Tests (integración: paginación + rel=next)
 
+### F18 — Feeds por taxonomía e isla gallery
+- [x] **Feed RSS por término** de taxonomía (`/tags/<t>/rss.xml`, `/categories/<c>/rss.xml`) + link en `<head>`
+- [x] Isla **`gallery`** (rejilla + lightbox PhotoSwipe vendorizado)
+- [x] Docs/gallery y tabla de islas; test de integración (feed por término)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

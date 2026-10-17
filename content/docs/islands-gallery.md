@@ -125,3 +125,9 @@ Texto de la primera sección.
 ## Sección dos
 Texto de la segunda sección.
 {{/island}}
+
+## gallery
+
+`{{island gallery images="/demo-1.png,/demo-2.png,/demo-3.png"}}`
+
+{{island gallery images="/demo-1.png,/demo-2.png,/demo-3.png"}}
