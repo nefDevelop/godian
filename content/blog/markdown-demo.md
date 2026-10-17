@@ -83,7 +83,7 @@ Componente estático (partial):
 
 {{island rating value=3}}
 
-{{island carousel images="https://picsum.photos/id/10/800/450,https://picsum.photos/id/20/800/450,https://picsum.photos/id/30/800/450"}}
+{{island carousel images="/demo-1.png,/demo-2.png,/demo-3.png"}}
 
 Enlace externo: [go.dev](https://go.dev) y enlace interno: [Docs](/docs/).
 
@@ -91,8 +91,8 @@ Enlace externo: [go.dev](https://go.dev) y enlace interno: [Docs](/docs/).
 
 Imagen normal (con LQIP y `srcset`):
 
-![Demo](/demo.jpg)
+![Demo](/demo-1.png)
 
 Con el preset `thumb` (recorte 16:9 con foco centrado):
 
-{{image src="/demo.jpg" preset="thumb" alt="Miniatura 16:9"}}
+{{image src="/demo-1.png" preset="thumb" alt="Miniatura 16:9"}}

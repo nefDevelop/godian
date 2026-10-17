@@ -12,7 +12,7 @@ tags: [guide]
 - **AVIF** opt-in compilando con `-tags avif`.
 - **LQIP**: se genera un *placeholder* diminuto y difuminado (data URI) que se pone
   como fondo del `<img>` mientras carga la imagen real (mejora la percepción de carga).
-- Las imágenes de Markdown se resuelven solas: `![alt](/demo.jpg)`.
+- Las imágenes de Markdown se resuelven solas: `![alt](/demo-1.png)`.
 
 ## Presets
 
@@ -33,9 +33,9 @@ build:
 Y úsalos en Markdown con el shortcode `{{image}}`:
 
 ```
-{{image src="/demo.jpg" preset="thumb" alt="Miniatura 16:9"}}
+{{image src="/demo-1.png" preset="thumb" alt="Miniatura 16:9"}}
 ```
 
 Si el preset no existe, cae al comportamiento normal (`srcset` + LQIP).
 
-> Recuerda: con `assets_dir: assets`, un archivo `assets/demo.jpg` se sirve en `/demo.jpg`.
+> Recuerda: con `assets_dir: assets`, un archivo `assets/demo-1.png` se sirve en `/demo-1.png`.

@@ -59,9 +59,9 @@ El código de uso va en `code span` para que puedas copiarlo.
 
 ## carousel
 
-`{{island carousel images="https://picsum.photos/id/10/800/450,https://picsum.photos/id/20/800/450"}}`
+`{{island carousel images="/demo-1.png,/demo-2.png"}}`
 
-{{island carousel images="https://picsum.photos/id/10/800/450,https://picsum.photos/id/20/800/450"}}
+{{island carousel images="/demo-1.png,/demo-2.png"}}
 
 ## video
 
