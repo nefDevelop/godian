@@ -131,6 +131,12 @@
 - [x] Documentación (`/docs/components/`) y ejemplos en `/docs/islands-gallery/`
 - [x] Tests (markdown + islands + integración)
 
+### F14 — Publicación programada y menús anidados
+- [x] **Publicación programada**: posts con `published` futura excluidos (sitio/feeds/sitemap); `-drafts` los incluye
+- [x] Conteo de "programados" en el resumen del build
+- [x] **Menús anidados**: `nav` con `children` (submenús desplegables; sublista en móvil)
+- [x] Docs (`/docs/publicacion/`), ejemplo en `site.yaml` y tests (integración + unit)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.
@@ -138,11 +144,10 @@
 
 ### Feeds / SEO (pequeños, alto valor)
 - [ ] **Sitemap index** (sitios grandes) y **feeds por taxonomía**.
-- [ ] **Publicación programada**: los posts futuros no se publican hasta su fecha.
 
 ### Datos y contenido
 - [ ] **Render hooks** adicionales configurables (imágenes, headings).
-- [ ] **Menús anidados** y por idioma.
+- [ ] **Menús por idioma**.
 - [ ] **Page bundles / secciones anidadas** (recursos co-localizados con la página).
 
 ### Imágenes

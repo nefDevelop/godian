@@ -334,7 +334,7 @@ func printSummary(cfg domain.Config, s application.Summary) {
 	}
 	fmt.Printf("Sitio: %s\n", title)
 	fmt.Printf("Contenido: %s → %s\n", cfg.Build.ContentDir, cfg.Build.OutputDir)
-	fmt.Printf("  posts:     %d (%d publicados, %d borradores)\n", s.Posts, s.Published, s.Drafts)
+	fmt.Printf("  posts:     %d (%d publicados, %d programados, %d borradores)\n", s.Posts, s.Published, s.Scheduled, s.Drafts)
 	fmt.Printf("  docs:      %d\n", s.Docs)
 	fmt.Printf("  authors:   %d\n", s.Authors)
 	fmt.Printf("  series:    %d\n", s.Series)

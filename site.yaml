@@ -26,10 +26,17 @@ giscus:
   category: "General"
   category_id: ""
 
-# Navegación (opcional; si se omite, se usa la estándar).
-# nav:
-#   - { label: Inicio, url: / }
-#   - { label: Blog, url: /blog/ }
+# Navegación (opcional; si se omite, se usa la estándar). Admite hijos (submenús).
+nav:
+  - { label: Inicio, url: / }
+  - { label: Blog, url: /blog/ }
+  - label: Guías
+    url: /docs/
+    children:
+      - { label: Empezando, url: /docs/getting-started/ }
+      - { label: Componentes, url: /docs/components/ }
+      - { label: Publicación, url: /docs/publicacion/ }
+  - { label: Archivo, url: /archive/ }
 
 # Enlaces sociales y de apoyo (opcional).
 social:

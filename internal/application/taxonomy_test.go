@@ -32,6 +32,15 @@ func TestPlainText(t *testing.T) {
 	}
 }
 
+func TestNavFromLinks(t *testing.T) {
+	links := navFromLinks([]domain.NavLink{
+		{Label: "A", URL: "/a", Children: []domain.NavLink{{Label: "B", URL: "/b"}}},
+	})
+	if len(links) != 1 || len(links[0].Children) != 1 || links[0].Children[0].Label != "B" {
+		t.Errorf("navFromLinks = %+v", links)
+	}
+}
+
 func TestResolveTaxonomy(t *testing.T) {
 	cfg := domain.TaxonomyConfig{
 		Name: "tags", Field: "tags", Hierarchical: true, Strict: true,

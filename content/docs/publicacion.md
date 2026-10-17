@@ -14,6 +14,17 @@ En cada build se generan tres feeds, enlazados automáticamente en el `<head>`:
 - `/atom.xml` — Atom 1.0
 - `/feed.json` — JSON Feed 1.1
 
+## Publicación programada
+
+Un post con `published` en el **futuro** no se publica hasta esa fecha: queda excluido
+del sitio, de los feeds y del sitemap. El build lo cuenta como *programado*:
+
+```
+posts:     3 (2 publicados, 1 programados, 0 borradores)
+```
+
+Con `godian build -drafts` se incluyen también los posts futuros (y los borradores).
+
 ## robots.txt
 
 Se genera `/robots.txt` permitiendo todo y apuntando al sitemap:

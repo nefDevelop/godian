@@ -350,7 +350,8 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Componentes/islas** data-driven, con **contenido hijo** (`{{#island …}}…{{/island}}` / `{{#partial …}}…{{/partial}}`) que envuelve Markdown.
 - **Código**: Chroma (temas claro/oscuro), números de línea, líneas resaltadas, bloques plegables, botón copiar.
 - **Imágenes**: variantes WebP + `<picture>`/`srcset` con `width`/`height`.
-- **Navegación**: TOC (sticky), paginación, archivo, búsqueda (índice propio en Go + JS) con **modal Ctrl/⌘K**, **docs** con sidebar y breadcrumbs.
+- **Navegación**: TOC (sticky), paginación, archivo, búsqueda (índice propio en Go + JS) con **modal Ctrl/⌘K**, **docs** con sidebar y breadcrumbs, y **menús anidados** (config).
+- **Publicación programada**: los posts con `published` futura no se publican hasta su fecha (`-drafts` los incluye).
 - **Artículo**: progreso de lectura, volver arriba, prev/next, relacionados, navegación de serie y compartir.
 - **Home**: post destacado (pinned) y widgets (tags, categorías, stats).
 - **UI**: dark mode con persistencia, View Transitions, Giscus, KaTeX/Mermaid/PhotoSwipe (carga diferida).

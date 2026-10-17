@@ -7,10 +7,11 @@ import (
 	"github.com/nefdevelop/godian/internal/domain"
 )
 
-// Link es un enlace de navegación.
+// Link es un enlace de navegación (con hijos opcionales).
 type Link struct {
-	Label string
-	URL   string
+	Label    string
+	URL      string
+	Children []Link
 }
 
 // PostCard es la vista resumida de un post en listados.

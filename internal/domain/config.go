@@ -13,10 +13,11 @@ type Config struct {
 	Analytics   AnalyticsConfig    `yaml:"analytics"`
 }
 
-// NavLink es un enlace de navegación configurable.
+// NavLink es un enlace de navegación configurable (con hijos opcionales).
 type NavLink struct {
-	Label string `yaml:"label"`
-	URL   string `yaml:"url"`
+	Label    string    `yaml:"label"`
+	URL      string    `yaml:"url"`
+	Children []NavLink `yaml:"children"`
 }
 
 // SocialLink es un enlace social o de apoyo configurable.

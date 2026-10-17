@@ -84,6 +84,12 @@ func TestBuildEndToEnd(t *testing.T) {
 	if summary.Published != 2 {
 		t.Errorf("posts publicados = %d, want 2", summary.Published)
 	}
+	if summary.Scheduled != 1 {
+		t.Errorf("posts programados = %d, want 1", summary.Scheduled)
+	}
+	if _, err := os.Stat(filepath.Join(out, "blog/futuro/index.html")); err == nil {
+		t.Error("el post futuro no debería generarse")
+	}
 
 	for _, f := range []string{
 		"index.html",

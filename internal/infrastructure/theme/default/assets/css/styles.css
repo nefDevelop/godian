@@ -1527,3 +1527,52 @@ kbd {
 .tabs-panels .tab-panel > :first-child {
 	margin-top: 0;
 }
+
+/* --- Menús anidados --- */
+.nav-group {
+	position: relative;
+}
+
+.nav-parent {
+	cursor: default;
+}
+
+.nav-sub {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	min-width: 12rem;
+	display: none;
+	flex-direction: column;
+	background: var(--bg);
+	border: 1px solid var(--border);
+	border-radius: 0.5rem;
+	padding: 0.35rem;
+	box-shadow: 0 12px 24px -14px rgba(0, 0, 0, 0.35);
+	z-index: 70;
+}
+
+.nav-group:hover .nav-sub,
+.nav-group:focus-within .nav-sub {
+	display: flex;
+}
+
+.nav-sub a {
+	padding: 0.4rem 0.6rem;
+}
+
+@media (max-width: 48rem) {
+	.nav-sub {
+		position: static;
+		display: flex;
+		border: 0;
+		box-shadow: none;
+		padding: 0 0 0 0.75rem;
+	}
+
+	.nav-parent {
+		padding: 0.6rem 0.5rem;
+		color: var(--muted);
+		font-size: 0.9rem;
+	}
+}

@@ -93,22 +93,22 @@ type Build struct {
 	nav     []Link
 	css     []string
 	js      []string
+	now     time.Time
 }
 
 // NewBuild construye el caso de uso con sus puertos.
 func NewBuild(content ContentLoader, md MarkdownRenderer, render PageRenderer, out Output, feeds FeedGenerator, opts Options) *Build {
 	nav := navFor(opts.Site.Language)
 	if len(opts.Nav) > 0 {
-		nav = make([]Link, len(opts.Nav))
-		for i, l := range opts.Nav {
-			nav[i] = Link{Label: l.Label, URL: l.URL}
-		}
+		nav = navFromLinks(opts.Nav)
 	}
 	return &Build{content: content, md: md, render: render, output: out, feeds: feeds, opts: opts, nav: nav, css: opts.CSS, js: opts.JS}
 }
 
 // Run carga el contenido, renderiza todas las páginas y escribe la salida.
 func (b *Build) Run() (Summary, error) {
+	b.now = time.Now()
+
 	c, err := b.content.Load()
 	if err != nil {
 		return Summary{}, err
@@ -231,6 +231,7 @@ func (b *Build) Run() (Summary, error) {
 
 	summary := NewSummary(c)
 	summary.Published = len(posts)
+	summary.Scheduled = b.scheduled(c.Posts)
 	summary.Warnings = warnings
 	return summary, nil
 }
@@ -1083,16 +1084,41 @@ func (b *Build) minifyAsset(name string, data []byte) []byte {
 	return data
 }
 
-// published filtra los posts publicados (excluye borradores salvo que se pidan).
+// published filtra los posts visibles: excluye borradores y posts futuros
+// (publicación programada), salvo que se incluyan borradores.
 func (b *Build) published(posts []domain.BlogPost) []domain.BlogPost {
 	if b.opts.IncludeDrafts {
 		return posts
 	}
 	out := make([]domain.BlogPost, 0, len(posts))
 	for _, p := range posts {
-		if !p.Draft {
-			out = append(out, p)
+		if p.Draft {
+			continue
 		}
+		if !p.Published.IsZero() && p.Published.After(b.now) {
+			continue
+		}
+		out = append(out, p)
+	}
+	return out
+}
+
+// scheduled cuenta los posts programados (fecha futura, no borradores).
+func (b *Build) scheduled(posts []domain.BlogPost) int {
+	n := 0
+	for _, p := range posts {
+		if !p.Draft && !p.Published.IsZero() && p.Published.After(b.now) {
+			n++
+		}
+	}
+	return n
+}
+
+// navFromLinks convierte enlaces de config (con hijos) en enlaces de vista.
+func navFromLinks(links []domain.NavLink) []Link {
+	out := make([]Link, len(links))
+	for i, l := range links {
+		out[i] = Link{Label: l.Label, URL: l.URL, Children: navFromLinks(l.Children)}
 	}
 	return out
 }
@@ -1129,6 +1155,7 @@ type Summary struct {
 	Series    int
 	Pages     int
 	Drafts    int
+	Scheduled int
 	Warnings  []string
 	Errors    []string
 }
