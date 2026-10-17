@@ -9,7 +9,7 @@
 		{{ range .Chapters }}<a class="chapter" href="{{ .URL }}">
 			<span class="chapter-num">{{ .Number }}</span>
 			<div>
-				<div class="chapter-label">Chapter {{ .Number }}</div>
+				<div class="chapter-label">{{ t "ui.chapter" }} {{ .Number }}</div>
 				<h2>{{ .Title }}</h2>
 				{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
 				<div class="chapter-meta">{{ .Date }} · {{ .ReadingTime }}</div>

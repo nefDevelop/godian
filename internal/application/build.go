@@ -72,6 +72,7 @@ type Options struct {
 	Analytics     domain.AnalyticsConfig
 	Data          map[string]any
 	Links         *LinkIndex
+	I18n          map[string]string
 	CSS           []string
 	JS            []string
 	AssetsFS      fs.FS
@@ -99,7 +100,7 @@ type Build struct {
 
 // NewBuild construye el caso de uso con sus puertos.
 func NewBuild(content ContentLoader, md MarkdownRenderer, render PageRenderer, out Output, feeds FeedGenerator, opts Options) *Build {
-	nav := navFor(opts.Site.Language)
+	nav := navFor(opts.I18n, opts.Site.Language)
 	if len(opts.Nav) > 0 {
 		nav = navFromLinks(opts.Nav)
 	}
@@ -163,7 +164,7 @@ func (b *Build) Run() (Summary, error) {
 	}
 
 	// Página 404.
-	notFound := b.newPage("404", "Página no encontrada.")
+	notFound := b.newPage("404", "")
 	if err := b.writeTemplate("404", "404.html", notFound); err != nil {
 		return Summary{}, err
 	}
@@ -453,7 +454,12 @@ func (b *Build) renderTaxonomies(posts []domain.BlogPost) ([]string, []string, e
 
 		base := strings.TrimSuffix(tc.URL, "/") + "/"
 
-		index := b.newPage(tc.Label, "")
+		label := tc.Label
+		if v := b.opts.I18n["taxonomy."+tc.Name]; v != "" {
+			label = v
+		}
+
+		index := b.newPage(label, "")
 		for _, t := range rt.terms {
 			count := countBy(posts, func(p domain.BlogPost) bool { return rt.postHas(p, t.Name) })
 			// Solo se lista si su página se va a generar (evita enlaces rotos).
@@ -1197,19 +1203,25 @@ func navFromLinks(links []domain.NavLink) []Link {
 	return out
 }
 
-func navFor(lang string) []Link {
+func navFor(dict map[string]string, lang string) []Link {
 	if lang == "" {
 		lang = "en"
 	}
+	label := func(key string) string {
+		if v, ok := dict[key]; ok && v != "" {
+			return v
+		}
+		return i18n.T(lang, key)
+	}
 	return []Link{
-		{Label: i18n.T(lang, "nav.home"), URL: "/"},
-		{Label: i18n.T(lang, "nav.blog"), URL: "/blog/"},
-		{Label: i18n.T(lang, "nav.docs"), URL: "/docs/"},
-		{Label: i18n.T(lang, "nav.tags"), URL: "/tags/"},
-		{Label: i18n.T(lang, "nav.categories"), URL: "/categories/"},
-		{Label: i18n.T(lang, "nav.authors"), URL: "/authors/"},
-		{Label: i18n.T(lang, "nav.series"), URL: "/series/"},
-		{Label: i18n.T(lang, "nav.archive"), URL: "/archive/"},
+		{Label: label("nav.home"), URL: "/"},
+		{Label: label("nav.blog"), URL: "/blog/"},
+		{Label: label("nav.docs"), URL: "/docs/"},
+		{Label: label("nav.tags"), URL: "/tags/"},
+		{Label: label("nav.categories"), URL: "/categories/"},
+		{Label: label("nav.authors"), URL: "/authors/"},
+		{Label: label("nav.series"), URL: "/series/"},
+		{Label: label("nav.archive"), URL: "/archive/"},
 	}
 }
 

@@ -60,6 +60,7 @@ build:
   output_dir: dist
   assets_dir: assets          # estáticos fuente (imágenes, favicon…) servidos desde /
   data_dir: data              # datos estructurados (JSON/YAML/CSV)
+  i18n_dir: i18n              # traducciones de la interfaz (i18n/<lang>.json)
   minify: true                # minifica HTML y CSS
   fingerprint: true           # hash en el nombre de CSS/JS
   optimize_images: true       # variantes WebP + <picture>/srcset + LQIP
@@ -114,6 +115,21 @@ analytics:
 ```
 
 ---
+
+## Internacionalización (UI)
+
+Los textos de la interfaz (nav, botones, etiquetas) se cargan desde
+`i18n/<lang>.{json,yaml}` (config `build.i18n_dir`), **superpuestos** sobre los valores
+por defecto embebidos:
+
+```json
+{ "nav.home": "Inicio", "ui.search": "Buscar", "ui.backlinks": "Enlaces entrantes" }
+```
+
+- El idioma activo es `site.language`.
+- El archivo externo debe ser **completo**: si faltan claves, o una taxonomía nueva
+  (`taxonomy.<name>`) no tiene texto, el build **avisa** por stderr.
+- Para soportar otro idioma basta con crear `i18n/<lang>.json` (sin recompilar).
 
 ## Contenido
 
@@ -367,7 +383,7 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Enlaces**: los externos en Markdown llevan `target="_blank" rel="noopener noreferrer"`.
 - **Imágenes**: WebP + `srcset`, **LQIP** (placeholder difuminado) y **presets** (`fit`/`fill`/`focal`/`blur`) vía `{{image}}`; **AVIF opt-in** (`-tags avif`).
 - **Offline**: KaTeX, Mermaid y PhotoSwipe **vendorizados** (sin CDN).
-- **i18n** es/en (`site.language`).
+- **i18n**: textos de la interfaz externalizados en `i18n/<lang>.{json,yaml}` (overlay sobre los defaults embebidos). El build **avisa** si falta el archivo o claves (p. ej. una taxonomía nueva `taxonomy.<name>`). Ver abajo.
 - **Verificación**: el build valida referencias (assets y enlaces internos) y **falla** si hay roturas.
 - **Assets**: fingerprinting y minificado propio de HTML/CSS.
 

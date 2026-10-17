@@ -21,26 +21,26 @@
 		</nav>{{ end }}
 
 		{{ if .Canonical }}<section class="share">
-			<span class="share-label">Share</span>
+			<span class="share-label">{{ t "ui.share" }}</span>
 			<a href="https://twitter.com/intent/tweet?url={{ .Canonical | urlquery }}&text={{ .Title | urlquery }}" rel="noopener" target="_blank">X</a>
 			<a href="https://t.me/share/url?url={{ .Canonical | urlquery }}&text={{ .Title | urlquery }}" rel="noopener" target="_blank">Telegram</a>
 			<a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Canonical | urlquery }}" rel="noopener" target="_blank">LinkedIn</a>
 			<a href="mailto:?subject={{ .Title | urlquery }}&body={{ .Canonical | urlquery }}">Email</a>
-			<button class="share-copy" type="button" data-copy-url="{{ .Canonical }}">Copy link</button>
+			<button class="share-copy" type="button" data-copy-url="{{ .Canonical }}">{{ t "ui.copy_link" }}</button>
 		</section>{{ end }}
 
 		{{ if or .Prev .Next }}<nav class="post-nav">
-			{{ if .Prev }}<a class="post-prev" href="{{ .Prev.URL }}"><span class="muted">← Previous</span>{{ .Prev.Title }}</a>{{ else }}<span></span>{{ end }}
-			{{ if .Next }}<a class="post-next" href="{{ .Next.URL }}"><span class="muted">Next →</span>{{ .Next.Title }}</a>{{ end }}
+			{{ if .Prev }}<a class="post-prev" href="{{ .Prev.URL }}"><span class="muted">{{ t "ui.previous" }}</span>{{ .Prev.Title }}</a>{{ else }}<span></span>{{ end }}
+			{{ if .Next }}<a class="post-next" href="{{ .Next.URL }}"><span class="muted">{{ t "ui.next" }}</span>{{ .Next.Title }}</a>{{ end }}
 		</nav>{{ end }}
 
 		{{ if .Related }}<section class="related">
-			<h2>Related</h2>
+			<h2>{{ t "ui.related" }}</h2>
 			<div class="post-grid">{{ range .Related }}{{ template "card" . }}{{ end }}</div>
 		</section>{{ end }}
 
 		{{ if .Backlinks }}<section class="backlinks">
-			<h2>Backlinks</h2>
+			<h2>{{ t "ui.backlinks" }}</h2>
 			<ul>{{ range .Backlinks }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}</ul>
 		</section>{{ end }}
 

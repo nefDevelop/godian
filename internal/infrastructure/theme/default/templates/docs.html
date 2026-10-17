@@ -11,7 +11,7 @@
 		</article>
 		{{ if .TOC }}<div class="docs-toc">{{ template "toc" . }}</div>{{ end }}
 		{{ if .Backlinks }}<section class="backlinks">
-			<h2>Backlinks</h2>
+			<h2>{{ t "ui.backlinks" }}</h2>
 			<ul>{{ range .Backlinks }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}</ul>
 		</section>{{ end }}
 	</div>

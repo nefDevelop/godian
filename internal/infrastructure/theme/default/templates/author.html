@@ -9,7 +9,7 @@
 			<div class="author-links">
 				{{ if .Github }}<a href="{{ .Github }}" rel="noopener">GitHub</a>{{ end }}
 				{{ if .Twitter }}<a href="{{ .Twitter }}" rel="noopener">Twitter</a>{{ end }}
-				{{ if .Website }}<a href="{{ .Website }}" rel="noopener">Website</a>{{ end }}
+				{{ if .Website }}<a href="{{ .Website }}" rel="noopener">{{ t "ui.website" }}</a>{{ end }}
 			</div>
 		</div>
 	</div>{{ end }}

@@ -162,6 +162,12 @@
 - [x] Isla **`gallery`** (rejilla + lightbox PhotoSwipe vendorizado)
 - [x] Docs/gallery y tabla de islas; test de integración (feed por término)
 
+### F19 — UI externalizada (i18n)
+- [x] Textos de interfaz de las plantillas pasados a claves `t(...)` (skip, share, related, backlinks, featured, stats, links, all posts, previous, chapter, website, not found, no series…)
+- [x] Textos por defecto en `internal/i18n` + **overlay** `i18n/<lang>.{json,yaml}` (config `i18n_dir`)
+- [x] El build **avisa** si falta el archivo o claves (`taxonomy.<name>` incluidas)
+- [x] `i18n/en.json` y `i18n/es.json`; docs en README
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

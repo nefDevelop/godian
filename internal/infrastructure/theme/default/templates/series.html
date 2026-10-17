@@ -2,7 +2,7 @@
 <div class="wrap">
 	<h1>{{ .Title }}</h1>
 	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
-	{{ if not .SeriesList }}<p class="muted">No series yet.</p>{{ end }}
+	{{ if not .SeriesList }}<p class="muted">{{ t "ui.no_series" }}</p>{{ end }}
 	<div class="series-list">
 		{{ range .SeriesList }}<a class="series-card" href="{{ .URL }}">
 			{{ if .Cover }}<img class="series-cover" src="{{ .Cover }}" alt="">{{ end }}

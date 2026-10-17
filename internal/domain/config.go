@@ -57,6 +57,7 @@ type BuildConfig struct {
 	OutputDir   string `yaml:"output_dir"`
 	AssetsDir   string `yaml:"assets_dir"`
 	DataDir     string `yaml:"data_dir"`
+	I18nDir     string `yaml:"i18n_dir"`
 	Minify      bool   `yaml:"minify"`
 	Fingerprint bool   `yaml:"fingerprint"`
 	Optimize    bool   `yaml:"optimize_images"`
@@ -114,6 +115,7 @@ func DefaultConfig() Config {
 			OutputDir:   "dist",
 			AssetsDir:   "assets",
 			DataDir:     "data",
+			I18nDir:     "i18n",
 			Minify:      true,
 			Fingerprint: true,
 			Optimize:    true,

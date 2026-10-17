@@ -1,6 +1,6 @@
 {{define "404"}}{{ template "head" . }}{{ template "header" . }}
 <div class="wrap">
 	<h1>404</h1>
-	<p>{{ if .Description }}{{ .Description }}{{ else }}Página no encontrada.{{ end }}</p>
+	<p>{{ if .Description }}{{ .Description }}{{ else }}{{ t "ui.not_found" }}{{ end }}</p>
 </div>
 {{ template "footer" . }}{{ end }}

@@ -227,9 +227,20 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	if lang == "" {
 		lang = "en"
 	}
+	var requiredKeys []string
+	for _, tc := range cfg.Taxonomies {
+		requiredKeys = append(requiredKeys, "taxonomy."+tc.Name)
+	}
+	dict, i18nWarnings := i18n.Load(filepath.FromSlash(cfg.Build.I18nDir), lang, requiredKeys)
+
 	reg := islands.New(th.FS())
 	funcs := template.FuncMap{
-		"t":    func(key string) string { return i18n.T(lang, key) },
+		"t": func(key string) string {
+			if v, ok := dict[key]; ok && v != "" {
+				return v
+			}
+			return i18n.T(lang, key)
+		},
 		"dict": dictFunc,
 		"island": func(name string, props ...map[string]string) (template.HTML, error) {
 			return reg.Island(name, firstMap(props))
@@ -311,6 +322,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 			Analytics:     cfg.Analytics,
 			Data:          siteData,
 			Links:         linkIndex,
+			I18n:          dict,
 			CSS:           th.Manifest.Assets.CSS,
 			JS:            th.Manifest.Assets.JS,
 			AssetsFS:      assetsFS,
@@ -327,6 +339,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	if err != nil {
 		return summary, err
 	}
+	summary.Warnings = append(summary.Warnings, i18nWarnings...)
 	if problems, verr := verify.Dist(filepath.FromSlash(cfg.Build.OutputDir)); verr == nil {
 		summary.Errors = problems
 	}
