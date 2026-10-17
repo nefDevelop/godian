@@ -166,6 +166,7 @@
 - [x] Textos de interfaz de las plantillas pasados a claves `t(...)` (skip, share, related, backlinks, featured, stats, links, all posts, previous, chapter, website, not found, no series…)
 - [x] Textos por defecto en `internal/i18n` + **overlay** `i18n/<lang>.{json,yaml}` (config `i18n_dir`)
 - [x] El build **avisa** si falta el archivo o claves (`taxonomy.<name>` incluidas)
+- [x] Textos de JS (copiar/`Copied!`, “sin resultados”) vía `window.__i18n`
 - [x] `i18n/en.json` y `i18n/es.json`; docs en README
 
 ## 🧭 Backlog (competencias y mejoras)

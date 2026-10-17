@@ -35,7 +35,7 @@
 				.filter(function (x) { return x.s > 0; })
 				.sort(function (a, b) { return b.s - a.s; })
 				.slice(0, 20);
-			if (!hits.length) { results.innerHTML = '<p class="muted">No results.</p>'; return; }
+			if (!hits.length) { results.innerHTML = '<p class="muted">' + ((window.__i18n && window.__i18n.no_results) || 'No results.') + '</p>'; return; }
 			results.innerHTML = hits.map(function (x) {
 				return '<article class="search-hit"><h2><a href="' + x.d.url + '">' +
 					esc(x.d.title) + '</a></h2><p class="muted">' + esc(x.d.description || '') + '</p></article>';

@@ -130,7 +130,13 @@ func (r *customRenderer) renderFencedCode(w util.BufWriter, source []byte, node 
 	if attrs.title != "" {
 		_, _ = w.WriteString(`<span class="code-title">` + escape(attrs.title) + `</span>`)
 	}
-	_, _ = w.WriteString(`<button class="code-copy" type="button" aria-label="Copy code">Copy</button></div>`)
+	copyLabel := "Copy"
+	copiedLabel := "Copied!"
+	if r.tr != nil {
+		copyLabel = r.tr("ui.copy_code")
+		copiedLabel = r.tr("ui.copied")
+	}
+	_, _ = w.WriteString(`<button class="code-copy" type="button" aria-label="` + escape(copyLabel) + `" data-copied="` + escape(copiedLabel) + `">` + escape(copyLabel) + `</button></div>`)
 	if attrs.collapsible {
 		summary := lang
 		if attrs.title != "" {

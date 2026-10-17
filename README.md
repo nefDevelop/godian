@@ -130,6 +130,7 @@ por defecto embebidos:
 - El archivo externo debe ser **completo**: si faltan claves, o una taxonomía nueva
   (`taxonomy.<name>`) no tiene texto, el build **avisa** por stderr.
 - Para soportar otro idioma basta con crear `i18n/<lang>.json` (sin recompilar).
+- Los textos de **JS** (copiar/`Copied!`, “sin resultados”) también se traducen vía `window.__i18n`.
 
 ## Contenido
 

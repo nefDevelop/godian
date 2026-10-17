@@ -9,7 +9,7 @@
 		var text = pre.innerText;
 		var done = function () {
 			var old = btn.textContent;
-			btn.textContent = 'Copied!';
+			btn.textContent = (btn.getAttribute('data-copied') || (window.__i18n && window.__i18n.copied) || 'Copied!');
 			setTimeout(function () { btn.textContent = old; }, 1500);
 		};
 		if (navigator.clipboard) {
@@ -166,7 +166,7 @@ document.addEventListener('click', function (e) {
 	var url = btn.getAttribute('data-copy-url');
 	var done = function () {
 		var old = btn.textContent;
-		btn.textContent = 'Copied!';
+		btn.textContent = (btn.getAttribute('data-copied') || (window.__i18n && window.__i18n.copied) || 'Copied!');
 		setTimeout(function () { btn.textContent = old; }, 1500);
 	};
 	if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done);

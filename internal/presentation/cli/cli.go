@@ -232,6 +232,12 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		requiredKeys = append(requiredKeys, "taxonomy."+tc.Name)
 	}
 	dict, i18nWarnings := i18n.Load(filepath.FromSlash(cfg.Build.I18nDir), lang, requiredKeys)
+	tr := func(key string) string {
+		if v, ok := dict[key]; ok && v != "" {
+			return v
+		}
+		return i18n.T(lang, key)
+	}
 
 	reg := islands.New(th.FS())
 	funcs := template.FuncMap{
@@ -272,6 +278,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	plainMD := markdown.New(
 		markdown.WithImageResolver(imagesProc.Picture),
 		markdown.WithWikilinkResolver(linkIndex.Wikilink),
+		markdown.WithTranslator(tr),
 	)
 	linkIndex.SetRenderer(plainMD)
 
@@ -279,6 +286,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		markdown.WithImageResolver(imagesProc.Picture),
 		markdown.WithWikilinkResolver(linkIndex.Wikilink),
 		markdown.WithEmbedResolver(linkIndex.Embed),
+		markdown.WithTranslator(tr),
 		markdown.WithImageShortcode(func(args map[string]string) (template.HTML, error) {
 			src := args["src"]
 			if src == "" {

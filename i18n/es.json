@@ -33,6 +33,8 @@
   "ui.website": "Sitio web",
   "ui.not_found": "Página no encontrada",
   "ui.no_series": "Aún no hay series.",
+  "ui.copy_code": "Copiar",
+  "ui.copied": "¡Copiado!",
   "taxonomy.tags": "Etiquetas",
   "taxonomy.categories": "Categorías"
 }

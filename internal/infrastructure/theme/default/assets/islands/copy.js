@@ -5,7 +5,7 @@ export function mount(el, props) {
 		var text = btn.getAttribute('data-copy') || location.href;
 		var done = function () {
 			var old = btn.textContent;
-			btn.textContent = 'Copied!';
+			btn.textContent = (window.__i18n && window.__i18n.copied) || 'Copied!';
 			setTimeout(function () { btn.textContent = old; }, 1500);
 		};
 		if (navigator.clipboard) {

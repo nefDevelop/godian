@@ -46,6 +46,11 @@ func WithEmbedResolver(fn func(target string) (template.HTML, bool)) Option {
 	return func(r *Renderer) { r.embedResolver = fn }
 }
 
+// WithTranslator inyecta un traductor para textos del render (p. ej. botón copiar).
+func WithTranslator(fn func(key string) string) Option {
+	return func(r *Renderer) { r.tr = fn }
+}
+
 // WithImageShortcode resuelve el shortcode {{image src=… preset=… alt=…}}.
 func WithImageShortcode(fn func(args map[string]string) (template.HTML, error)) Option {
 	return func(r *Renderer) { r.imageShortcode = fn }
@@ -74,6 +79,7 @@ type Renderer struct {
 	imageShortcode   func(args map[string]string) (template.HTML, error)
 	wikilinkResolver func(target string) (string, bool)
 	embedResolver    func(target string) (template.HTML, bool)
+	tr               func(key string) string
 }
 
 // New construye un Renderer con las extensiones del tema.
@@ -111,6 +117,7 @@ func New(opts ...Option) *Renderer {
 				imageShortcodes: r.imageShortcode,
 				wikilinks:       r.wikilinkResolver,
 				embeds:          r.embedResolver,
+				tr:              r.tr,
 			}, 500)),
 		),
 	)

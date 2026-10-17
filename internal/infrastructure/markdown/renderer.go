@@ -18,6 +18,7 @@ type customRenderer struct {
 	imageShortcodes func(args map[string]string) (template.HTML, error)
 	wikilinks       func(target string) (string, bool)
 	embeds          func(target string) (template.HTML, bool)
+	tr              func(key string) string
 }
 
 func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
