@@ -36,6 +36,16 @@ func WithImageResolver(fn func(src, alt string) template.HTML) Option {
 	return func(r *Renderer) { r.imageResolver = fn }
 }
 
+// WithWikilinkResolver resuelve [[target]] a una URL (obsidian cross-collection).
+func WithWikilinkResolver(fn func(target string) (string, bool)) Option {
+	return func(r *Renderer) { r.wikilinkResolver = fn }
+}
+
+// WithEmbedResolver resuelve ![[target]] como transclusión (o false → imagen).
+func WithEmbedResolver(fn func(target string) (template.HTML, bool)) Option {
+	return func(r *Renderer) { r.embedResolver = fn }
+}
+
 // WithImageShortcode resuelve el shortcode {{image src=… preset=… alt=…}}.
 func WithImageShortcode(fn func(args map[string]string) (template.HTML, error)) Option {
 	return func(r *Renderer) { r.imageShortcode = fn }
@@ -56,12 +66,14 @@ func WithBlockResolver(fn BlockResolver) Option {
 
 // Renderer convierte documentos Markdown en HTML.
 type Renderer struct {
-	md             goldmark.Markdown
-	shortcodes     map[string]Shortcode
-	imageResolver  func(src, alt string) template.HTML
-	islandResolver func(kind, name string, props map[string]string) (template.HTML, error)
-	blockResolver  BlockResolver
-	imageShortcode func(args map[string]string) (template.HTML, error)
+	md               goldmark.Markdown
+	shortcodes       map[string]Shortcode
+	imageResolver    func(src, alt string) template.HTML
+	islandResolver   func(kind, name string, props map[string]string) (template.HTML, error)
+	blockResolver    BlockResolver
+	imageShortcode   func(args map[string]string) (template.HTML, error)
+	wikilinkResolver func(target string) (string, bool)
+	embedResolver    func(target string) (template.HTML, bool)
 }
 
 // New construye un Renderer con las extensiones del tema.
@@ -92,7 +104,14 @@ func New(opts ...Option) *Renderer {
 			html.WithUnsafe(),
 			// Prioridad menor que el renderer por defecto (1000): goldmark
 			// registra en orden inverso, así que gana el número más bajo.
-			renderer.WithNodeRenderers(util.Prioritized(&customRenderer{shortcodes: r.shortcodes, images: r.imageResolver, islands: r.islandResolver, imageShortcodes: r.imageShortcode}, 500)),
+			renderer.WithNodeRenderers(util.Prioritized(&customRenderer{
+				shortcodes:      r.shortcodes,
+				images:          r.imageResolver,
+				islands:         r.islandResolver,
+				imageShortcodes: r.imageShortcode,
+				wikilinks:       r.wikilinkResolver,
+				embeds:          r.embedResolver,
+			}, 500)),
 		),
 	)
 	return r

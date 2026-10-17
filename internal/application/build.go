@@ -71,6 +71,7 @@ type Options struct {
 	Support       []domain.SocialLink
 	Analytics     domain.AnalyticsConfig
 	Data          map[string]any
+	Links         *LinkIndex
 	CSS           []string
 	JS            []string
 	AssetsFS      fs.FS
@@ -112,6 +113,9 @@ func (b *Build) Run() (Summary, error) {
 	c, err := b.content.Load()
 	if err != nil {
 		return Summary{}, err
+	}
+	if b.opts.Links != nil {
+		b.opts.Links.Build(c.Posts, c.Docs)
 	}
 
 	// Limpia la salida para evitar artefactos obsoletos.
@@ -273,6 +277,9 @@ func (b *Build) renderPosts(posts []domain.BlogPost, series []domain.Series) ([]
 			data.Next = postNav(ordered[i-1])
 		}
 		data.SeriesNav = seriesNav(p, seriesBySlug, bySlug)
+		if b.opts.Links != nil {
+			data.Backlinks = b.opts.Links.Backlinks(p.Slug)
+		}
 
 		url := "/blog/" + p.Slug + "/"
 		if err := b.writeTemplate("post", strings.TrimPrefix(url, "/")+"index.html", data); err != nil {
@@ -691,6 +698,9 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 			data.Body = body
 			data.TOC = tocItems(headings)
 			data.DocsNav = buildNav(d.Slug)
+			if b.opts.Links != nil {
+				data.Backlinks = b.opts.Links.Backlinks(d.Slug)
+			}
 			data.Breadcrumb = []Link{
 				{Label: i18n.T(langOf(b.opts.Site), "nav.home"), URL: "/"},
 				{Label: i18n.T(langOf(b.opts.Site), "nav.docs"), URL: "/docs/"},

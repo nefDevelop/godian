@@ -16,6 +16,7 @@ import (
 	"github.com/nefdevelop/godian/internal/application"
 	"github.com/nefdevelop/godian/internal/domain"
 	"github.com/nefdevelop/godian/internal/i18n"
+	"github.com/nefdevelop/godian/internal/infrastructure/check"
 	"github.com/nefdevelop/godian/internal/infrastructure/config"
 	"github.com/nefdevelop/godian/internal/infrastructure/content"
 	"github.com/nefdevelop/godian/internal/infrastructure/data"
@@ -40,6 +41,7 @@ Uso:
   godian build [-config site.yaml] [-drafts]      Genera el sitio estático
   godian serve [-config site.yaml] [-addr :4321]  Dev server con recarga
   godian new [-collection blog] [-title "..."] <slug>  Crea un post nuevo
+  godian check [-config site.yaml]                Valida el contenido
   godian version                                  Muestra la versión
 `
 
@@ -56,6 +58,8 @@ func Run(args []string) int {
 		return runServe(args[2:])
 	case "new":
 		return runNew(args[2:])
+	case "check":
+		return runCheck(args[2:])
 	case "version", "-v", "--version":
 		fmt.Printf("godian %s\n", Version)
 		return 0
@@ -251,8 +255,19 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	}
 
 	imagesProc := images.New(cfg.Build.AssetsDir, filepath.FromSlash(cfg.Build.OutputDir), cfg.Build.Optimize, cfg.Build.ImagePresets)
+
+	// Índice de enlaces (Obsidian): wikilinks entre colecciones, transclusión y backlinks.
+	linkIndex := application.NewLinkIndex()
+	plainMD := markdown.New(
+		markdown.WithImageResolver(imagesProc.Picture),
+		markdown.WithWikilinkResolver(linkIndex.Wikilink),
+	)
+	linkIndex.SetRenderer(plainMD)
+
 	md := markdown.New(
 		markdown.WithImageResolver(imagesProc.Picture),
+		markdown.WithWikilinkResolver(linkIndex.Wikilink),
+		markdown.WithEmbedResolver(linkIndex.Embed),
 		markdown.WithImageShortcode(func(args map[string]string) (template.HTML, error) {
 			src := args["src"]
 			if src == "" {
@@ -295,6 +310,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 			Support:       cfg.Support,
 			Analytics:     cfg.Analytics,
 			Data:          siteData,
+			Links:         linkIndex,
 			CSS:           th.Manifest.Assets.CSS,
 			JS:            th.Manifest.Assets.JS,
 			AssetsFS:      assetsFS,
@@ -315,6 +331,34 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		summary.Errors = problems
 	}
 	return summary, nil
+}
+
+func runCheck(args []string) int {
+	fs := flag.NewFlagSet("check", flag.ContinueOnError)
+	configPath := fs.String("config", "site.yaml", "ruta a la configuración del sitio")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error cargando configuración: %v\n", err)
+		return 1
+	}
+	c, err := content.NewLoader(cfg).Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error cargando contenido: %v\n", err)
+		return 1
+	}
+	problems := check.Run(cfg, c)
+	for _, p := range problems {
+		fmt.Fprintln(os.Stderr, "problema: "+p)
+	}
+	if len(problems) > 0 {
+		fmt.Fprintf(os.Stderr, "%d problema(s)\n", len(problems))
+		return 1
+	}
+	fmt.Println("check: OK")
+	return 0
 }
 
 func firstMap(maps []map[string]string) map[string]string {

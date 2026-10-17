@@ -144,6 +144,13 @@
 - [x] **Vendorizado** de KaTeX, Mermaid y PhotoSwipe (sin CDN; `assets/vendor/`), carga diferida local
 - [x] Docs (`/docs/imagenes/`), ejemplo (`assets/demo.jpg`) y tests
 
+### F16 — Obsidian-first y `godian check`
+- [x] Wikilinks **entre colecciones** (resueltos por slug/basename)
+- [x] **Transclusión** de notas (`![[nota]]` incluye su contenido; si no es nota → imagen)
+- [x] **Backlinks** por nota (sección "Backlinks")
+- [x] Comando **`godian check`**: imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos
+- [x] Docs (`/docs/obsidian/`), tests (linkindex + check) y ejemplos
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

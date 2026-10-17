@@ -96,3 +96,13 @@ Imagen normal (con LQIP y `srcset`):
 Con el preset `thumb` (recorte 16:9 con foco centrado):
 
 {{image src="/demo-1.png" preset="thumb" alt="Miniatura 16:9"}}
+
+## Obsidian: enlaces, transclusión y backlinks
+
+Enlace entre colecciones (a un doc): [[components|Componentes]].
+
+Transclusión de una nota de documentación:
+
+![[getting-started]]
+
+Imagen embebida (no es nota → imagen): ![[demo-2.png]]

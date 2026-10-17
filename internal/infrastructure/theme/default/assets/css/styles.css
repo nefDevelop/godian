@@ -1576,3 +1576,39 @@ kbd {
 		font-size: 0.9rem;
 	}
 }
+
+/* --- Obsidian: transclusión y backlinks --- */
+.transclusion {
+	border-left: 3px solid var(--accent);
+	background: var(--card);
+	border-radius: 0 0.5rem 0.5rem 0;
+	padding: 0.5rem 1rem;
+	margin: 1rem 0;
+}
+
+.transclusion > :first-child {
+	margin-top: 0;
+}
+
+.transclusion > :last-child {
+	margin-bottom: 0;
+}
+
+.backlinks {
+	margin-top: 2rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border);
+}
+
+.backlinks h2 {
+	font-size: 1.1rem;
+	margin-bottom: 0.5rem;
+}
+
+.backlinks ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: 0.3rem;
+}

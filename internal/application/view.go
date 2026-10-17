@@ -185,6 +185,7 @@ type PageData struct {
 	Prev        *PostNav
 	Next        *PostNav
 	Related     []PostCard
+	Backlinks   []PostNav
 	SeriesNav   *SeriesNav
 	DocsNav     []DocSection
 	Breadcrumb  []Link

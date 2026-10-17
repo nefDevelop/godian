@@ -5,7 +5,7 @@ Generador de blog/documentación **estático, minimalista y zero-framework, escr
 - **Binario único**: sin Node ni Rust en el flujo principal (build cgo-free).
 - **Config-driven**: contenido, tema y salida con rutas configurables.
 - **Temas e islas data-driven**: crea componentes (interactivos o estáticos) como archivos, sin tocar Go.
-- **Markdown extendido** + compatibilidad Obsidian (sintaxis de lectura).
+- **Obsidian-first**: wikilinks entre colecciones, **transclusión** de notas (`![[nota]]`) y **backlinks**.
 
 Diseño y decisiones: `PLAN.md`. Estado por fases: `ROADMAP.md`.
 
@@ -32,12 +32,14 @@ make build          # compila a bin/godian (usa -tags nodynamic)
 godian build [-config site.yaml] [-drafts]        # genera el sitio en dist/
 godian serve [-config site.yaml] [-addr :4321]    # dev server + hot reload (SSE)
 godian new [-config site.yaml] [-collection blog] [-title "Título"] <slug>
+godian check [-config site.yaml]                  # valida el contenido
 godian version
 ```
 
 - `build`: genera el sitio. `-drafts` incluye borradores.
 - `serve`: sirve `dist/` y **reconstruye al detectar cambios** en contenido/tema/assets/config; recarga el navegador.
 - `new`: crea `content/<colección>/<slug>.md` con frontmatter listo (`draft: true`). *Las banderas van antes del slug.*
+- `check`: valida el contenido (imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos); sale con código 1 si hay problemas.
 - `version`: imprime la versión (sobrescribible con `-ldflags "-X .../cli.Version=x.y.z"`).
 
 ---

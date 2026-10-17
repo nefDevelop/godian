@@ -80,7 +80,7 @@ func TestHighlight(t *testing.T) {
 
 func TestEmbed(t *testing.T) {
 	out := render(t, "![[foto.jpg]]")
-	if !strings.Contains(out, `src="/assets/foto.jpg"`) || !strings.Contains(out, `alt="foto.jpg"`) {
+	if !strings.Contains(out, `src="/foto.jpg"`) || !strings.Contains(out, `alt="foto.jpg"`) {
 		t.Errorf("embed no generado: %s", out)
 	}
 }

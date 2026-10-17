@@ -39,6 +39,11 @@
 			<div class="post-grid">{{ range .Related }}{{ template "card" . }}{{ end }}</div>
 		</section>{{ end }}
 
+		{{ if .Backlinks }}<section class="backlinks">
+			<h2>Backlinks</h2>
+			<ul>{{ range .Backlinks }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}</ul>
+		</section>{{ end }}
+
 		{{ if .Giscus.Repo }}<section class="comments">
 			<h2 class="comments-title">{{ t "ui.comments" }}</h2>
 			<div class="giscus"></div>

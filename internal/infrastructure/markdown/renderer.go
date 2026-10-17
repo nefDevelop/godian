@@ -16,6 +16,8 @@ type customRenderer struct {
 	images          func(src, alt string) template.HTML
 	islands         func(kind, name string, props map[string]string) (template.HTML, error)
 	imageShortcodes func(args map[string]string) (template.HTML, error)
+	wikilinks       func(target string) (string, bool)
+	embeds          func(target string) (template.HTML, bool)
 }
 
 func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
@@ -127,9 +129,13 @@ func (r *customRenderer) renderWiki(w util.BufWriter, source []byte, node ast.No
 	if label == "" {
 		label = n.Target
 	}
-	_, _ = w.WriteString(`<a href="/blog/`)
-	_, _ = w.WriteString(slugify(n.Target))
-	_, _ = w.WriteString(`/">`)
+	href := "/blog/" + slugify(n.Target) + "/"
+	if r.wikilinks != nil {
+		if u, ok := r.wikilinks(n.Target); ok {
+			href = u
+		}
+	}
+	_, _ = w.WriteString(`<a href="` + href + `">`)
 	_, _ = w.Write(util.EscapeHTML([]byte(label)))
 	_, _ = w.WriteString(`</a>`)
 	return ast.WalkContinue, nil
@@ -140,8 +146,20 @@ func (r *customRenderer) renderEmbed(w util.BufWriter, source []byte, node ast.N
 		return ast.WalkContinue, nil
 	}
 	n := node.(*embedNode)
+	// Transclusión de nota si el resolver la reconoce.
+	if r.embeds != nil {
+		if html, ok := r.embeds(n.Target); ok {
+			_, _ = w.WriteString(string(html))
+			return ast.WalkContinue, nil
+		}
+	}
+	// Si no, imagen (vía el resolver de imágenes si está disponible).
+	if r.images != nil {
+		_, _ = w.WriteString(string(r.images("/"+n.Target, n.Target)))
+		return ast.WalkContinue, nil
+	}
 	esc := escape(n.Target)
-	_, _ = w.WriteString(`<img class="embed" src="/assets/` + esc + `" alt="` + esc + `" loading="lazy" decoding="async">`)
+	_, _ = w.WriteString(`<img class="embed" src="/` + esc + `" alt="` + esc + `" loading="lazy" decoding="async">`)
 	return ast.WalkContinue, nil
 }
 
