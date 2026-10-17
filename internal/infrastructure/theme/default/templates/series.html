@@ -1,0 +1,17 @@
+{{define "series"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<h1>{{ .Title }}</h1>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	{{ if not .SeriesList }}<p class="muted">No series yet.</p>{{ end }}
+	<div class="series-list">
+		{{ range .SeriesList }}<a class="series-card" href="{{ .URL }}">
+			{{ if .Cover }}<img class="series-cover" src="{{ .Cover }}" alt="">{{ end }}
+			<div>
+				<h2>{{ .Title }}</h2>
+				{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+				<p class="muted">{{ .Chapters }} {{ t "ui.chapters" }} · {{ .Minutes }} {{ t "ui.min_read" }}</p>
+			</div>
+		</a>{{ end }}
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

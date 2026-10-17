@@ -1,0 +1,16 @@
+{{define "authors"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<h1>{{ .Title }}</h1>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	<div class="authors">
+		{{ range .Authors }}<a class="author-card" href="{{ .URL }}">
+			{{ if .Avatar }}<img class="avatar" src="{{ .Avatar }}" alt="{{ .Name }}">{{ else }}<span class="avatar avatar-fallback">{{ printf "%.1s" .Name }}</span>{{ end }}
+			<div class="author-info">
+				<h2>{{ .Name }}</h2>
+				{{ if .Bio }}<p class="muted">{{ .Bio }}</p>{{ end }}
+			</div>
+			<span class="count">{{ .Count }} {{ t "ui.posts" }}</span>
+		</a>{{ end }}
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

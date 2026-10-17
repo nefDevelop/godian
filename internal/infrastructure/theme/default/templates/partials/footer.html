@@ -1,0 +1,17 @@
+{{define "footer"}}</main>
+<footer class="site-footer">
+	<div class="wrap footer-inner">
+		<p>© {{ .Year }} {{ .Site.Title }}</p>
+		{{ if .Social }}<nav class="footer-social" aria-label="Social">{{ range .Social }}<a href="{{ .URL }}" rel="noopener" target="_blank">{{ if .Label }}{{ .Label }}{{ else }}{{ .Icon }}{{ end }}</a>{{ end }}</nav>{{ end }}
+		{{ if .Support }}<nav class="footer-social" aria-label="Support">{{ range .Support }}<a href="{{ .URL }}" rel="noopener" target="_blank">{{ if .Label }}{{ .Label }}{{ else }}{{ .Icon }}{{ end }}</a>{{ end }}</nav>{{ end }}
+		<nav class="footer-nav">
+			<a href="/blog/">{{ t "nav.blog" }}</a>
+			<a href="/archive/">{{ t "nav.archive" }}</a>
+			<a href="/rss.xml">RSS</a>
+			<a href="/sitemap.xml">Sitemap</a>
+		</nav>
+	</div>
+</footer>
+</body>
+</html>
+{{end}}

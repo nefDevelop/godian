@@ -1,0 +1,8 @@
+# Copia este archivo a la raíz del repositorio para desplegar en Netlify.
+[build]
+  # Netlify incluye Go en su imagen de build.
+  command = "GOFLAGS=-tags=nodynamic CGO_ENABLED=0 go build -o bin/godian ./cmd/godian && ./bin/godian build -config site.yaml"
+  publish = "dist"
+
+[build.environment]
+  GO_VERSION = "1.26"

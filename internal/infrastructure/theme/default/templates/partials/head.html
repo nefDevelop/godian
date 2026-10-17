@@ -1,0 +1,40 @@
+{{define "head"}}<!doctype html>
+<html lang="{{ if .Site.Language }}{{ .Site.Language }}{{ else }}en{{ end }}"{{ if .Site.Color }} style="--accent: {{ .Site.Color }}"{{ end }}>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ if and .Title (ne .Title .Site.Title) }}{{ .Title }} · {{ end }}{{ .Site.Title }}</title>
+	{{ if .Description }}<meta name="description" content="{{ .Description }}">{{ end }}
+	{{ if .Canonical }}<link rel="canonical" href="{{ .Canonical }}">{{ end }}
+	<meta name="theme-color" content="{{ if .Site.Color }}{{ .Site.Color }}{{ else }}#2563eb{{ end }}">
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+	<link rel="manifest" href="/site.webmanifest">
+	{{ if .OGImage }}<meta property="og:image" content="{{ .OGImage }}">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:image" content="{{ .OGImage }}">{{ end }}
+	{{ if .SiteJSONLD }}<script type="application/ld+json">{{ .SiteJSONLD }}</script>{{ end }}
+	{{ if .JSONLD }}<script type="application/ld+json">{{ .JSONLD }}</script>{{ end }}
+	<link rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" href="/rss.xml">
+	<link rel="alternate" type="application/atom+xml" title="{{ .Site.Title }}" href="/atom.xml">
+	<link rel="alternate" type="application/feed+json" title="{{ .Site.Title }}" href="/feed.json">
+	<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+	<script>
+		(function () {
+			try {
+				var t = localStorage.getItem('theme');
+				if (t !== 'light' && t !== 'dark') {
+					t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+				}
+				document.documentElement.classList.add(t);
+				document.documentElement.dataset.theme = t;
+			} catch (e) {}
+		})();
+	</script>
+	{{ range .CSS }}<link rel="stylesheet" href="{{ . }}">
+	{{ end }}{{ range .JS }}<script src="{{ . }}" defer></script>
+	{{ end }}{{ if eq .Analytics.Provider "plausible" }}<script defer data-domain="{{ .Analytics.ID }}" src="https://plausible.io/js/script.js"></script>
+	{{ end }}{{ if eq .Analytics.Provider "ga4" }}<script async src="https://www.googletagmanager.com/gtag/js?id={{ .Analytics.ID }}"></script>
+	<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ .Analytics.ID }}');</script>
+	{{ end }}</head>
+<body>
+{{end}}

@@ -1,0 +1,15 @@
+{{define "docs"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap docs-layout">
+	<aside class="docs-sidebar">{{ template "docsnav" . }}</aside>
+	<div class="docs-content">
+		{{ template "breadcrumb" . }}
+		<article class="prose">
+			<h1>{{ .Title }}</h1>
+			{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+			{{ if .NeedsMath }}<div data-math hidden></div>{{ end }}
+			{{ .Body }}
+		</article>
+		{{ if .TOC }}<div class="docs-toc">{{ template "toc" . }}</div>{{ end }}
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

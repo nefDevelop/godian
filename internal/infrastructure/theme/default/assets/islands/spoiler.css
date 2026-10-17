@@ -1,0 +1,21 @@
+.spoiler {
+	border: 1px solid var(--border);
+	border-radius: 0.5rem;
+	background: var(--card);
+	padding: 0.6rem 0.8rem;
+}
+
+.spoiler-btn {
+	border: 0;
+	background: none;
+	color: var(--accent);
+	cursor: pointer;
+	font: inherit;
+	font-weight: 600;
+	padding: 0;
+}
+
+.spoiler-body {
+	margin-top: 0.5rem;
+	color: var(--muted);
+}

@@ -1,0 +1,13 @@
+{{define "blog"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<div class="list-head">
+		<h1>{{ .Title }}</h1>
+		<a class="muted" href="/archive/">{{ t "nav.archive" }}</a>
+	</div>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	<section class="post-grid">
+		{{ range .Posts }}{{ template "card" . }}{{ end }}
+	</section>
+	{{ template "pagination" . }}
+</div>
+{{ template "footer" . }}{{ end }}

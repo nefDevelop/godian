@@ -1,0 +1,6 @@
+{{define "toc"}}<nav class="toc" aria-label="{{ t "ui.toc" }}">
+	<p class="toc-title">{{ t "ui.toc" }}</p>
+	<ul>
+		{{ range .TOC }}<li class="toc-l{{ .Level }}"><a href="{{ .URL }}">{{ .Text }}</a></li>{{ end }}
+	</ul>
+</nav>{{ end }}

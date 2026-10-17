@@ -1,0 +1,142 @@
+// Package integration prueba el pipeline completo (build + verificación).
+package integration
+
+import (
+	"html/template"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/nefdevelop/godian/internal/application"
+	"github.com/nefdevelop/godian/internal/domain"
+	"github.com/nefdevelop/godian/internal/i18n"
+	"github.com/nefdevelop/godian/internal/infrastructure/content"
+	"github.com/nefdevelop/godian/internal/infrastructure/feed"
+	"github.com/nefdevelop/godian/internal/infrastructure/islands"
+	"github.com/nefdevelop/godian/internal/infrastructure/markdown"
+	"github.com/nefdevelop/godian/internal/infrastructure/output"
+	"github.com/nefdevelop/godian/internal/infrastructure/render"
+	"github.com/nefdevelop/godian/internal/infrastructure/theme"
+	"github.com/nefdevelop/godian/internal/infrastructure/verify"
+)
+
+func TestBuildEndToEnd(t *testing.T) {
+	out := t.TempDir()
+
+	cfg := domain.DefaultConfig()
+	cfg.Site = domain.SiteConfig{Title: "Test", URL: "https://example.com", Language: "es"}
+	cfg.Build.ContentDir = "testdata/content"
+	cfg.Build.OutputDir = out
+	cfg.Build.AssetsDir = filepath.Join(out, "no-assets") // no existe: se ignora
+	cfg.Collections = domain.DefaultCollections()
+	cfg.Taxonomies = domain.DefaultTaxonomies()
+
+	th, err := theme.Load("")
+	if err != nil {
+		t.Fatalf("theme.Load: %v", err)
+	}
+	tmplFS, err := th.TemplateFS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg := islands.New(th.FS())
+	funcs := template.FuncMap{
+		"t": func(k string) string { return i18n.T("es", k) },
+		"island": func(name string, props ...map[string]string) (template.HTML, error) {
+			return reg.Island(name, firstMap(props))
+		},
+		"partial": func(name string, props ...map[string]string) (template.HTML, error) {
+			return reg.Partial(name, firstMap(props))
+		},
+	}
+	renderer, err := render.New(tmplFS, funcs)
+	if err != nil {
+		t.Fatalf("render.New: %v", err)
+	}
+	reg.SetRenderer(renderer)
+	assetsFS, err := th.AssetsFS()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	builder := application.NewBuild(
+		content.NewLoader(cfg),
+		markdown.New(markdown.WithIslandResolver(reg.Resolve)),
+		renderer,
+		output.NewWriter(out),
+		feed.New(),
+		application.Options{
+			Site:        cfg.Site,
+			Taxonomies:  cfg.Taxonomies,
+			CSS:         th.Manifest.Assets.CSS,
+			JS:          th.Manifest.Assets.JS,
+			AssetsFS:    assetsFS,
+			Minify:      true,
+			Fingerprint: true,
+		},
+	)
+
+	summary, err := builder.Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if summary.Published != 2 {
+		t.Errorf("posts publicados = %d, want 2", summary.Published)
+	}
+
+	for _, f := range []string{
+		"index.html",
+		"blog/index.html",
+		"blog/hello/index.html",
+		"blog/adios/index.html",
+		"tags/index.html",
+		"tags/go/index.html",
+		"categories/dev/index.html",
+		"authors/nef/index.html",
+		"search/index.html",
+		"search-index.json",
+		"rss.xml",
+		"atom.xml",
+		"feed.json",
+		"robots.txt",
+		"sitemap.xml",
+		"404.html",
+		"docs/index.html",
+		"assets/islands/manifest.json",
+		"blog/viejo-hola/index.html",
+	} {
+		if _, err := os.Stat(filepath.Join(out, filepath.FromSlash(f))); err != nil {
+			t.Errorf("falta %s: %v", f, err)
+		}
+	}
+
+	hello := readFile(t, filepath.Join(out, "blog/hello/index.html"))
+	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`} {
+		if !strings.Contains(hello, want) {
+			t.Errorf("blog/hello no contiene %q", want)
+		}
+	}
+
+	if problems, err := verify.Dist(out); err != nil {
+		t.Fatalf("verify: %v", err)
+	} else if len(problems) > 0 {
+		t.Errorf("referencias rotas: %v", problems)
+	}
+}
+
+func firstMap(maps []map[string]string) map[string]string {
+	if len(maps) > 0 && maps[0] != nil {
+		return maps[0]
+	}
+	return map[string]string{}
+}
+
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("leyendo %s: %v", path, err)
+	}
+	return string(data)
+}

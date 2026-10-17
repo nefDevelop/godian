@@ -1,0 +1,11 @@
+{{define "search"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<h1>{{ .Title }}</h1>
+	<div data-search-scope>
+		<form class="search-form" role="search" action="/search/">
+			<input data-search-input type="search" name="q" placeholder="{{ t "ui.search" }}…" autocomplete="off" autofocus>
+		</form>
+		<div data-search-results class="search-results"></div>
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

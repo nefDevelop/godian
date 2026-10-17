@@ -1,0 +1,17 @@
+.theme-picker {
+	display: inline-flex;
+	gap: 0.5rem;
+}
+
+.theme-picker .swatch {
+	width: 1.6rem;
+	height: 1.6rem;
+	border-radius: 999px;
+	border: 2px solid var(--border);
+	cursor: pointer;
+	padding: 0;
+}
+
+.theme-picker .swatch:hover {
+	border-color: var(--fg);
+}

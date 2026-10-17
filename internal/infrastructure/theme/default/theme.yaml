@@ -1,0 +1,10 @@
+name: default
+version: 0.1.0
+assets:
+  css:
+    - /assets/css/styles.css
+    - /assets/css/chroma.css
+  js:
+    - /assets/js/theme.js
+    - /assets/js/search.js
+    - /assets/js/islands.js

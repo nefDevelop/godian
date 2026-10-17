@@ -1,0 +1,7 @@
+title: Introducción a godian
+description: Serie de introducción al generador.
+cover: ""
+author: [nef]
+chapters:
+  - hello-godian
+  - markdown-demo

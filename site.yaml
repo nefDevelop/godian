@@ -1,0 +1,71 @@
+# Configuración del sitio para godian.
+site:
+  title: Ri
+  description: Un tema de Astro para blog y documentación
+  url: https://ri.pages.dev
+  language: en
+  color: "#2563eb"   # color de acento del tema por defecto
+
+build:
+  content_dir: content
+  theme_dir: themes/default
+  output_dir: dist
+  assets_dir: assets      # imágenes/estáticos fuente (servidos desde /)
+  minify: true
+  fingerprint: true
+  optimize_images: true   # genera variantes WebP + srcset
+
+# Si se omite, se usan las colecciones estándar (blog, docs, authors, series, pages).
+# collections:
+#   - { name: blog, folder: blog }
+
+# Comentarios (opcional). Rellena con los datos de giscus.app.
+giscus:
+  repo: ""
+  repo_id: ""
+  category: "General"
+  category_id: ""
+
+# Navegación (opcional; si se omite, se usa la estándar).
+# nav:
+#   - { label: Inicio, url: / }
+#   - { label: Blog, url: /blog/ }
+
+# Enlaces sociales y de apoyo (opcional).
+social:
+  - { label: GitHub, url: https://github.com/nefdevelop, icon: github }
+  - { label: RSS, url: /rss.xml, icon: rss }
+support:
+  - { label: Buy me a coffee, url: https://buymeacoffee.com, icon: coffee }
+
+# Analítica (opcional): provider: plausible | ga4
+# analytics:
+#   provider: plausible
+#   id: ""
+
+# Taxonomías configurables. Si se omite, se usan tags y categories por defecto.
+taxonomies:
+  - name: tags
+    label: Tags
+    url: /tags
+    field: tags
+    prefix: "#"
+    hierarchical: true
+    strict: true          # avisa de términos usados en posts pero no declarados
+    terms:
+      - { name: go, description: Posts sobre el lenguaje Go. }
+      - { name: test, description: Posts de prueba y experimentos con el tema. }
+      - { name: code, description: Ejemplos de código en múltiples lenguajes. }
+      - { name: markdown, description: Características y sintaxis de Markdown. }
+      - { name: math, description: Contenido matemático con KaTeX. }
+      - { name: mermaid, description: Diagramas y gráficos con Mermaid. }
+      - { name: guide, description: Guías y tutoriales paso a paso. }
+  - name: categories
+    label: Categories
+    url: /categories
+    field: categories
+    terms:
+      - { name: dev, description: Desarrollo de software y programación. }
+      - { name: design, description: Diseño UI/UX y recursos visuales. }
+      - { name: guide, description: Guías y tutoriales. }
+      - { name: media, description: Contenido multimedia y vídeos. }

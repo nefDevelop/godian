@@ -1,0 +1,5 @@
+{{define "breadcrumb"}}{{ if .Breadcrumb }}<nav class="breadcrumb" aria-label="Breadcrumb">
+	<ol>
+		{{ range $i, $b := .Breadcrumb }}<li>{{ if $i }}<span aria-hidden="true">/</span> {{ end }}<a href="{{ $b.URL }}">{{ $b.Label }}</a></li>{{ end }}
+	</ol>
+</nav>{{ end }}{{ end }}

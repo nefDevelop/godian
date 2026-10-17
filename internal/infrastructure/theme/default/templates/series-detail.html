@@ -1,0 +1,21 @@
+{{define "series-detail"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	{{ with .Series }}
+	{{ if .Cover }}<img class="series-cover-lg" src="{{ .Cover }}" alt="">{{ end }}
+	<div class="list-head"><h1>{{ .Title }}</h1></div>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	<p class="muted">{{ len .Chapters }} {{ t "ui.chapters" }} · {{ .Minutes }} {{ t "ui.min_read" }}{{ if .Authors }} · {{ t "ui.by" }} {{ range $i, $a := .Authors }}{{ if $i }}, {{ end }}{{ $a }}{{ end }}{{ end }}</p>
+	<div class="chapters">
+		{{ range .Chapters }}<a class="chapter" href="{{ .URL }}">
+			<span class="chapter-num">{{ .Number }}</span>
+			<div>
+				<div class="chapter-label">Chapter {{ .Number }}</div>
+				<h2>{{ .Title }}</h2>
+				{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+				<div class="chapter-meta">{{ .Date }} · {{ .ReadingTime }}</div>
+			</div>
+		</a>{{ end }}
+	</div>
+	{{ end }}
+</div>
+{{ template "footer" . }}{{ end }}

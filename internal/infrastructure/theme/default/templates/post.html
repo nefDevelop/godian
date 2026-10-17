@@ -1,0 +1,63 @@
+{{define "post"}}{{ template "head" . }}{{ template "header" . }}
+<div class="reading-progress"><div class="reading-progress-bar" id="reading-progress"></div></div>
+<div class="wrap post-layout">
+	<article class="post">
+		<header class="post-head">
+			{{ if .SeriesNav }}<p class="series-badge"><a href="{{ .SeriesNav.URL }}">{{ .SeriesNav.Title }}</a> · {{ .SeriesNav.Index }}/{{ .SeriesNav.Total }}</p>{{ end }}
+			<h1>{{ .Title }}</h1>
+			<div class="post-meta">
+				{{ if .Date }}<time datetime="{{ .Date }}">{{ .Date }}</time>{{ end }}
+				{{ if .ReadingTime }}<span>· {{ .ReadingTime }}</span>{{ end }}
+			</div>
+			{{ if .Categories }}<ul class="tags cats">{{ range .Categories }}<li><a class="cat" href="/categories/{{ . }}/">{{ . }}</a></li>{{ end }}</ul>{{ end }}
+			{{ if .Tags }}<ul class="tags">{{ range .Tags }}<li><a class="tag" href="/tags/{{ . }}/">#{{ . }}</a></li>{{ end }}</ul>{{ end }}
+		</header>
+		{{ if .NeedsMath }}<div data-math hidden></div>{{ end }}
+		<div class="prose">{{ .Body }}</div>
+
+		{{ if .SeriesNav }}<nav class="series-nav">
+			{{ if .SeriesNav.Prev }}<a class="series-prev" href="{{ .SeriesNav.Prev.URL }}">← {{ .SeriesNav.Prev.Title }}</a>{{ else }}<span></span>{{ end }}
+			{{ if .SeriesNav.Next }}<a class="series-next" href="{{ .SeriesNav.Next.URL }}">{{ .SeriesNav.Next.Title }} →</a>{{ end }}
+		</nav>{{ end }}
+
+		{{ if .Canonical }}<section class="share">
+			<span class="share-label">Share</span>
+			<a href="https://twitter.com/intent/tweet?url={{ .Canonical | urlquery }}&text={{ .Title | urlquery }}" rel="noopener" target="_blank">X</a>
+			<a href="https://t.me/share/url?url={{ .Canonical | urlquery }}&text={{ .Title | urlquery }}" rel="noopener" target="_blank">Telegram</a>
+			<a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Canonical | urlquery }}" rel="noopener" target="_blank">LinkedIn</a>
+			<a href="mailto:?subject={{ .Title | urlquery }}&body={{ .Canonical | urlquery }}">Email</a>
+			<button class="share-copy" type="button" data-copy-url="{{ .Canonical }}">Copy link</button>
+		</section>{{ end }}
+
+		{{ if or .Prev .Next }}<nav class="post-nav">
+			{{ if .Prev }}<a class="post-prev" href="{{ .Prev.URL }}"><span class="muted">← Previous</span>{{ .Prev.Title }}</a>{{ else }}<span></span>{{ end }}
+			{{ if .Next }}<a class="post-next" href="{{ .Next.URL }}"><span class="muted">Next →</span>{{ .Next.Title }}</a>{{ end }}
+		</nav>{{ end }}
+
+		{{ if .Related }}<section class="related">
+			<h2>Related</h2>
+			<div class="post-grid">{{ range .Related }}{{ template "card" . }}{{ end }}</div>
+		</section>{{ end }}
+
+		{{ if .Giscus.Repo }}<section class="comments">
+			<h2 class="comments-title">{{ t "ui.comments" }}</h2>
+			<div class="giscus"></div>
+			<script src="https://giscus.app/client.js"
+				data-repo="{{ .Giscus.Repo }}"
+				data-repo-id="{{ .Giscus.RepoID }}"
+				data-category="{{ .Giscus.Category }}"
+				data-category-id="{{ .Giscus.CategoryID }}"
+				data-mapping="pathname"
+				data-reactions-enabled="1"
+				data-emit-metadata="0"
+				data-input-position="bottom"
+				data-theme="preferred_color_scheme"
+				data-lang="en"
+				crossorigin="anonymous"
+				async></script>
+		</section>{{ end }}
+	</article>
+	{{ if .TOC }}<aside class="toc-aside">{{ template "toc" . }}</aside>{{ end }}
+</div>
+<button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">↑</button>
+{{ template "footer" . }}{{ end }}

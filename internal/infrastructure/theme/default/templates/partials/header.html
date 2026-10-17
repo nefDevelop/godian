@@ -1,0 +1,15 @@
+{{define "header"}}<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header">
+	<div class="wrap header-inner">
+		<a class="brand" href="/">{{ .Site.Title }}</a>
+		<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">☰</button>
+		<nav class="site-nav" id="site-nav">
+			{{ range .Nav }}<a href="{{ .URL }}"{{ if eq .URL $.NavActive }} aria-current="page"{{ end }}>{{ .Label }}</a>{{ end }}
+			<a class="nav-search" href="/search/">{{ t "ui.search" }}</a>
+			<button class="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+		</nav>
+	</div>
+</header>
+{{ template "searchmodal" . }}
+<main class="site-main" id="main-content">
+{{end}}

@@ -1,0 +1,46 @@
+{{define "home"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<section class="hero">
+		<h1>{{ .Site.Title }}</h1>
+		{{ if .Site.Description }}<p>{{ .Site.Description }}</p>{{ end }}
+	</section>
+
+	{{ if .Featured }}<section class="featured">
+		<span class="featured-label">Featured</span>
+		<h2><a href="{{ .Featured.URL }}">{{ .Featured.Title }}</a></h2>
+		{{ if .Featured.Description }}<p>{{ .Featured.Description }}</p>{{ end }}
+		<div class="card-meta">
+			{{ if .Featured.Date }}<time datetime="{{ .Featured.Date }}">{{ .Featured.Date }}</time>{{ end }}
+			{{ if .Featured.ReadingTime }}<span>· {{ .Featured.ReadingTime }}</span>{{ end }}
+		</div>
+	</section>{{ end }}
+
+	<section class="post-grid">
+		{{ range .Posts }}{{ template "card" . }}{{ end }}
+	</section>
+	<p class="more"><a href="/blog/">All posts →</a></p>
+
+	<section class="widgets">
+		{{ if .HomeTags }}<div class="widget">
+			<h2>{{ t "nav.tags" }}</h2>
+			<ul class="term-cloud">{{ range .HomeTags }}<li><a class="term" href="{{ .URL }}"><span class="term-name">#{{ .Name }}</span><span class="term-count">{{ .Count }}</span></a></li>{{ end }}</ul>
+		</div>{{ end }}
+		{{ if .HomeCats }}<div class="widget">
+			<h2>{{ t "nav.categories" }}</h2>
+			<ul class="term-cloud">{{ range .HomeCats }}<li><a class="term" href="{{ .URL }}"><span class="term-name">{{ .Name }}</span><span class="term-count">{{ .Count }}</span></a></li>{{ end }}</ul>
+		</div>{{ end }}
+		{{ if .Stats }}<div class="widget">
+			<h2>Stats</h2>
+			<ul class="stats">
+				<li><strong>{{ .Stats.Posts }}</strong> posts</li>
+				<li><strong>{{ .Stats.Tags }}</strong> tags</li>
+				<li><strong>{{ .Stats.Categories }}</strong> categories</li>
+			</ul>
+		</div>{{ end }}
+		{{ with index .Data "links" }}<div class="widget">
+			<h2>Links</h2>
+			<ul class="stats">{{ range . }}<li><a href="{{ .url }}">{{ .label }}</a></li>{{ end }}</ul>
+		</div>{{ end }}
+	</section>
+</div>
+{{ template "footer" . }}{{ end }}

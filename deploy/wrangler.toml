@@ -1,0 +1,8 @@
+# Cloudflare Pages. Copia a la raíz y ajusta el nombre del proyecto.
+name = "godian-site"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-01-01"
+
+[build]
+  # Cloudflare Pages incluye Go en su imagen de build.
+  command = "GOFLAGS=-tags=nodynamic CGO_ENABLED=0 go build -o bin/godian ./cmd/godian && ./bin/godian build -config site.yaml"

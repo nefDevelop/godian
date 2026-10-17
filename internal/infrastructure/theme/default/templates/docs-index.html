@@ -1,0 +1,17 @@
+{{define "docs-index"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap docs-layout">
+	<aside class="docs-sidebar">{{ template "docsnav" . }}</aside>
+	<div class="docs-content">
+		{{ template "breadcrumb" . }}
+		<h1>{{ .Title }}</h1>
+		{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+		{{ if not .DocsNav }}<p class="muted">No documentation yet.</p>{{ end }}
+		{{ range .DocsNav }}<section class="docs-section">
+			<h2>{{ .Section }}</h2>
+			<ul class="docs-list">
+				{{ range .Docs }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}
+			</ul>
+		</section>{{ end }}
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

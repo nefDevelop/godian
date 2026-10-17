@@ -1,0 +1,30 @@
+.tabs-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	border-bottom: 1px solid var(--border);
+}
+
+.tabs-nav .tab {
+	border: 0;
+	background: none;
+	padding: 0.4rem 0.8rem;
+	color: var(--muted);
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+}
+
+.tabs-nav .tab:hover {
+	color: var(--fg);
+}
+
+.tabs-nav .tab.is-active {
+	color: var(--accent);
+	border-bottom-color: var(--accent);
+	font-weight: 600;
+}
+
+.tabs-panel {
+	padding: 0.75rem 0.25rem;
+	color: var(--muted);
+}

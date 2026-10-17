@@ -1,0 +1,32 @@
+.counter {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	border: 1px solid var(--border);
+	border-radius: 0.5rem;
+	background: var(--card);
+	padding: 0.25rem 0.5rem;
+}
+
+.counter button {
+	width: 1.75rem;
+	height: 1.75rem;
+	border: 1px solid var(--border);
+	border-radius: 0.375rem;
+	background: var(--bg);
+	color: var(--fg);
+	cursor: pointer;
+	line-height: 1;
+}
+
+.counter button:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.counter output {
+	min-width: 2rem;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+}

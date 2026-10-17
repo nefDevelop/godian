@@ -1,0 +1,8 @@
+{{define "docsnav"}}<nav class="docs-nav" aria-label="Docs">
+	{{ range .DocsNav }}<div class="docs-nav-group">
+		<p class="docs-nav-title">{{ .Section }}</p>
+		<ul>
+			{{ range .Docs }}<li><a href="{{ .URL }}"{{ if .Active }} class="is-active" aria-current="page"{{ end }}>{{ .Title }}</a></li>{{ end }}
+		</ul>
+	</div>{{ end }}
+</nav>{{ end }}

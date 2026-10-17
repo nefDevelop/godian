@@ -1,0 +1,13 @@
+{{define "taxonomy"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<div class="list-head">
+		<h1>{{ .Title }}</h1>
+		<span class="muted">{{ .Total }} {{ t "ui.posts" }}</span>
+	</div>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	<section class="post-grid">
+		{{ range .Posts }}{{ template "card" . }}{{ end }}
+	</section>
+	{{ template "pagination" . }}
+</div>
+{{ template "footer" . }}{{ end }}

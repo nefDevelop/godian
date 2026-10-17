@@ -1,0 +1,238 @@
+package markdown
+
+import (
+	"fmt"
+	"html/template"
+	"strconv"
+	"strings"
+
+	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/util"
+)
+
+type customRenderer struct {
+	shortcodes map[string]Shortcode
+	images     func(src, alt string) template.HTML
+	islands    func(kind, name string, props map[string]string) (template.HTML, error)
+}
+
+func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+	reg.Register(kindWiki, r.renderWiki)
+	reg.Register(kindEmbed, r.renderEmbed)
+	reg.Register(kindHighlight, r.renderHighlight)
+	reg.Register(kindShortcode, r.renderShortcode)
+	reg.Register(kindCallout, r.renderCallout)
+	reg.Register(kindFigure, r.renderFigure)
+	reg.Register(kindCalloutMarker, r.renderMarker)
+	reg.Register(ast.KindFencedCodeBlock, r.renderFencedCode)
+	reg.Register(ast.KindImage, r.renderImage)
+	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(ast.KindLink, r.renderLink)
+}
+
+// renderLink añade target/rel a los enlaces externos.
+func (r *customRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Link)
+	if entering {
+		href := string(n.Destination)
+		_, _ = w.WriteString(`<a href="` + escape(href) + `"`)
+		if isExternal(href) {
+			_, _ = w.WriteString(` target="_blank" rel="noopener noreferrer"`)
+		}
+		if len(n.Title) > 0 {
+			_, _ = w.WriteString(` title="` + escape(string(n.Title)) + `"`)
+		}
+		_, _ = w.WriteString(`>`)
+	} else {
+		_, _ = w.WriteString(`</a>`)
+	}
+	return ast.WalkContinue, nil
+}
+
+func isExternal(href string) bool {
+	return strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://") || strings.HasPrefix(href, "//")
+}
+
+// renderHeading añade un ancla "#" a cada encabezado.
+func (r *customRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Heading)
+	id := attrString(n, "id")
+	if entering {
+		_, _ = w.WriteString("<h")
+		_, _ = w.WriteString(strconv.Itoa(n.Level))
+		if id != "" {
+			_, _ = w.WriteString(` id="` + escape(id) + `"`)
+		}
+		_, _ = w.WriteString(">")
+	} else {
+		if id != "" {
+			_, _ = w.WriteString(`<a class="anchor" href="#` + escape(id) + `" aria-hidden="true" tabindex="-1">#</a>`)
+		}
+		_, _ = w.WriteString("</h")
+		_, _ = w.WriteString(strconv.Itoa(n.Level))
+		_, _ = w.WriteString(">")
+	}
+	return ast.WalkContinue, nil
+}
+
+func attrString(n ast.Node, name string) string {
+	v, ok := n.AttributeString(name)
+	if !ok {
+		return ""
+	}
+	switch t := v.(type) {
+	case []byte:
+		return string(t)
+	case string:
+		return t
+	}
+	return ""
+}
+
+func (r *customRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*ast.Image)
+	src := string(n.Destination)
+	alt := nodeText(n, source)
+	if r.images != nil {
+		if out := r.images(src, alt); out != "" {
+			_, _ = w.WriteString(string(out))
+			return ast.WalkContinue, nil
+		}
+	}
+	_, _ = w.WriteString(`<img src="` + escape(src) + `" alt="` + escape(alt) + `" loading="lazy" decoding="async">`)
+	return ast.WalkContinue, nil
+}
+
+// renderMarker solo se alcanza si el marcador no se convirtió en callout.
+func (r *customRenderer) renderMarker(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*calloutMarkerNode)
+	_, _ = w.Write(util.EscapeHTML([]byte(n.Raw)))
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderWiki(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*wikiNode)
+	label := n.Label
+	if label == "" {
+		label = n.Target
+	}
+	_, _ = w.WriteString(`<a href="/blog/`)
+	_, _ = w.WriteString(slugify(n.Target))
+	_, _ = w.WriteString(`/">`)
+	_, _ = w.Write(util.EscapeHTML([]byte(label)))
+	_, _ = w.WriteString(`</a>`)
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderEmbed(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*embedNode)
+	esc := escape(n.Target)
+	_, _ = w.WriteString(`<img class="embed" src="/assets/` + esc + `" alt="` + esc + `" loading="lazy" decoding="async">`)
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderHighlight(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*highlightNode)
+	_, _ = w.WriteString(`<mark>`)
+	_, _ = w.Write(util.EscapeHTML([]byte(n.Value)))
+	_, _ = w.WriteString(`</mark>`)
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderShortcode(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	n := node.(*shortcodeNode)
+
+	// Islas y componentes: {{island nombre k=v}} / {{partial nombre k=v}}.
+	if (n.Name == "island" || n.Name == "partial") && r.islands != nil {
+		tokens := tokenize(n.Inner)
+		if len(tokens) < 2 {
+			return ast.WalkContinue, fmt.Errorf("shortcode %q: falta el nombre", n.Name)
+		}
+		out, err := r.islands(n.Name, tokens[1], parseProps(tokens[2:]))
+		if err != nil {
+			return ast.WalkContinue, err
+		}
+		_, _ = w.WriteString(string(out))
+		return ast.WalkContinue, nil
+	}
+
+	fn, ok := r.shortcodes[n.Name]
+	if !ok {
+		_, _ = w.Write(util.EscapeHTML([]byte(n.Raw)))
+		return ast.WalkContinue, nil
+	}
+	out, err := fn(n.Args)
+	if err != nil {
+		_, _ = w.Write(util.EscapeHTML([]byte(n.Raw)))
+		return ast.WalkContinue, nil
+	}
+	_, _ = w.WriteString(string(out))
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderCallout(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*calloutNode)
+	if entering {
+		title := `<div class="callout-title">` + escape(n.Title) + `</div>`
+		if n.Foldable {
+			open := ""
+			if !n.Collapsed {
+				open = " open"
+			}
+			_, _ = w.WriteString(`<details class="callout callout-` + n.Variant + `"` + open + `>`)
+			_, _ = w.WriteString(`<summary class="callout-title">` + escape(n.Title) + `</summary>`)
+		} else {
+			_, _ = w.WriteString(`<div class="callout callout-` + n.Variant + `">`)
+			_, _ = w.WriteString(title)
+		}
+		_, _ = w.WriteString(`<div class="callout-content">`)
+	} else {
+		_, _ = w.WriteString(`</div>`)
+		if n.Foldable {
+			_, _ = w.WriteString(`</details>`)
+		} else {
+			_, _ = w.WriteString(`</div>`)
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *customRenderer) renderFigure(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*figureNode)
+	if entering {
+		_, _ = w.WriteString(`<figure class="image-figure">`)
+	} else {
+		if n.Alt != "" {
+			_, _ = w.WriteString(`<figcaption>` + escape(n.Alt) + `</figcaption>`)
+		}
+		_, _ = w.WriteString(`</figure>`)
+	}
+	return ast.WalkContinue, nil
+}
+
+func escape(s string) string {
+	return string(util.EscapeHTML([]byte(s)))
+}
+
+func slugify(s string) string {
+	return strings.Join(strings.Fields(strings.ToLower(s)), "-")
+}

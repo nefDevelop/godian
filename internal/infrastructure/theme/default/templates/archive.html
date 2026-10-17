@@ -1,0 +1,16 @@
+{{define "archive"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	<h1>{{ .Title }}</h1>
+	{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+	{{ range .Years }}<section class="archive-year">
+		<h2 class="archive-year-label">{{ .Year }}</h2>
+		<div class="archive-posts">
+			{{ range .Posts }}<a class="archive-post" href="{{ .URL }}">
+				<span class="archive-date">{{ .Date }}</span>
+				<span class="archive-title">{{ .Title }}</span>
+				{{ if .Category }}<span class="archive-cat">{{ .Category }}</span>{{ end }}
+			</a>{{ end }}
+		</div>
+	</section>{{ end }}
+</div>
+{{ template "footer" . }}{{ end }}

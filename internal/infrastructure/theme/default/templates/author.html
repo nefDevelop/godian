@@ -1,0 +1,21 @@
+{{define "author"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap">
+	{{ with .Author }}<div class="author-profile">
+		{{ if .Avatar }}<img class="avatar-lg" src="{{ .Avatar }}" alt="{{ .Name }}">{{ else }}<span class="avatar-lg avatar-fallback">{{ printf "%.1s" .Name }}</span>{{ end }}
+		<div class="author-info">
+			<h1>{{ .Name }}</h1>
+			{{ if .Bio }}<p class="muted">{{ .Bio }}</p>{{ end }}
+			<p class="muted">{{ .Count }} {{ t "ui.posts" }}</p>
+			<div class="author-links">
+				{{ if .Github }}<a href="{{ .Github }}" rel="noopener">GitHub</a>{{ end }}
+				{{ if .Twitter }}<a href="{{ .Twitter }}" rel="noopener">Twitter</a>{{ end }}
+				{{ if .Website }}<a href="{{ .Website }}" rel="noopener">Website</a>{{ end }}
+			</div>
+		</div>
+	</div>{{ end }}
+	<section class="post-grid">
+		{{ range .Posts }}{{ template "card" . }}{{ end }}
+	</section>
+	{{ template "pagination" . }}
+</div>
+{{ template "footer" . }}{{ end }}

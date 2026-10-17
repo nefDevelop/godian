@@ -1,0 +1,31 @@
+.carousel {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.carousel-img {
+	flex: 1;
+	min-width: 0;
+	width: 100%;
+	border-radius: 0.5rem;
+	object-fit: cover;
+}
+
+.carousel-nav {
+	flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 999px;
+	border: 1px solid var(--border);
+	background: var(--card);
+	color: var(--fg);
+	cursor: pointer;
+	line-height: 1;
+	font-size: 1.1rem;
+}
+
+.carousel-nav:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+}

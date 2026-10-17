@@ -1,0 +1,10 @@
+{{define "card"}}<article class="card">
+	<div class="card-meta">
+		{{ if .Date }}<time datetime="{{ .Date }}">{{ .Date }}</time>{{ end }}
+		{{ if .ReadingTime }}<span>· {{ .ReadingTime }}</span>{{ end }}
+	</div>
+	<h2 class="card-title"><a href="{{ .URL }}">{{ .Title }}</a></h2>
+	{{ if .Description }}<p class="card-desc">{{ .Description }}</p>{{ end }}
+	{{ if .Tags }}<ul class="tags">{{ range .Tags }}<li><a class="tag" href="/tags/{{ . }}/">#{{ . }}</a></li>{{ end }}</ul>{{ end }}
+</article>
+{{end}}
