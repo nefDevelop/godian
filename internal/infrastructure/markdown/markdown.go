@@ -220,6 +220,10 @@ func youtubeShortcode(args []string) (template.HTML, error) {
 		return "", nil
 	}
 	id := template.HTMLEscapeString(args[0])
-	return template.HTML(`<div class="video-embed"><iframe src="https://www.youtube.com/embed/` + id +
-		`" title="YouTube video player" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`), nil
+	// Facade: solo la miniatura; el iframe (youtube-nocookie) se carga al pulsar
+	// play (sin cookies ni peticiones a terceros hasta entonces).
+	return template.HTML(`<div class="video-embed" data-youtube-id="` + id + `">` +
+		`<button type="button" class="video-play" aria-label="Play video">` +
+		`<img src="https://i.ytimg.com/vi/` + id + `/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async">` +
+		`<span class="video-play-icon" aria-hidden="true">▶</span></button></div>`), nil
 }

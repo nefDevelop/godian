@@ -9,7 +9,7 @@ export function mount(el, props) {
 	btn.addEventListener('click', function (e) {
 		if (e) { e.preventDefault(); e.stopPropagation(); }
 		var iframe = document.createElement('iframe');
-		iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&rel=0&playsinline=1';
+		iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&mute=1&rel=0&playsinline=1';
 		iframe.title = props.title || 'Video';
 		// Sin "autoplay" en allow (Firefox no lo reconoce y genera warnings de Feature Policy).
 		iframe.allow = 'fullscreen; picture-in-picture';

@@ -198,6 +198,24 @@ document.addEventListener('click', function (e) {
 	if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done);
 });
 
+// Facade de vídeo (shortcode {{youtube}}): carga el iframe (youtube-nocookie)
+// solo al pulsar play, sin peticiones ni cookies de terceros hasta entonces.
+document.addEventListener('click', function (e) {
+	var btn = e.target.closest && e.target.closest('.video-embed .video-play');
+	if (!btn) return;
+	var box = btn.closest('.video-embed');
+	var id = box && box.getAttribute('data-youtube-id');
+	if (!id) return;
+	var iframe = document.createElement('iframe');
+	iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&mute=1&rel=0&playsinline=1';
+	iframe.title = btn.getAttribute('aria-label') || 'Video';
+	iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+	iframe.allowFullscreen = true;
+	iframe.className = 'video-iframe';
+	box.appendChild(iframe);
+	btn.style.display = 'none';
+});
+
 // Tablas ordenables (table.sortable).
 document.addEventListener('click', function (e) {
 	var th = e.target.closest('table.sortable th');

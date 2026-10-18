@@ -140,7 +140,7 @@ func TestRawHTMLPreserved(t *testing.T) {
 
 func TestShortcode(t *testing.T) {
 	out := render(t, "{{youtube dQw4w9WgXcQ}}")
-	if !strings.Contains(out, `class="video-embed"`) || !strings.Contains(out, "youtube.com/embed/dQw4w9WgXcQ") {
+	if !strings.Contains(out, `class="video-embed"`) || !strings.Contains(out, `data-youtube-id="dQw4w9WgXcQ"`) {
 		t.Errorf("shortcode youtube no generado: %s", out)
 	}
 }
