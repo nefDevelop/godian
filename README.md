@@ -32,6 +32,7 @@ make build          # compila a bin/godian (usa -tags nodynamic)
 godian build [-config site.yaml] [-drafts]        # genera el sitio en dist/
 godian serve [-config site.yaml] [-addr :4321]    # dev server + hot reload (SSE)
 godian new [-config site.yaml] [-collection blog] [-title "Título"] <slug>
+godian new-theme <dir>                            # copia el tema por defecto a <dir>
 godian check [-config site.yaml]                  # valida el contenido
 godian version
 ```
@@ -39,6 +40,7 @@ godian version
 - `build`: genera el sitio. `-drafts` incluye borradores.
 - `serve`: sirve `dist/` y **reconstruye al detectar cambios** en contenido/tema/assets/config; recarga el navegador.
 - `new`: crea `content/<colección>/<slug>.md` con frontmatter listo (`draft: true`). *Las banderas van antes del slug.*
+- `new-theme`: copia el tema por defecto (`themes/default/`) a `<dir>` para personalizarlo; apunta `build.theme_dir` a esa carpeta.
 - `check`: valida el contenido (imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos); sale con código 1 si hay problemas.
 - `version`: imprime la versión (sobrescribible con `-ldflags "-X .../cli.Version=x.y.z"`).
 
@@ -409,13 +411,13 @@ internal/infrastructure/
   og/                                OG images nativas
   feed/                              RSS + sitemap
   output/                            escritura de artefactos
-  minify/                            minificado propio (HTML/CSS)
+  minify/                            minificado (HTML/CSS/JS, tdewolff/minify)
   verify/                            verificación de referencias
 internal/presentation/
   cli/                               comandos
   server/                            dev server + hot reload
 content/                             contenido del sitio (ejemplo)
-internal/infrastructure/theme/default/  tema por defecto (embebido)
+themes/default/                      tema por defecto (embebido; plantilla editable)
 tools/genchroma/                     generador del CSS de Chroma
 deploy/                              ejemplos de despliegue
 ```

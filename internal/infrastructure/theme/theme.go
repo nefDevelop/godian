@@ -4,17 +4,16 @@
 package theme
 
 import (
-	"embed"
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"sort"
 
 	"gopkg.in/yaml.v3"
-)
 
-//go:embed default
-var embedded embed.FS
+	"github.com/nefdevelop/godian/themes"
+)
 
 // Assets describe los recursos que declara el tema.
 type Assets struct {
@@ -38,10 +37,7 @@ type Theme struct {
 // Load carga el tema embebido y, si themeDir es un directorio existente,
 // superpone sus archivos sobre el tema por defecto.
 func Load(themeDir string) (*Theme, error) {
-	base, err := fs.Sub(embedded, "default")
-	if err != nil {
-		return nil, fmt.Errorf("tema embebido: %w", err)
-	}
+	base := themes.Default()
 
 	var tfsys fs.FS = base
 	if themeDir != "" {
@@ -55,6 +51,26 @@ func Load(themeDir string) (*Theme, error) {
 		return nil, err
 	}
 	return &Theme{fsys: tfsys, Manifest: m}, nil
+}
+
+// Scaffold copia el tema por defecto embebido a dir para poder personalizarlo
+// (overlay: los archivos presentes en dir sobrescriben el tema embebido).
+func Scaffold(dir string) error {
+	base := themes.Default()
+	return fs.WalkDir(base, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(dir, filepath.FromSlash(p))
+		if d.IsDir() {
+			return os.MkdirAll(target, 0o755)
+		}
+		data, err := fs.ReadFile(base, p)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(target, data, 0o644)
+	})
 }
 
 // FS devuelve la raíz del tema (templates + assets + theme.yaml).

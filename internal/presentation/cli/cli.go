@@ -41,6 +41,7 @@ Uso:
   godian build [-config site.yaml] [-drafts]      Genera el sitio estático
   godian serve [-config site.yaml] [-addr :4321]  Dev server con recarga
   godian new [-collection blog] [-title "..."] <slug>  Crea un post nuevo
+  godian new-theme <dir>                          Copia el tema por defecto a <dir>
   godian check [-config site.yaml]                Valida el contenido
   godian version                                  Muestra la versión
 `
@@ -58,6 +59,8 @@ func Run(args []string) int {
 		return runServe(args[2:])
 	case "new":
 		return runNew(args[2:])
+	case "new-theme":
+		return runNewTheme(args[2:])
 	case "check":
 		return runCheck(args[2:])
 	case "version", "-v", "--version":
@@ -208,6 +211,31 @@ func runNew(args []string) int {
 		return 1
 	}
 	fmt.Println("creado:", path)
+	return 0
+}
+
+func runNewTheme(args []string) int {
+	fs := flag.NewFlagSet("new-theme", flag.ContinueOnError)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	rest := fs.Args()
+	if len(rest) < 1 {
+		fmt.Fprintln(os.Stderr, "uso: godian new-theme <dir>")
+		return 2
+	}
+	dir := rest[0]
+
+	if entries, err := os.ReadDir(dir); err == nil && len(entries) > 0 {
+		fmt.Fprintf(os.Stderr, "el directorio ya existe y no está vacío: %s\n", dir)
+		return 1
+	}
+	if err := theme.Scaffold(dir); err != nil {
+		fmt.Fprintf(os.Stderr, "error copiando el tema: %v\n", err)
+		return 1
+	}
+	fmt.Println("tema creado en:", dir)
+	fmt.Printf("Apunta build.theme_dir a %q en site.yaml para usarlo.\n", dir)
 	return 0
 }
 

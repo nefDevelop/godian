@@ -13,7 +13,7 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 )
 
-const outputPath = "internal/infrastructure/theme/default/assets/css/chroma.css"
+const outputPath = "themes/default/assets/css/chroma.css"
 
 func main() {
 	f := html.New(html.WithClasses(true))
