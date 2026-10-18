@@ -26,7 +26,7 @@ Si no se encuentra, cae al comportamiento por defecto (`/blog/<nota>/`).
 ![[getting-started]]
 ```
 
-Si el objetivo no es una nota (p. ej. `![[demo-2.png]]`), se trata como **imagen**
+Si el objetivo no es una nota (p. ej. `![[demo-2.jpg]]`), se trata como **imagen**
 (con `srcset` y LQIP).
 
 ## Backlinks

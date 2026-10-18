@@ -44,7 +44,7 @@ Ejemplo en vivo:
 Envuelven **Markdown** y se lo pasan al componente como `content`:
 
 ```
-{{#partial note title="Aviso"}}
+{{#partial callout title="Aviso"}}
 Contenido **Markdown** dentro del componente.
 {{/partial}}
 
@@ -83,8 +83,50 @@ Contenido de la segunda.
 | `carousel` | `images` (coma) | `{{island carousel images="/a.jpg,/b.jpg"}}` |
 | `gallery` | `images` (coma) | `{{island gallery images="/a.jpg,/b.jpg"}}` |
 | `rating` | `max`, `value` | `{{island rating value=3}}` |
+| `video` | `id`, `title` | `{{island video id="dQw4w9WgXcQ" title="Demo"}}` |
+| `share` | `url`, `title` (opcionales) | `{{island share}}` |
+| `clock` | — | `{{island clock}}` |
+| `countdown` | `to`, `label` | `{{island countdown to="2030-01-01T00:00:00"}}` |
+| `modal` | `label`, `title`, `text`, `action`, `size` | `{{island modal label="Abrir" title="Título" text="Contenido" action="Aceptar" size="lg"}}` |
+| `popover` | `label`, `text`, `mode` | `{{island popover label="Info" text="Detalle"}}` |
+| `progress-ring` | `value`, `max`, `size`, `label` | `{{island progress-ring value=72 max=100 size=80}}` |
+| `toast` | `label`, `message`, `type`, `duration` | `{{island toast message="Guardado" type="success" label="Mostrar"}}` |
 
-Y el partial estático `cta`: `{{partial cta text="Docs" url="/docs/"}}`.
+| `chart` | `type`, `data`, `labels`, `title` | `{{island chart type="bar" data="10,20,30" labels="A,B,C"}}` |
+| `audio` | `src`, `title` | `{{island audio src="/audio.mp3" title="Podcast"}}` |
+| `lightbox` | `src`, `alt`, `caption` | `{{island lightbox src="/img.png" alt="Demo" caption="Fig 1"}}` |
+| `count-up` | `value`, `duration`, `prefix`, `suffix` | `{{island count-up value=1000 duration=1200 suffix="+"}}` |
+| `steps` | `items` | `{{island steps items="Paso 1,Paso 2,Paso 3"}}` |
+| `timeline` | `items` (`fecha\|texto`) | `{{island timeline items="2026-01:Lanzamiento,2026-02:Tema"}}` |
+| `qr-code` | `text`, `size` | `{{island qr-code text="https://ejemplo.com" size=160}}` |
+| `kanban` | `columns`, `cards` | `{{island kanban columns="Todo,Doing,Done" cards="A,B,C"}}` |
+| `calendar` | `month`, `year`, `events` | `{{island calendar month=10 year=2026 events="5:Reunión,12:Entrega"}}` |
+
+## Partials estáticos incluidos
+
+| Partial | Props | Ejemplo |
+|---|---|---|
+| `badge` | `text`, `color` | `{{partial badge text="Nuevo" color="#16a34a"}}` |
+| `breadcrumb` | — | `{{partial breadcrumb}}` |
+| `card` | — | (uso interno del tema) |
+| `cta` | `text`, `url` | `{{partial cta text="Docs" url="/docs/"}}` |
+| `docsnav` | — | (uso interno del tema) |
+| `footer` | — | (uso interno del tema) |
+| `head` | — | (uso interno del tema) |
+| `header` | — | (uso interno del tema) |
+| `kbd` | `keys` | `{{partial kbd keys="Ctrl+K"}}` |
+| `pagination` | — | (uso interno del tema) |
+| `search-modal` | — | (uso interno del tema) |
+| `toc` | — | (uso interno del tema) |
+| `stat` | `value`, `label`, `icon` | `{{partial stat value=42 label="posts"}}` |
+| `avatar` | `src`, `alt`, `size` | `{{partial avatar src="/img.png" alt="Nef" size=48}}` |
+| `chip` | `text`, `color`, `href` | `{{partial chip text="Go" color="#00add8"}}` |
+| `figure` | `src`, `alt`, `caption` | `{{partial figure src="/img.png" alt="x" caption="Fig 1"}}` |
+| `quote` | `text`, `author`, `cite` | `{{partial quote text="..." author="Nef" cite="https://..."}}` |
+| `divider` | `label` | `{{partial divider label="Sección"}}` |
+| `callout` | `type`, `title`, `text` | `{{partial callout type="warn" title="Aviso" text="..."}}` |
+| `embed` | `src`, `title`, `ratio` | `{{partial embed src="https://..." title="Vídeo" ratio="16x9"}}` |
+| `tooltip` | `text`, `label` | `{{partial tooltip text="Ayuda" label="?"}}` |
 
 ## Carga diferida
 

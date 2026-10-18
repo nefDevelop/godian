@@ -142,7 +142,7 @@
 - [x] **Presets** de imagen (`fit`/`fill`/`focal`/`quality`/`blur`) en `build.image_presets`
 - [x] Shortcode `{{image src=… preset=… alt=…}}`
 - [x] **Vendorizado** de KaTeX, Mermaid y PhotoSwipe (sin CDN; `assets/vendor/`), carga diferida local
-- [x] Docs (`/docs/imagenes/`), ejemplo (`assets/demo.jpg`) y tests
+- [x] Docs (`/docs/imagenes/`), ejemplo (`assets/demo-1.jpg`) y tests
 
 ### F16 — Obsidian-first y `godian check`
 - [x] Wikilinks **entre colecciones** (resueltos por slug/basename)
@@ -168,6 +168,39 @@
 - [x] El build **avisa** si falta el archivo o claves (`taxonomy.<name>` incluidas)
 - [x] Textos de JS (copiar/`Copied!`, “sin resultados”) vía `window.__i18n`
 - [x] `i18n/en.json` y `i18n/es.json`; docs en README
+
+### F20 — Islas documentadas, datos en uso y páginas renderizadas
+- [x] Tabla de islas de `components.md` completa (`video`, `share`, `clock`, `countdown`)
+- [x] `data/equipo.csv` se muestra en la home (widget "Equipo", clave `ui.team`)
+- [x] Colección `pages/` renderizada en `/<slug>/` (template `page` con TOC y `stack`)
+- [x] `about` enlazado en `nav` de `site.yaml` y test de integración para `pages/`
+- [x] Resaltado de líneas: las líneas vacías no se resaltan (evita barras grises); color de `hl` distinto al de los números de línea; demo con bloque normal y bloque resaltado
+
+### F21 — Calidad de islas y partials
+- [x] Accesibilidad: `tabs` con roles ARIA y navegación por teclado; `carousel` con teclado + dots + `alt`; `chart` con `role="img"` y descripción; `progress-ring` y `rating` con ARIA; `modal` con foco gestionado y `aria-labelledby`; `qr-code` con `title` y aviso de límite; `calendar` construido por DOM (sin `innerHTML`)
+- [x] `calendar` con `source="site"`: marca los días con posts/docs (genera `content-dates.json`) y enlaza al contenido
+- [x] Unificación de avisos: `alert`/`note` eliminados; `callout` como componente único
+- [x] `share` con i18n para "copiar enlace"
+- [x] Nueva isla `timeline` (`code-tabs` cubierto por `tabs` con secciones `##`)
+
+### F22 — Accesibilidad (WCAG / axe-core)
+- [x] Landmarks con etiquetas únicas (nav principal, pie, serie, entradas, docs, paginación, TOC)
+- [x] Anclas de encabezado con nombre accesible; `:focus-visible` global; `.sr-only`
+- [x] Etiquetas en `progressbar`, `output` y task lists; `<title>` en los SVG (chart, qr-code, progress-ring)
+- [x] Contraste AA: paleta de Chroma completa en oscuro (`genchroma`), color de acento como texto (`--accent-text`), badge/chip/tag/fecha
+- [x] Objetivos táctiles ≥24px (rating, carousel, kanban)
+- [x] Enlaces externos avisan de "se abre en ventana nueva"; `cite` en `quote`; kanban con alternativa de teclado (◀ ▶)
+- [x] Escaneo **axe-core**: 0 violaciones (claro y oscuro) en home, post, docs, 404, tags y autores
+
+### F23 — Rendimiento (Lighthouse)
+- [x] Imágenes con dimensiones/`aspect-ratio` explícitos (miniatura de vídeo, `figure`, carousel, lightbox)
+- [x] `font-display: swap` en las fuentes de KaTeX
+- [x] Eliminado CSS muerto (componentes retirados) y transiciones no compuestas (menos "unused CSS" y sin animaciones no compuestas)
+- [x] **Mermaid con carga diferida**: el bundle (~3,5 MB) se descarga solo cuando el primer diagrama entra en pantalla (`IntersectionObserver`)
+- [x] Botones primarios (`.cta`, `.modal-trigger`, `.modal-action`) con acento oscurecido → contraste 6.75:1
+- [x] **CSS de cada isla en su propio archivo** (`assets/islands/<n>.css`): se inyecta solo si la isla está en la página → `styles.css` de ~30,6 KB a 23,2 KB en todas las páginas
+- [x] **gzip en el dev server** (HTML/CSS/JS/JSON/SVG): la home de ejemplo pasa de 30,4 KB a 7,3 KB
+- [ ] Backlog: dividir el CSS base por página, minificar el JS propio (requiere parser/dependencia), build de Mermaid con carga diferida por tipo de diagrama
 
 ## 🧭 Backlog (competencias y mejoras)
 

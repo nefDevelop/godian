@@ -207,7 +207,7 @@ author: [tu-slug]
 chapters: [primer-post, segundo-post]
 ```
 
-**Pages** (`content/pages/*.md` o `.yaml`):
+**Pages** (`content/pages/*.md` o `.yaml`): se generan en `/<slug>/`.
 
 ```yaml
 ---
@@ -425,8 +425,10 @@ deploy/                              ejemplos de despliegue
 ## Desarrollo
 
 ```sh
-make build        # bin/godian
+make build        # bin/godian (con símbolos, depurable)
+make release      # bin/godian sin símbolos (-s -w) y con la versión inyectada
 make run          # go run ./cmd/godian build
+make serve        # go run ./cmd/godian serve (dev server en :4321)
 make test         # tests (unit + integración end-to-end)
 make cover        # cobertura
 make vet          # go vet
