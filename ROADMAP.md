@@ -217,6 +217,11 @@
 - [x] **Render hooks configurables** (`render:` en `site.yaml`): `external_links` (target/rel), `headings` (anclar + símbolo) e `images` (loading/decoding/figure)
 - [x] Tests de feed (sitemap) y de render hooks (enlaces, encabezados, imágenes)
 
+### F26 — Fuentes autohospedadas y facade de vídeo
+- [x] `fonts:` en `site.yaml`: descarga y autohospeda fuentes de Google Fonts en el build (`/assets/fonts` + `@font-face` con `font-display`); varias familias, pesos, estilos y subconjuntos; fallback con aviso si no hay red
+- [x] Shortcode `{{youtube}}` en **facade**: miniatura + botón; el iframe (`youtube-nocookie`) se carga al pulsar → sin cookies ni peticiones a terceros hasta entonces
+- [x] Isla `video` con `youtube-nocookie`
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.
