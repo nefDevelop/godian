@@ -42,6 +42,8 @@ type Processor struct {
 	outputDir  string
 	optimize   bool
 	presets    map[string]domain.ImagePreset
+	loading    string
+	decoding   string
 	variants   map[string][]Variant
 	avif       map[string][]Variant
 	presetVars map[string]map[string]Variant
@@ -49,19 +51,38 @@ type Processor struct {
 	dimensions map[string][2]int
 }
 
+// Option configura el Processor.
+type Option func(*Processor)
+
+// WithImageAttrs define los atributos de carga (loading/decoding) de los <img>.
+// Un valor vacío omite el atributo correspondiente.
+func WithImageAttrs(loading, decoding string) Option {
+	return func(p *Processor) {
+		p.loading = loading
+		p.decoding = decoding
+	}
+}
+
 // New crea un Processor.
-func New(assetsDir, outputDir string, optimize bool, presets map[string]domain.ImagePreset) *Processor {
-	return &Processor{
+func New(assetsDir, outputDir string, optimize bool, presets map[string]domain.ImagePreset, opts ...Option) *Processor {
+	defaults := domain.DefaultRenderConfig().Images
+	p := &Processor{
 		assetsDir:  assetsDir,
 		outputDir:  outputDir,
 		optimize:   optimize,
 		presets:    presets,
+		loading:    defaults.Loading,
+		decoding:   defaults.Decoding,
 		variants:   map[string][]Variant{},
 		avif:       map[string][]Variant{},
 		presetVars: map[string]map[string]Variant{},
 		lqip:       map[string]string{},
 		dimensions: map[string][2]int{},
 	}
+	for _, o := range opts {
+		o(p)
+	}
+	return p
 }
 
 // Process recorre AssetsDir: copia los archivos y genera variantes WebP de las imágenes.
@@ -218,7 +239,13 @@ func (p *Processor) imgTag(src, alt string, w, h int) string {
 			w, h = d[0], d[1]
 		}
 	}
-	s := `<img src="` + template.HTMLEscapeString(src) + `" alt="` + template.HTMLEscapeString(alt) + `" loading="lazy" decoding="async"`
+	s := `<img src="` + template.HTMLEscapeString(src) + `" alt="` + template.HTMLEscapeString(alt) + `"`
+	if p.loading != "" {
+		s += ` loading="` + template.HTMLEscapeString(p.loading) + `"`
+	}
+	if p.decoding != "" {
+		s += ` decoding="` + template.HTMLEscapeString(p.decoding) + `"`
+	}
 	if w > 0 && h > 0 {
 		s += fmt.Sprintf(` width="%d" height="%d"`, w, h)
 	}

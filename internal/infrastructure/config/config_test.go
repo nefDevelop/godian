@@ -45,3 +45,29 @@ func TestLoadInvalid(t *testing.T) {
 		t.Error("se esperaba error de YAML inválido")
 	}
 }
+
+func TestLoadRenderDefaultsAndOverride(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "site.yaml")
+	yml := "site:\n  title: X\nrender:\n  headings:\n    anchors: false\n"
+	if err := os.WriteFile(path, []byte(yml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Render.Headings.Anchors {
+		t.Error("anchors debería ser false (override)")
+	}
+	if cfg.Render.Headings.Anchor != "#" {
+		t.Errorf("anchor_label por defecto = %q", cfg.Render.Headings.Anchor)
+	}
+	if cfg.Render.ExternalLinks.Target != "_blank" || cfg.Render.ExternalLinks.Rel != "noopener noreferrer" {
+		t.Errorf("external_links por defecto = %+v", cfg.Render.ExternalLinks)
+	}
+	img := cfg.Render.Images
+	if img.Loading != "lazy" || img.Decoding != "async" || !img.Figure {
+		t.Errorf("images por defecto = %+v", img)
+	}
+}

@@ -4,6 +4,7 @@ package domain
 type Config struct {
 	Site        SiteConfig         `yaml:"site"`
 	Build       BuildConfig        `yaml:"build"`
+	Render      RenderConfig       `yaml:"render"`
 	Collections []CollectionConfig `yaml:"collections"`
 	Taxonomies  []TaxonomyConfig   `yaml:"taxonomies"`
 	Giscus      GiscusConfig       `yaml:"giscus"`
@@ -11,6 +12,33 @@ type Config struct {
 	Social      []SocialLink       `yaml:"social"`
 	Support     []SocialLink       `yaml:"support"`
 	Analytics   AnalyticsConfig    `yaml:"analytics"`
+}
+
+// RenderConfig agrupa los render hooks configurables: cómo ciertos elementos
+// Markdown se convierten en HTML (encabezados, enlaces externos e imágenes).
+type RenderConfig struct {
+	Headings      HeadingHooks      `yaml:"headings"`
+	ExternalLinks ExternalLinkHooks `yaml:"external_links"`
+	Images        ImageHooks        `yaml:"images"`
+}
+
+// HeadingHooks configura el render de los encabezados.
+type HeadingHooks struct {
+	Anchors bool   `yaml:"anchors"`      // añade un ancla enlazable a cada encabezado
+	Anchor  string `yaml:"anchor_label"` // símbolo/texto del ancla
+}
+
+// ExternalLinkHooks configura el render de los enlaces externos.
+type ExternalLinkHooks struct {
+	Target string `yaml:"target"` // p. ej. "_blank"; vacío = sin atributo target
+	Rel    string `yaml:"rel"`    // p. ej. "noopener noreferrer"; vacío = sin rel
+}
+
+// ImageHooks configura el render de las imágenes.
+type ImageHooks struct {
+	Loading  string `yaml:"loading"`  // lazy | eager | "" (sin atributo)
+	Decoding string `yaml:"decoding"` // async | sync | "" (sin atributo)
+	Figure   bool   `yaml:"figure"`   // envuelve imágenes con alt en <figure>/<figcaption>
 }
 
 // NavLink es un enlace de navegación configurable (con hijos opcionales).
@@ -121,6 +149,18 @@ func DefaultConfig() Config {
 			Optimize:    true,
 			Clean:       true,
 		},
+		Render: DefaultRenderConfig(),
+	}
+}
+
+// DefaultRenderConfig devuelve los render hooks por defecto, equivalentes al
+// comportamiento histórico del renderer (anclas, target/rel en externos,
+// imágenes lazy en <figure>).
+func DefaultRenderConfig() RenderConfig {
+	return RenderConfig{
+		Headings:      HeadingHooks{Anchors: true, Anchor: "#"},
+		ExternalLinks: ExternalLinkHooks{Target: "_blank", Rel: "noopener noreferrer"},
+		Images:        ImageHooks{Loading: "lazy", Decoding: "async", Figure: true},
 	}
 }
 

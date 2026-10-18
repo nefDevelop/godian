@@ -271,7 +271,8 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		return application.Summary{}, fmt.Errorf("cargando data/: %w", err)
 	}
 
-	imagesProc := images.New(cfg.Build.AssetsDir, filepath.FromSlash(cfg.Build.OutputDir), cfg.Build.Optimize, cfg.Build.ImagePresets)
+	imagesProc := images.New(cfg.Build.AssetsDir, filepath.FromSlash(cfg.Build.OutputDir), cfg.Build.Optimize, cfg.Build.ImagePresets,
+		images.WithImageAttrs(cfg.Render.Images.Loading, cfg.Render.Images.Decoding))
 
 	// Índice de enlaces (Obsidian): wikilinks entre colecciones, transclusión y backlinks.
 	linkIndex := application.NewLinkIndex()
@@ -279,6 +280,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		markdown.WithImageResolver(imagesProc.Picture),
 		markdown.WithWikilinkResolver(linkIndex.Wikilink),
 		markdown.WithTranslator(tr),
+		markdown.WithRenderConfig(cfg.Render),
 	)
 	linkIndex.SetRenderer(plainMD)
 
@@ -287,6 +289,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		markdown.WithWikilinkResolver(linkIndex.Wikilink),
 		markdown.WithEmbedResolver(linkIndex.Embed),
 		markdown.WithTranslator(tr),
+		markdown.WithRenderConfig(cfg.Render),
 		markdown.WithImageShortcode(func(args map[string]string) (template.HTML, error) {
 			src := args["src"]
 			if src == "" {

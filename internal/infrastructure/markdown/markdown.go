@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"regexp"
 	"strings"
 
 	"github.com/nefdevelop/godian/internal/domain"
@@ -51,6 +52,12 @@ func WithTranslator(fn func(key string) string) Option {
 	return func(r *Renderer) { r.tr = fn }
 }
 
+// WithRenderConfig aplica los render hooks configurables (encabezados, enlaces
+// externos e imágenes) que controlan el HTML emitido.
+func WithRenderConfig(cfg domain.RenderConfig) Option {
+	return func(r *Renderer) { r.render = cfg }
+}
+
 // WithImageShortcode resuelve el shortcode {{image src=… preset=… alt=…}}.
 func WithImageShortcode(fn func(args map[string]string) (template.HTML, error)) Option {
 	return func(r *Renderer) { r.imageShortcode = fn }
@@ -80,11 +87,12 @@ type Renderer struct {
 	wikilinkResolver func(target string) (string, bool)
 	embedResolver    func(target string) (template.HTML, bool)
 	tr               func(key string) string
+	render           domain.RenderConfig
 }
 
 // New construye un Renderer con las extensiones del tema.
 func New(opts ...Option) *Renderer {
-	r := &Renderer{shortcodes: map[string]Shortcode{}}
+	r := &Renderer{shortcodes: map[string]Shortcode{}, render: domain.DefaultRenderConfig()}
 	for _, o := range opts {
 		o(r)
 	}
@@ -102,7 +110,7 @@ func New(opts ...Option) *Renderer {
 			),
 			parser.WithASTTransformers(
 				util.Prioritized(&attributeTransformer{}, 100),
-				util.Prioritized(&figureTransformer{}, 200),
+				util.Prioritized(&figureTransformer{enabled: r.render.Images.Figure}, 200),
 				util.Prioritized(&calloutTransformer{}, 300),
 			),
 		),
@@ -118,6 +126,7 @@ func New(opts ...Option) *Renderer {
 				wikilinks:       r.wikilinkResolver,
 				embeds:          r.embedResolver,
 				tr:              r.tr,
+				render:          r.render,
 			}, 500)),
 		),
 	)
@@ -134,7 +143,7 @@ func (r *Renderer) Render(src string) (template.HTML, []domain.Heading, error) {
 	if err := r.md.Renderer().Render(&buf, source, doc); err != nil {
 		return "", nil, err
 	}
-	html := buf.String()
+	html := labelTaskCheckboxes(buf.String(), r.tr)
 	headings := collectHeadings(doc, source)
 
 	for i, blk := range blocks {
@@ -159,6 +168,25 @@ func (r *Renderer) Render(src string) (template.HTML, []domain.Heading, error) {
 func (r *Renderer) ToHTML(src string) (template.HTML, error) {
 	html, _, err := r.Render(src)
 	return html, err
+}
+
+var taskCheckboxRe = regexp.MustCompile(`<input[^>]*type="checkbox"[^>]*>`)
+
+// labelTaskCheckboxes añade un nombre accesible a los checkboxes de las task lists
+// (GFM los emite sin <label>).
+func labelTaskCheckboxes(html string, tr func(string) string) string {
+	pending, done := "Pending task", "Completed task"
+	if tr != nil {
+		pending = tr("ui.task_pending")
+		done = tr("ui.task_done")
+	}
+	return taskCheckboxRe.ReplaceAllStringFunc(html, func(m string) string {
+		label := pending
+		if strings.Contains(m, "checked") {
+			label = done
+		}
+		return strings.TrimSuffix(m, ">") + ` aria-label="` + label + `">`
+	})
 }
 
 func collectHeadings(doc ast.Node, source []byte) []domain.Heading {
@@ -193,5 +221,5 @@ func youtubeShortcode(args []string) (template.HTML, error) {
 	}
 	id := template.HTMLEscapeString(args[0])
 	return template.HTML(`<div class="video-embed"><iframe src="https://www.youtube.com/embed/` + id +
-		`" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`), nil
+		`" title="YouTube video player" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`), nil
 }

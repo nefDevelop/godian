@@ -1,8 +1,8 @@
 # Configuración del sitio para godian.
 site:
-  title: Ri
-  description: Un tema de Astro para blog y documentación
-  url: https://ri.pages.dev
+  title: godian
+  description: Blog y documentación de ejemplo, generados con godian (Go).
+  url: https://godian.pages.dev
   language: en
   color: "#2563eb"   # color de acento del tema por defecto
 
@@ -18,6 +18,20 @@ build:
   image_presets:
     thumb: { width: 480, height: 270, fit: fill, focal: center, quality: 78 }
     wide:  { width: 1200, fit: fit }
+
+# Render hooks (opcional). Controlan el HTML emitido desde Markdown.
+# Los valores mostrados son los que se usan por defecto.
+render:
+  headings:
+    anchors: true          # ancla enlazable en cada encabezado
+    anchor_label: "#"      # símbolo del ancla
+  external_links:
+    target: "_blank"       # vacío = sin target
+    rel: "noopener noreferrer"  # vacío = sin rel
+  images:
+    loading: lazy          # lazy | eager | "" (sin atributo)
+    decoding: async        # async | sync | "" (sin atributo)
+    figure: true           # envuelve imágenes con alt en <figure>/<figcaption>
 
 # Si se omite, se usan las colecciones estándar (blog, docs, authors, series, pages).
 # collections:
@@ -41,6 +55,7 @@ nav:
       - { label: Componentes, url: /docs/components/ }
       - { label: Publicación, url: /docs/publicacion/ }
   - { label: Archivo, url: /archive/ }
+  - { label: Acerca de, url: /about/ }
 
 # Enlaces sociales y de apoyo (opcional).
 social:

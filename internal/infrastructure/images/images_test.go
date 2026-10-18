@@ -99,3 +99,23 @@ func TestLQIPAndPreset(t *testing.T) {
 		t.Error("Preset inexistente no debe existir")
 	}
 }
+
+func TestImageAttrsConfigurable(t *testing.T) {
+	dir := t.TempDir()
+	p := New(filepath.Join(dir, "assets"), filepath.Join(dir, "dist"), false, nil,
+		WithImageAttrs("eager", ""))
+	html := string(p.Picture("/x.jpg", "x"))
+	if !strings.Contains(html, `loading="eager"`) {
+		t.Errorf("loading configurable no aplicado: %s", html)
+	}
+	if strings.Contains(html, "decoding=") {
+		t.Errorf("decoding debería omitirse: %s", html)
+	}
+
+	// Por defecto: lazy/async.
+	def := New(filepath.Join(dir, "assets"), filepath.Join(dir, "dist"), false, nil)
+	d := string(def.Picture("/x.jpg", "x"))
+	if !strings.Contains(d, `loading="lazy"`) || !strings.Contains(d, `decoding="async"`) {
+		t.Errorf("defaults de imagen incorrectos: %s", d)
+	}
+}

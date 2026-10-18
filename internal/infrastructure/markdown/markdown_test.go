@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"strings"
 	"testing"
+
+	"github.com/nefdevelop/godian/internal/domain"
 )
 
 func TestIslandShortcode(t *testing.T) {
@@ -214,5 +216,63 @@ func TestUnknownShortcodeLiteral(t *testing.T) {
 	out := render(t, "{{desconocido arg}}")
 	if !strings.Contains(out, "{{desconocido arg}}") {
 		t.Errorf("shortcode desconocido no se dejó literal: %s", out)
+	}
+}
+
+func renderCfg(t *testing.T, cfg domain.RenderConfig, src string) string {
+	t.Helper()
+	out, err := New(WithRenderConfig(cfg)).ToHTML(src)
+	if err != nil {
+		t.Fatalf("ToHTML() error = %v", err)
+	}
+	return string(out)
+}
+
+func TestRenderConfigHeadingAnchorsOff(t *testing.T) {
+	cfg := domain.DefaultRenderConfig()
+	cfg.Headings.Anchors = false
+	out := renderCfg(t, cfg, "# Hola")
+	if strings.Contains(out, `class="anchor"`) {
+		t.Errorf("no debería haber ancla: %s", out)
+	}
+	if !strings.Contains(out, `<h1 id="hola">`) {
+		t.Errorf("el encabezado debería conservar el id: %s", out)
+	}
+}
+
+func TestRenderConfigHeadingAnchorLabel(t *testing.T) {
+	cfg := domain.DefaultRenderConfig()
+	cfg.Headings.Anchor = "¶"
+	out := renderCfg(t, cfg, "# Hola")
+	// El símbolo va en un <span aria-hidden> con nombre accesible en el <a>.
+	if !strings.Contains(out, `>¶</span></a>`) || !strings.Contains(out, `aria-label="`) {
+		t.Errorf("etiqueta de ancla personalizada no aplicada: %s", out)
+	}
+}
+
+func TestRenderConfigExternalLinkDisabled(t *testing.T) {
+	cfg := domain.DefaultRenderConfig()
+	cfg.ExternalLinks.Target = ""
+	cfg.ExternalLinks.Rel = ""
+	out := renderCfg(t, cfg, "[go](https://go.dev)")
+	if strings.Contains(out, "target=") || strings.Contains(out, "rel=") {
+		t.Errorf("enlace externo no debería llevar target/rel: %s", out)
+	}
+}
+
+func TestRenderConfigImageAttrsAndFigureOff(t *testing.T) {
+	cfg := domain.DefaultRenderConfig()
+	cfg.Images.Loading = "eager"
+	cfg.Images.Decoding = ""
+	cfg.Images.Figure = false
+	out := renderCfg(t, cfg, "![Un paisaje](/img/x.jpg)")
+	if !strings.Contains(out, `loading="eager"`) {
+		t.Errorf("loading configurable no aplicado: %s", out)
+	}
+	if strings.Contains(out, "decoding=") {
+		t.Errorf("decoding debería omitirse: %s", out)
+	}
+	if strings.Contains(out, "<figure") {
+		t.Errorf("figure desactivada pero presente: %s", out)
 	}
 }

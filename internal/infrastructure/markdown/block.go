@@ -97,9 +97,14 @@ func addClass(n ast.Node, cls string) {
 }
 
 // figureTransformer envuelve párrafos que solo contienen una imagen.
-type figureTransformer struct{}
+type figureTransformer struct {
+	enabled bool
+}
 
 func (t *figureTransformer) Transform(doc *ast.Document, reader text.Reader, pc parser.Context) {
+	if !t.enabled {
+		return
+	}
 	processFigures(doc, reader.Source())
 }
 

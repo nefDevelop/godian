@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/nefdevelop/godian/internal/domain"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/util"
@@ -19,6 +20,7 @@ type customRenderer struct {
 	wikilinks       func(target string) (string, bool)
 	embeds          func(target string) (template.HTML, bool)
 	tr              func(key string) string
+	render          domain.RenderConfig
 }
 
 func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
@@ -35,20 +37,34 @@ func (r *customRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindLink, r.renderLink)
 }
 
-// renderLink añade target/rel a los enlaces externos.
+// renderLink aplica a los enlaces externos el target/rel configurados y avisa
+// (para lectores de pantalla) de que abren en ventana nueva.
 func (r *customRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
+	href := string(n.Destination)
+	external := isExternal(href)
 	if entering {
-		href := string(n.Destination)
 		_, _ = w.WriteString(`<a href="` + escape(href) + `"`)
-		if isExternal(href) {
-			_, _ = w.WriteString(` target="_blank" rel="noopener noreferrer"`)
+		if external {
+			if target := r.render.ExternalLinks.Target; target != "" {
+				_, _ = w.WriteString(` target="` + escape(target) + `"`)
+			}
+			if rel := r.render.ExternalLinks.Rel; rel != "" {
+				_, _ = w.WriteString(` rel="` + escape(rel) + `"`)
+			}
 		}
 		if len(n.Title) > 0 {
 			_, _ = w.WriteString(` title="` + escape(string(n.Title)) + `"`)
 		}
 		_, _ = w.WriteString(`>`)
 	} else {
+		if external && r.render.ExternalLinks.Target == "_blank" {
+			hint := "opens in a new window"
+			if r.tr != nil {
+				hint = r.tr("ui.new_window")
+			}
+			_, _ = w.WriteString(`<span class="sr-only"> (` + escape(hint) + `)</span>`)
+		}
 		_, _ = w.WriteString(`</a>`)
 	}
 	return ast.WalkContinue, nil
@@ -58,7 +74,7 @@ func isExternal(href string) bool {
 	return strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://") || strings.HasPrefix(href, "//")
 }
 
-// renderHeading añade un ancla "#" a cada encabezado.
+// renderHeading añade (según config) un ancla a cada encabezado.
 func (r *customRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
 	id := attrString(n, "id")
@@ -70,8 +86,13 @@ func (r *customRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 		}
 		_, _ = w.WriteString(">")
 	} else {
-		if id != "" {
-			_, _ = w.WriteString(`<a class="anchor" href="#` + escape(id) + `" aria-hidden="true" tabindex="-1">#</a>`)
+		if id != "" && r.render.Headings.Anchors && r.render.Headings.Anchor != "" {
+			// Enlace de ancla con nombre accesible (el símbolo es decorativo).
+			label := "Enlace a esta sección"
+			if r.tr != nil {
+				label = r.tr("ui.anchor")
+			}
+			_, _ = w.WriteString(`<a class="anchor" href="#` + escape(id) + `" aria-label="` + escape(label) + `" tabindex="-1"><span aria-hidden="true">` + escape(r.render.Headings.Anchor) + `</span></a>`)
 		}
 		_, _ = w.WriteString("</h")
 		_, _ = w.WriteString(strconv.Itoa(n.Level))
@@ -107,8 +128,20 @@ func (r *customRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 			return ast.WalkContinue, nil
 		}
 	}
-	_, _ = w.WriteString(`<img src="` + escape(src) + `" alt="` + escape(alt) + `" loading="lazy" decoding="async">`)
+	_, _ = w.WriteString(`<img src="` + escape(src) + `" alt="` + escape(alt) + `"` + r.imgAttrs() + `>`)
 	return ast.WalkContinue, nil
+}
+
+// imgAttrs devuelve los atributos de carga de las imágenes según config.
+func (r *customRenderer) imgAttrs() string {
+	var b strings.Builder
+	if r.render.Images.Loading != "" {
+		b.WriteString(` loading="` + escape(r.render.Images.Loading) + `"`)
+	}
+	if r.render.Images.Decoding != "" {
+		b.WriteString(` decoding="` + escape(r.render.Images.Decoding) + `"`)
+	}
+	return b.String()
 }
 
 // renderMarker solo se alcanza si el marcador no se convirtió en callout.
@@ -160,7 +193,7 @@ func (r *customRenderer) renderEmbed(w util.BufWriter, source []byte, node ast.N
 		return ast.WalkContinue, nil
 	}
 	esc := escape(n.Target)
-	_, _ = w.WriteString(`<img class="embed" src="/` + esc + `" alt="` + esc + `" loading="lazy" decoding="async">`)
+	_, _ = w.WriteString(`<img class="embed" src="/` + esc + `" alt="` + esc + `"` + r.imgAttrs() + `>`)
 	return ast.WalkContinue, nil
 }
 
