@@ -71,6 +71,29 @@ func parseRanges(spec string) map[int]bool {
 }
 
 // highlightLines marca con la clase "hl" las líneas indicadas del HTML de Chroma.
+// stripTags elimina las etiquetas HTML de s, dejando solo el texto.
+func stripTags(s string) string {
+	var b strings.Builder
+	inTag := false
+	for _, c := range s {
+		if c == '<' {
+			inTag = true
+			continue
+		}
+		if c == '>' {
+			inTag = false
+			continue
+		}
+		if !inTag {
+			b.WriteRune(c)
+		}
+	}
+	return b.String()
+}
+
+// highlightLines marca con la clase "hl" las líneas indicadas del HTML de Chroma.
+// Las líneas vacías (o solo con espacios) no se resaltan, porque un resaltado
+// sobre una línea vacía se renderiza como una barra gris sin contenido.
 func highlightLines(html string, lines map[int]bool) string {
 	if len(lines) == 0 {
 		return html
@@ -86,12 +109,23 @@ func highlightLines(html string, lines map[int]bool) string {
 		}
 		n++
 		b.WriteString(html[:i])
-		if lines[n] {
+		rest := html[i:]
+		end := strings.Index(rest, "\n")
+		if end < 0 {
+			end = len(rest)
+		} else {
+			end++ // incluye el salto de línea
+		}
+		lineHTML := rest[:end]
+		content := strings.TrimSpace(stripTags(lineHTML))
+		isEmpty := content == ""
+		if lines[n] && !isEmpty {
 			b.WriteString(`<span class="line hl">`)
 		} else {
 			b.WriteString(marker)
 		}
-		html = html[i+len(marker):]
+		b.WriteString(rest[len(marker):end])
+		html = rest[end:]
 	}
 	return b.String()
 }
@@ -166,12 +200,13 @@ func highlightCode(code, lang string, lineNumbers bool) string {
 
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
-		return `<pre class="chroma"><code>` + escape(code) + `</code></pre>`
+		return `<pre class="chroma" tabindex="0"><code>` + escape(code) + `</code></pre>`
 	}
 
 	var buf bytes.Buffer
 	if err := formatter.Format(&buf, styles.Get("github"), iterator); err != nil {
-		return `<pre class="chroma"><code>` + escape(code) + `</code></pre>`
+		return `<pre class="chroma" tabindex="0"><code>` + escape(code) + `</code></pre>`
 	}
-	return buf.String()
+	// tabindex="0" hace accesible por teclado el bloque con scroll horizontal.
+	return strings.Replace(buf.String(), `<pre class="chroma">`, `<pre class="chroma" tabindex="0">`, 1)
 }

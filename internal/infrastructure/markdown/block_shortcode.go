@@ -15,7 +15,9 @@ type block struct {
 }
 
 var (
-	blockStartRe = regexp.MustCompile(`^\{\{#\s*(island|partial)\s+([A-Za-z0-9_-]+)((?:\s+[^\s}]+)*)\s*\}\}$`)
+	// Las props pueden contener valores entre comillas con espacios (p. ej. label="Ver más"),
+	// así que se captura el resto de la línea hasta el cierre y se delega el parseo a tokenize.
+	blockStartRe = regexp.MustCompile(`^\{\{#\s*(island|partial)\s+([A-Za-z0-9_-]+)(.*)\}\}$`)
 	blockEndRe   = regexp.MustCompile(`^\{\{/\s*(island|partial)\s*\}\}$`)
 )
 
