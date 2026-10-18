@@ -128,6 +128,21 @@ Contenido de la segunda.
 | `embed` | `src`, `title`, `ratio` | `{{partial embed src="https://..." title="Vídeo" ratio="16x9"}}` |
 | `tooltip` | `text`, `label` | `{{partial tooltip text="Ayuda" label="?"}}` |
 
+## Iconos
+
+El catálogo **Lucide** (1891 iconos) viene embebido. En plantillas: `{{ icon "nombre" }}`
+(decorativo) o `{{ icon "nombre" "Etiqueta" }}` (accesible). En Markdown:
+
+{{icon play Reproducir}} {{icon heart}} {{icon zap}} {{icon badge-check}} {{icon coffee}} {{icon sun-moon}}
+
+```md
+{{icon play Reproducir}} {{icon heart}} {{icon zap}}
+```
+
+Se emiten **inline**: solo viajan los iconos que aparecen en la página (no hay sprite ni
+fuente de iconos). Para uno que no esté en Lucide (marcas, etc.) suelta un
+`icons/<nombre>.svg` en el tema: sobrescribe el catálogo por nombre.
+
 ## Carga diferida
 
 El runtime (`assets/js/islands.js`) lee `assets/islands/manifest.json` e importa

@@ -268,6 +268,7 @@ Además de GFM (tablas, tachado, listas de tareas, autolinks):
 | ` ```mermaid ` | diagrama (carga diferida) |
 | `$…$` / `$$…$$` | KaTeX (carga diferida) |
 | `{{youtube id}}` | shortcode integrado |
+| `{{icon play}}` | icono Lucide (o propio del tema) |
 | HTML crudo | se preserva (`<details>`, `<iframe>`…) |
 
 ---
@@ -283,6 +284,7 @@ themes/<nombre>/
 │   ├── base/páginas .html (home, blog, post, terms, taxonomy, authors, author, series, series-detail, archive, search, docs, docs-index, 404)
 │   ├── partials/         # head, header, footer, card, toc, pagination, breadcrumb, docsnav, searchmodal
 │   └── islands/          # HTML SSR de islas (opcional)
+├── icons/                # iconos propios (opcional; sobrescriben Lucide)
 └── assets/
     ├── css/              # estilos (styles.css + chunks/<n>.css)
     ├── js/               # scripts
@@ -308,6 +310,22 @@ assets:
 - **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre>"` (p. ej. `article-ux` en posts, `docs` en `/docs/`, `lists` en listados). El generador los fingerprinta y añade el `<link>` en el `<head>` (sincrónico, sin FOUC).
 - **Overlay**: puedes sobrescribir un template/asset concreto sin copiar todo el tema.
 - **Fingerprinting/minify** se aplican a los assets del tema.
+
+### Iconos
+
+El catálogo por defecto es **Lucide** (1891 iconos, licencia ISC) **embebido en el binario**.
+
+```html
+{{ icon "play" }}               <!-- decorativo: aria-hidden -->
+{{ icon "play" "Reproducir" }}  <!-- significativo: role="img" + <title> -->
+```
+
+En Markdown: `{{icon play}}` / `{{icon play Reproducir}}`.
+
+- **Inline**: solo viajan en el HTML los iconos que usa cada página (ni sprite ni fuente de iconos).
+- Heredan `color` y tamaño del texto (`currentColor` + `1em`); se ajustan con `font-size`.
+- **Propios del tema**: suelta un `.svg` en `icons/` del tema (el nombre del fichero es el nombre del icono); **sobrescriben Lucide** si coinciden. Para marcas que Lucide no incluye (GitHub, Mastodon…).
+- Un icono **desconocido** no rompe el build: avisa por stderr y pinta un placeholder visible.
 
 ---
 
@@ -404,6 +422,7 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Taxonomías configurables**: tags/categorías con descripción, aliases, peso, `strict`, `render_empty`, jerárquicas.
 - **Markdown extendido** y compatibilidad Obsidian (ver tabla arriba).
 - **Componentes/islas** data-driven, con **contenido hijo** (`{{#island …}}…{{/island}}` / `{{#partial …}}…{{/partial}}`) que envuelve Markdown.
+- **Iconos**: **Lucide** (1891) embebido; `{{ icon }}` en plantillas y `{{icon}}` en Markdown, **inline** (solo se emiten los usados) y ampliables con `icons/*.svg` del tema.
 - **Código**: Chroma (temas claro/oscuro), números de línea, líneas resaltadas, bloques plegables, botón copiar.
 - **Imágenes**: variantes WebP + `<picture>`/`srcset` con `width`/`height`.
 - **Navegación**: TOC (sticky), paginación, archivo, búsqueda (índice propio en Go + JS) con **modal Ctrl/⌘K**, **docs** con sidebar y breadcrumbs, y **menús anidados** (config).

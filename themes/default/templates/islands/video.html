@@ -1,6 +1,6 @@
 <div class="video" data-video-id="{{ .id }}">
 	<button class="video-play" type="button" aria-label="Play video">
 		<img src="{{ if .poster }}{{ .poster }}{{ else }}https://i.ytimg.com/vi/{{ .id }}/hqdefault.jpg{{ end }}" alt="{{ .title }}" width="480" height="360" loading="lazy" decoding="async">
-		<span class="video-play-icon" aria-hidden="true">▶</span>
+		<span class="video-play-icon" aria-hidden="true">{{ icon "play" }}</span>
 	</button>
 </div>

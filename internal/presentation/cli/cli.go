@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 	"github.com/nefdevelop/godian/internal/infrastructure/data"
 	"github.com/nefdevelop/godian/internal/infrastructure/feed"
 	"github.com/nefdevelop/godian/internal/infrastructure/fonts"
+	"github.com/nefdevelop/godian/internal/infrastructure/icons"
 	"github.com/nefdevelop/godian/internal/infrastructure/images"
 	"github.com/nefdevelop/godian/internal/infrastructure/islands"
 	"github.com/nefdevelop/godian/internal/infrastructure/markdown"
@@ -270,6 +272,23 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	}
 
 	reg := islands.New(th.FS())
+
+	// Iconos: catálogo Lucide embebido + los propios del tema (icons/*.svg).
+	iconReg, err := icons.New()
+	if err != nil {
+		return application.Summary{}, err
+	}
+	if err := iconReg.LoadDir(th.FS(), "icons"); err != nil {
+		return application.Summary{}, err
+	}
+	var iconWarnings []string
+	var iconMu sync.Mutex
+	iconReg.SetWarning(func(w string) {
+		iconMu.Lock()
+		iconWarnings = append(iconWarnings, w)
+		iconMu.Unlock()
+	})
+
 	funcs := template.FuncMap{
 		"t": func(key string) string {
 			if v, ok := dict[key]; ok && v != "" {
@@ -278,6 +297,9 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 			return i18n.T(lang, key)
 		},
 		"dict": dictFunc,
+		"icon": func(name string, label ...string) (template.HTML, error) {
+			return iconReg.HTML(name, firstString(label))
+		},
 		"island": func(name string, props ...map[string]string) (template.HTML, error) {
 			return reg.Island(name, firstMap(props))
 		},
@@ -335,6 +357,12 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		}),
 		markdown.WithIslandResolver(reg.Resolve),
 		markdown.WithBlockResolver(reg.ResolveBlock),
+		markdown.WithShortcode("icon", func(args []string) (template.HTML, error) {
+			if len(args) == 0 {
+				return "", fmt.Errorf("{{icon}}: falta el nombre")
+			}
+			return iconReg.HTML(args[0], strings.Join(args[1:], " "))
+		}),
 	)
 
 	ogGen, err := og.New(filepath.FromSlash(cfg.Build.OutputDir))
@@ -394,6 +422,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		return summary, err
 	}
 	summary.Warnings = append(summary.Warnings, i18nWarnings...)
+	summary.Warnings = append(summary.Warnings, iconWarnings...)
 	if problems, verr := verify.Dist(filepath.FromSlash(cfg.Build.OutputDir)); verr == nil {
 		summary.Errors = problems
 	}
@@ -448,6 +477,14 @@ func firstMap(maps []map[string]string) map[string]string {
 		return maps[0]
 	}
 	return map[string]string{}
+}
+
+// firstString devuelve el primer valor de una lista variádica, o "".
+func firstString(values []string) string {
+	if len(values) > 0 {
+		return values[0]
+	}
+	return ""
 }
 
 // dictFunc construye un map[string]string desde pares clave/valor.

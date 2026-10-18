@@ -227,6 +227,13 @@
 - [x] Shortcode `{{youtube}}` en **facade**: miniatura + botón; el iframe (`youtube-nocookie`) se carga al pulsar → sin cookies ni peticiones a terceros hasta entonces
 - [x] Isla `video` con `youtube-nocookie`
 
+### F27 — Iconos (Lucide)
+- [x] Catálogo **Lucide** (1891 iconos, licencia ISC) **embebido** en el binario (`internal/infrastructure/icons/lucide.json`)
+- [x] `{{ icon }}` en plantillas y `{{icon}}` en Markdown; decorativo por defecto y accesible con etiqueta (`role="img"` + `<title>`)
+- [x] Salida **inline**: solo se emiten en el HTML los iconos usados (sin sprite ni fuente de iconos)
+- [x] Iconos **propios del tema** en `icons/*.svg` (sobrescriben Lucide por nombre); icono desconocido → aviso + placeholder visible
+- [x] Glifos del tema migrados a Lucide (menú, toggle de tema, play del vídeo, TOC flotante)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

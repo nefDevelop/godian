@@ -14,6 +14,7 @@ import (
 	"github.com/nefdevelop/godian/internal/i18n"
 	"github.com/nefdevelop/godian/internal/infrastructure/content"
 	"github.com/nefdevelop/godian/internal/infrastructure/feed"
+	"github.com/nefdevelop/godian/internal/infrastructure/icons"
 	"github.com/nefdevelop/godian/internal/infrastructure/islands"
 	"github.com/nefdevelop/godian/internal/infrastructure/markdown"
 	"github.com/nefdevelop/godian/internal/infrastructure/output"
@@ -42,9 +43,19 @@ func TestBuildEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 	reg := islands.New(th.FS())
+	iconReg, err := icons.New()
+	if err != nil {
+		t.Fatalf("icons.New: %v", err)
+	}
+	if err := iconReg.LoadDir(th.FS(), "icons"); err != nil {
+		t.Fatalf("icons.LoadDir: %v", err)
+	}
 	funcs := template.FuncMap{
-		"t": func(k string) string { return i18n.T("es", k) },
+		"t":    func(k string) string { return i18n.T("es", k) },
 		"dict": dictFunc,
+		"icon": func(name string, label ...string) (template.HTML, error) {
+			return iconReg.HTML(name, firstString(label))
+		},
 		"island": func(name string, props ...map[string]string) (template.HTML, error) {
 			return reg.Island(name, firstMap(props))
 		},
@@ -155,6 +166,13 @@ func firstMap(maps []map[string]string) map[string]string {
 		return maps[0]
 	}
 	return map[string]string{}
+}
+
+func firstString(values []string) string {
+	if len(values) > 0 {
+		return values[0]
+	}
+	return ""
 }
 
 func dictFunc(values ...any) (map[string]string, error) {

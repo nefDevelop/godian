@@ -1,6 +1,6 @@
 {{define "toc-float"}}{{ if .TOC }}<div class="toc-float">
 	<button type="button" class="toc-fab" aria-expanded="false" aria-controls="toc-float-panel">
-		<span aria-hidden="true">☰</span> {{ t "ui.toc" }}
+		<span aria-hidden="true">{{ icon "list" }}</span> {{ t "ui.toc" }}
 	</button>
 	<div class="toc-float-panel" id="toc-float-panel" tabindex="0">{{ template "toc" . }}</div>
 </div>{{ end }}{{ end }}

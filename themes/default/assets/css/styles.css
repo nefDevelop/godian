@@ -59,6 +59,21 @@ html {
 	}
 }
 
+/* Iconos (Lucide por defecto): heredan color y tamaño del texto */
+.icon {
+	width: 1em;
+	height: 1em;
+	vertical-align: -0.125em;
+	flex: none;
+}
+
+.icon-missing {
+	border: 1px dashed currentColor;
+	border-radius: 0.25em;
+	padding: 0 0.25em;
+	color: var(--muted);
+}
+
 body {
 	margin: 0;
 	min-height: 100vh;
@@ -543,7 +558,8 @@ img.embed {
 	justify-content: center;
 	font-size: 3rem;
 	color: #fff;
-	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+	/* El icono es SVG: la sombra va con filter, no con text-shadow. */
+	filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
 }
 
 .video-embed .video-iframe {
