@@ -76,6 +76,7 @@ support:
 #   - family: Inter
 #     weights: [400, 700]
 #     subsets: [latin]
+# Y para aplicarla al cuerpo:  site.font: Inter
 
 # Taxonomías configurables. Si se omite, se usan tags y categories por defecto.
 taxonomies:

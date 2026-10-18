@@ -140,8 +140,11 @@ fonts:
 
 - Se genera `/assets/css/fonts.css` con los `@font-face` (con `font-display`) y se añade al `<head>`.
 - Se pueden declarar **varias** fuentes (una entrada por familia).
+- Para **aplicarla** al cuerpo: `site.font: Inter` (el tema usa `--font-sans`/`--font-mono`).
 - Si el build no tiene red, **avisa y sigue** con las fuentes del sistema (no rompe).
 - Licencias: la mayoría son OFL (autohospedaje permitido).
+
+Más detalle en la documentación del sitio: **`/docs/fuentes/`**.
 
 ---
 
