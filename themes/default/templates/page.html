@@ -9,6 +9,7 @@
 		{{ if .Stack }}<ul class="page-stack">{{ range .Stack }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
 	</article>
 	{{ if .TOC }}<div class="docs-toc">{{ template "toc" . }}</div>{{ end }}
+	{{ template "toc-float" . }}
 	{{ if .Backlinks }}<section class="backlinks">
 		<h2>{{ t "ui.backlinks" }}</h2>
 		<ul>{{ range .Backlinks }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}</ul>

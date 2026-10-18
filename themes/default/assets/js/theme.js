@@ -22,15 +22,16 @@
 	if (tocLinks.length && 'IntersectionObserver' in window) {
 		var map = {};
 		tocLinks.forEach(function (a) {
-			map[decodeURIComponent(a.getAttribute('href').slice(1))] = a;
+			var id = decodeURIComponent(a.getAttribute('href').slice(1));
+			(map[id] = map[id] || []).push(a);
 		});
 		var headings = Array.prototype.slice.call(document.querySelectorAll('.prose h2[id], .prose h3[id]'));
 		var observer = new IntersectionObserver(function (entries) {
 			entries.forEach(function (entry) {
 				if (!entry.isIntersecting) return;
 				tocLinks.forEach(function (a) { a.classList.remove('is-active'); });
-				var link = map[entry.target.id];
-				if (link) link.classList.add('is-active');
+				var links = map[entry.target.id];
+				if (links) links.forEach(function (a) { a.classList.add('is-active'); });
 			});
 		}, { rootMargin: '-80px 0px -70% 0px' });
 		headings.forEach(function (h) { observer.observe(h); });
@@ -227,6 +228,31 @@ document.addEventListener('click', function (e) {
 	box.appendChild(iframe);
 	btn.style.display = 'none';
 });
+
+// TOC flotante (móvil): el botón abre/cierra el índice.
+(function () {
+	var fab = document.querySelector('.toc-fab');
+	var panel = document.querySelector('.toc-float-panel');
+	if (!fab || !panel) return;
+	function set(open) {
+		fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+		panel.classList.toggle('is-open', open);
+	}
+	set(false);
+	fab.addEventListener('click', function (e) {
+		e.stopPropagation();
+		set(fab.getAttribute('aria-expanded') !== 'true');
+	});
+	panel.addEventListener('click', function (e) {
+		if (e.target.closest && e.target.closest('a')) set(false);
+	});
+	document.addEventListener('click', function (e) {
+		if (!panel.contains(e.target) && !fab.contains(e.target)) set(false);
+	});
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'Escape') set(false);
+	});
+})();
 
 // Tablas ordenables (table.sortable).
 document.addEventListener('click', function (e) {

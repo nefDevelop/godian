@@ -297,9 +297,58 @@ a {
 	color: var(--accent-text);
 }
 
+/* TOC flotante (móvil): botón + hoja inferior */
+.toc-float {
+	display: none;
+}
+
+.toc-fab {
+	position: fixed;
+	left: 1rem;
+	bottom: 1rem;
+	z-index: 55;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 0.9rem;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--card);
+	color: var(--fg);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.85rem;
+}
+
+.toc-fab:hover {
+	border-color: var(--accent);
+	color: var(--accent-text);
+}
+
+.toc-float-panel {
+	display: none;
+	position: fixed;
+	left: 1rem;
+	right: 1rem;
+	bottom: 4.25rem;
+	z-index: 55;
+	max-height: 60vh;
+	overflow: auto;
+}
+
+.toc-float-panel.is-open {
+	display: block;
+}
+
 @media (max-width: 59.99rem) {
-	.toc-aside {
-		order: -1;
+	.toc-aside,
+	.docs-toc {
+		display: none;
+	}
+
+	.toc-float {
+		display: block;
 	}
 }
 

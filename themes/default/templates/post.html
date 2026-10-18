@@ -64,6 +64,7 @@
 		</section>{{ end }}
 	</article>
 	{{ if .TOC }}<aside class="toc-aside" aria-label="{{ t "ui.toc" }}">{{ template "toc" . }}</aside>{{ end }}
+	{{ template "toc-float" . }}
 </div>
 <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">↑</button>
 {{ template "footer" . }}{{ end }}
