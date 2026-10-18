@@ -1,0 +1,10 @@
+.kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; }
+.kanban-column { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; min-height: 8rem; }
+.kanban-column-title { margin: 0 0 .5rem; font-size: .9rem; font-weight: 700; }
+.kanban-cards { display: flex; flex-direction: column; gap: .5rem; min-height: 2rem; }
+.kanban-cards.is-dragover { background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: .4rem; }
+.kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: .4rem; padding: .4rem .6rem; cursor: grab; font-size: .85rem; display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.kanban-card:active { cursor: grabbing; }
+.kanban-card-actions { display: inline-flex; gap: .2rem; flex-shrink: 0; }
+.kanban-move { border: 1px solid var(--border); border-radius: .3rem; background: var(--card); color: var(--fg); cursor: pointer; font-size: .7rem; line-height: 1; min-width: 1.5rem; min-height: 1.5rem; padding: .2rem .35rem; }
+.kanban-move:hover { border-color: var(--accent); color: var(--accent-text); }

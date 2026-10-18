@@ -13,6 +13,7 @@ export function mount(el, props) {
 			s.className = 'star';
 			s.textContent = '★';
 			s.setAttribute('aria-label', n + '/' + max);
+			s.setAttribute('aria-pressed', 'false');
 			s.addEventListener('click', function () { current = n; paint(); });
 			stars.push(s);
 			el.appendChild(s);
@@ -20,7 +21,11 @@ export function mount(el, props) {
 	}
 
 	function paint() {
-		stars.forEach(function (s, idx) { s.classList.toggle('is-on', idx < current); });
+		stars.forEach(function (s, idx) {
+			var on = idx < current;
+			s.classList.toggle('is-on', on);
+			s.setAttribute('aria-pressed', on ? 'true' : 'false');
+		});
 	}
 	paint();
 }

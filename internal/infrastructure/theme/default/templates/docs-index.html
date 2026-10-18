@@ -1,6 +1,6 @@
 {{define "docs-index"}}{{ template "head" . }}{{ template "header" . }}
 <div class="wrap docs-layout">
-	<aside class="docs-sidebar">{{ template "docsnav" . }}</aside>
+	<aside class="docs-sidebar" aria-label="{{ t "ui.docs_nav" }}">{{ template "docsnav" . }}</aside>
 	<div class="docs-content">
 		{{ template "breadcrumb" . }}
 		<h1>{{ .Title }}</h1>

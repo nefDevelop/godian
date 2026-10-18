@@ -32,38 +32,74 @@ function headingText(h) {
 	return clone.textContent.trim();
 }
 
-function buildFromSections(el, sections) {
+// kbHandler gestiona la navegación por teclado del tablist (ARIA practices).
+function kbHandler(buttons, activate) {
+	return function (e) {
+		var idx = buttons.indexOf(document.activeElement);
+		if (idx < 0) return;
+		var next = null;
+		if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % buttons.length;
+		else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (idx - 1 + buttons.length) % buttons.length;
+		else if (e.key === 'Home') next = 0;
+		else if (e.key === 'End') next = buttons.length - 1;
+		if (next === null) return;
+		e.preventDefault();
+		buttons[next].focus();
+		activate(next);
+	};
+}
+
+function buildTablist(el, titles, panels) {
 	el.innerHTML = '';
 	var nav = document.createElement('div');
 	nav.className = 'tabs-nav';
-	var panels = sections.map(function (s) {
-		var p = document.createElement('div');
-		p.className = 'tab-panel';
-		s.nodes.forEach(function (n) { p.appendChild(n); });
-		return p;
-	});
-	sections.forEach(function (s, i) {
+	nav.setAttribute('role', 'tablist');
+
+	var container = document.createElement('div');
+	container.className = 'tabs-panels';
+
+	var buttons = titles.map(function (title, i) {
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.className = 'tab';
-		b.textContent = s.title;
+		b.setAttribute('role', 'tab');
+		b.id = 'tab-' + 'x' + i + '-' + Math.random().toString(36).slice(2, 7);
+		b.textContent = title;
 		b.addEventListener('click', function () { activate(i); });
 		nav.appendChild(b);
+		return b;
 	});
-	var container = document.createElement('div');
-	container.className = 'tabs-panels';
-	panels.forEach(function (p) { container.appendChild(p); });
+
+	var panelEls = panels.map(function (nodes, i) {
+		var p = document.createElement('div');
+		p.className = 'tab-panel';
+		p.setAttribute('role', 'tabpanel');
+		p.setAttribute('aria-labelledby', buttons[i].id);
+		p.tabIndex = 0;
+		nodes.forEach(function (n) { p.appendChild(n); });
+		container.appendChild(p);
+		return p;
+	});
+
 	el.appendChild(nav);
 	el.appendChild(container);
 
 	function activate(i) {
-		Array.prototype.forEach.call(nav.children, function (b, j) {
-			b.classList.toggle('is-active', j === i);
-			b.setAttribute('aria-selected', j === i ? 'true' : 'false');
+		buttons.forEach(function (b, j) {
+			var on = j === i;
+			b.classList.toggle('is-active', on);
+			b.setAttribute('aria-selected', on ? 'true' : 'false');
+			b.tabIndex = on ? 0 : -1;
 		});
-		panels.forEach(function (p, j) { p.hidden = j !== i; });
+		panelEls.forEach(function (p, j) { p.hidden = j !== i; });
 	}
+	nav.addEventListener('keydown', kbHandler(buttons, activate));
 	activate(0);
+}
+
+function buildFromSections(el, sections) {
+	buildTablist(el, sections.map(function (s) { return s.title; }),
+		sections.map(function (s) { return s.nodes; }));
 }
 
 function buildFromItems(el, props) {
@@ -72,30 +108,10 @@ function buildFromItems(el, props) {
 		.map(function (s) { return s.trim(); })
 		.filter(Boolean);
 	if (!items.length) return;
-
-	el.innerHTML = '';
-	var nav = document.createElement('div');
-	nav.className = 'tabs-nav';
-	var panel = document.createElement('div');
-	panel.className = 'tabs-panel';
-
-	items.forEach(function (label, i) {
-		var b = document.createElement('button');
-		b.type = 'button';
-		b.className = 'tab';
-		b.textContent = label;
-		b.addEventListener('click', function () { activate(i); });
-		nav.appendChild(b);
-	});
-	el.appendChild(nav);
-	el.appendChild(panel);
-
-	function activate(i) {
-		Array.prototype.forEach.call(nav.children, function (b, j) {
-			b.classList.toggle('is-active', j === i);
-			b.setAttribute('aria-selected', j === i ? 'true' : 'false');
-		});
-		panel.textContent = items[i];
-	}
-	activate(0);
+	// Contenido = la etiqueta (comportamiento previo), como nodo de texto.
+	buildTablist(el, items, items.map(function (label) {
+		var p = document.createElement('p');
+		p.textContent = label;
+		return [p];
+	}));
 }

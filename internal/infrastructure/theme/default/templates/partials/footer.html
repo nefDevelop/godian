@@ -4,7 +4,7 @@
 		<p>© {{ .Year }} {{ .Site.Title }}</p>
 		{{ if .Social }}<nav class="footer-social" aria-label="Social">{{ range .Social }}<a href="{{ .URL }}" rel="noopener" target="_blank">{{ if .Label }}{{ .Label }}{{ else }}{{ .Icon }}{{ end }}</a>{{ end }}</nav>{{ end }}
 		{{ if .Support }}<nav class="footer-social" aria-label="Support">{{ range .Support }}<a href="{{ .URL }}" rel="noopener" target="_blank">{{ if .Label }}{{ .Label }}{{ else }}{{ .Icon }}{{ end }}</a>{{ end }}</nav>{{ end }}
-		<nav class="footer-nav">
+		<nav class="footer-nav" aria-label="{{ t "ui.nav_footer" }}">
 			<a href="/blog/">{{ t "nav.blog" }}</a>
 			<a href="/archive/">{{ t "nav.archive" }}</a>
 			<a href="/rss.xml">{{ t "ui.rss" }}</a>
@@ -12,6 +12,7 @@
 		</nav>
 	</div>
 </footer>
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
 </body>
 </html>
 {{end}}

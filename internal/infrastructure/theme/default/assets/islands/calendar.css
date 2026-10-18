@@ -1,0 +1,11 @@
+.calendar { border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; background: var(--card); max-width: 20rem; }
+.calendar-head { font-weight: 700; margin-bottom: .5rem; text-align: center; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; font-size: .8rem; }
+.calendar-dow { text-align: center; color: var(--muted); font-weight: 600; }
+.calendar-cell { text-align: center; padding: .25rem; border-radius: .3rem; min-height: 1.6rem; position: relative; }
+.calendar-cell.has-event { background: color-mix(in srgb, var(--accent) 18%, transparent); border: 0; color: inherit; cursor: pointer; font: inherit; position: relative; }
+.calendar-cell.has-event:hover { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+.calendar-event { display: block; font-size: .65rem; color: var(--accent-text); }
+.calendar-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.calendar-panel { margin-top: .5rem; font-size: .85rem; }
+.calendar-panel ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .2rem; }

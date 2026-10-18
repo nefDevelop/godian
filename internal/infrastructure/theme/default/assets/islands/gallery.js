@@ -10,10 +10,12 @@ export function mount(el, props) {
 	el.classList.add('gallery');
 	el.innerHTML = '';
 
-	var links = imgs.map(function (src) {
+	var links = imgs.map(function (src, idx) {
 		var a = document.createElement('a');
 		a.className = 'gallery-item';
 		a.href = src;
+		// Nombre accesible del enlace (la imagen es decorativa).
+		a.setAttribute('aria-label', 'Ampliar imagen ' + (idx + 1) + ' de ' + imgs.length);
 		var img = document.createElement('img');
 		img.src = src;
 		img.loading = 'lazy';

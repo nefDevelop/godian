@@ -1,0 +1,4 @@
+<div class="callout callout-{{ if .type }}{{ .type }}{{ else }}note{{ end }}">
+	{{ if .title }}<p class="callout-title">{{ .title }}</p>{{ end }}
+	<div class="callout-body">{{ if .content }}{{ .content }}{{ else }}{{ .text }}{{ end }}</div>
+</div>

@@ -1,0 +1,2 @@
+.progress-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.progress-ring-label { position: absolute; font-size: .75rem; font-weight: 600; }

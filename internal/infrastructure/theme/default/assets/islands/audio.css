@@ -1,0 +1,3 @@
+.audio-player { margin: 1rem 0; }
+.audio-title { font-weight: 600; margin-bottom: .4rem; }
+.audio-player audio { width: 100%; }

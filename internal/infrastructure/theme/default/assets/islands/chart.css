@@ -1,0 +1,5 @@
+.chart { margin: 1.25rem 0; }
+.chart-title { font-weight: 700; margin-bottom: .5rem; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; font-size: .8rem; }
+.chart-legend-item { display: inline-flex; align-items: center; gap: .3rem; }
+.chart-legend-dot { width: .6rem; height: .6rem; border-radius: 50%; display: inline-block; }

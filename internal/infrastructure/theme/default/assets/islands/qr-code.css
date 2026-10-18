@@ -1,0 +1,5 @@
+/* Se adapta al modo claro/oscuro. */
+.qr-code { --qr-bg: #ffffff; --qr-fg: var(--accent); display: inline-block; background: var(--qr-bg); padding: .5rem; border-radius: var(--radius); border: 1px solid var(--border); }
+.qr-code svg { display: block; }
+.dark .qr-code { --qr-bg: #0f172a; --qr-fg: color-mix(in srgb, var(--accent) 55%, #fff); }
+.qr-warn { font-size: .75rem; color: #f59e0b; margin: .3rem 0 0; }

@@ -66,14 +66,27 @@ document.addEventListener('click', function (e) {
 		document.head.appendChild(s);
 	}
 
-	// Mermaid (diagramas) — build IIFE que expone window.mermaid.
-	if (document.querySelector('.mermaid') && !window.mermaid) {
-		loadScript(BASE + 'mermaid/mermaid.min.js', function () {
-			if (!window.mermaid) return;
-			var dark = document.documentElement.classList.contains('dark');
-			window.mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
-			window.mermaid.run({ querySelector: '.mermaid' });
-		});
+	// Mermaid (diagramas): se carga SOLO cuando el primer diagrama entra en pantalla.
+	// Evita descargar ~2,8 MB de JS si el usuario no llega a verlo.
+	var mermaidEl = document.querySelector('.mermaid');
+	if (mermaidEl && !window.mermaid) {
+		var loadMermaid = function () {
+			if (window.mermaid) return;
+			loadScript(BASE + 'mermaid/mermaid.min.js', function () {
+				if (!window.mermaid) return;
+				var dark = document.documentElement.classList.contains('dark');
+				window.mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
+				window.mermaid.run({ querySelector: '.mermaid' });
+			});
+		};
+		if ('IntersectionObserver' in window) {
+			var mObs = new IntersectionObserver(function (entries) {
+				if (entries.some(function (e) { return e.isIntersecting; })) { mObs.disconnect(); loadMermaid(); }
+			}, { rootMargin: '300px' });
+			mObs.observe(mermaidEl);
+		} else {
+			loadMermaid();
+		}
 	}
 
 	// KaTeX (matemáticas)
@@ -136,17 +149,30 @@ document.addEventListener('click', function (e) {
 })();
 
 // Barra de progreso de lectura.
+// Se usa transform (scaleX) en lugar de width y se limita a un frame por scroll
+// (requestAnimationFrame) para evitar "layout thrash" y el aviso de Firefox sobre
+// efectos ligados al scroll.
 (function () {
 	var bar = document.getElementById('reading-progress');
 	if (!bar) return;
+	var ticking = false;
 	function update() {
+		ticking = false;
 		var h = document.documentElement;
 		var max = h.scrollHeight - h.clientHeight;
-		bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+		var ratio = max > 0 ? (h.scrollTop / max) : 0;
+		if (ratio < 0) ratio = 0;
+		if (ratio > 1) ratio = 1;
+		bar.style.transform = 'scaleX(' + ratio + ')';
+	}
+	function onScroll() {
+		if (ticking) return;
+		ticking = true;
+		requestAnimationFrame(update);
 	}
 	update();
-	document.addEventListener('scroll', update, { passive: true });
-	window.addEventListener('resize', update);
+	document.addEventListener('scroll', onScroll, { passive: true });
+	window.addEventListener('resize', onScroll);
 })();
 
 // Botón volver arriba.

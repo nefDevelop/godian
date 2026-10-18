@@ -73,6 +73,77 @@
 /* GenericUnderline */ .chroma .gl { text-decoration: underline }
 /* TextWhitespace */ .chroma .w { color: #ffffff }
 
+.dark .chroma .err { color: inherit }
+.dark .chroma .lnlinks { color: inherit }
+.dark .chroma .lntd { color: inherit }
+.dark .chroma .lntable { color: inherit }
+.dark .chroma .hl { color: inherit }
+.dark .chroma .lnt { color: inherit }
+.dark .chroma .ln { color: inherit }
+.dark .chroma .line { color: inherit }
+.dark .chroma .k { color: inherit }
+.dark .chroma .kc { color: inherit }
+.dark .chroma .kd { color: inherit }
+.dark .chroma .kn { color: inherit }
+.dark .chroma .kp { color: inherit }
+.dark .chroma .kr { color: inherit }
+.dark .chroma .kt { color: inherit }
+.dark .chroma .na { color: inherit }
+.dark .chroma .nc { color: inherit }
+.dark .chroma .no { color: inherit }
+.dark .chroma .nd { color: inherit }
+.dark .chroma .ni { color: inherit }
+.dark .chroma .nl { color: inherit }
+.dark .chroma .nn { color: inherit }
+.dark .chroma .nx { color: inherit }
+.dark .chroma .nt { color: inherit }
+.dark .chroma .nb { color: inherit }
+.dark .chroma .bp { color: inherit }
+.dark .chroma .nv { color: inherit }
+.dark .chroma .vc { color: inherit }
+.dark .chroma .vg { color: inherit }
+.dark .chroma .vi { color: inherit }
+.dark .chroma .vm { color: inherit }
+.dark .chroma .nf { color: inherit }
+.dark .chroma .fm { color: inherit }
+.dark .chroma .s { color: inherit }
+.dark .chroma .sa { color: inherit }
+.dark .chroma .sb { color: inherit }
+.dark .chroma .sc { color: inherit }
+.dark .chroma .dl { color: inherit }
+.dark .chroma .sd { color: inherit }
+.dark .chroma .s2 { color: inherit }
+.dark .chroma .se { color: inherit }
+.dark .chroma .sh { color: inherit }
+.dark .chroma .si { color: inherit }
+.dark .chroma .sx { color: inherit }
+.dark .chroma .sr { color: inherit }
+.dark .chroma .s1 { color: inherit }
+.dark .chroma .ss { color: inherit }
+.dark .chroma .m { color: inherit }
+.dark .chroma .mb { color: inherit }
+.dark .chroma .mf { color: inherit }
+.dark .chroma .mh { color: inherit }
+.dark .chroma .mi { color: inherit }
+.dark .chroma .il { color: inherit }
+.dark .chroma .mo { color: inherit }
+.dark .chroma .o { color: inherit }
+.dark .chroma .ow { color: inherit }
+.dark .chroma .or { color: inherit }
+.dark .chroma .p { color: inherit }
+.dark .chroma .c { color: inherit }
+.dark .chroma .ch { color: inherit }
+.dark .chroma .cm { color: inherit }
+.dark .chroma .c1 { color: inherit }
+.dark .chroma .cs { color: inherit }
+.dark .chroma .cp { color: inherit }
+.dark .chroma .cpf { color: inherit }
+.dark .chroma .gd { color: inherit }
+.dark .chroma .ge { color: inherit }
+.dark .chroma .gi { color: inherit }
+.dark .chroma .go { color: inherit }
+.dark .chroma .gl { color: inherit }
+.dark .chroma .w { color: inherit }
 /* Background */ .dark .bg { color: #e6edf3; background-color: #0d1117; }
 /* PreWrapper */ .dark .chroma { color: #e6edf3; background-color: #0d1117; -webkit-text-size-adjust: none; }
 /* Error */ .dark .chroma .err { color: #f85149 }

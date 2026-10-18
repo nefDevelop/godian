@@ -1,0 +1,4 @@
+<blockquote class="quote"{{ if .cite }} cite="{{ .cite }}"{{ end }}>
+	<p>{{ .text }}</p>
+	{{ if .author }}<footer>— {{ .author }}</footer>{{ end }}
+</blockquote>

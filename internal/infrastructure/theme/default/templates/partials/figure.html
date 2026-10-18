@@ -1,0 +1,4 @@
+<figure class="figure">
+	<img src="{{ .src }}" alt="{{ .alt }}"{{ if .width }} width="{{ .width }}"{{ end }}{{ if .height }} height="{{ .height }}"{{ end }} loading="lazy" decoding="async">
+	{{ if .caption }}<figcaption>{{ .caption }}</figcaption>{{ end }}
+</figure>

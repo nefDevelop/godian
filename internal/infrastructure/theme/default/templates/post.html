@@ -15,7 +15,7 @@
 		{{ if .NeedsMath }}<div data-math hidden></div>{{ end }}
 		<div class="prose">{{ .Body }}</div>
 
-		{{ if .SeriesNav }}<nav class="series-nav">
+		{{ if .SeriesNav }}<nav class="series-nav" aria-label="{{ t "ui.series_nav" }}">
 			{{ if .SeriesNav.Prev }}<a class="series-prev" href="{{ .SeriesNav.Prev.URL }}">← {{ .SeriesNav.Prev.Title }}</a>{{ else }}<span></span>{{ end }}
 			{{ if .SeriesNav.Next }}<a class="series-next" href="{{ .SeriesNav.Next.URL }}">{{ .SeriesNav.Next.Title }} →</a>{{ end }}
 		</nav>{{ end }}
@@ -27,9 +27,10 @@
 			<a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Canonical | urlquery }}" rel="noopener" target="_blank">LinkedIn</a>
 			<a href="mailto:?subject={{ .Title | urlquery }}&body={{ .Canonical | urlquery }}">Email</a>
 			<button class="share-copy" type="button" data-copy-url="{{ .Canonical }}">{{ t "ui.copy_link" }}</button>
+			<button class="print-btn" type="button" onclick="window.print()">{{ t "ui.print" }}</button>
 		</section>{{ end }}
 
-		{{ if or .Prev .Next }}<nav class="post-nav">
+		{{ if or .Prev .Next }}<nav class="post-nav" aria-label="{{ t "ui.post_nav" }}">
 			{{ if .Prev }}<a class="post-prev" href="{{ .Prev.URL }}"><span class="muted">{{ t "ui.previous" }}</span>{{ .Prev.Title }}</a>{{ else }}<span></span>{{ end }}
 			{{ if .Next }}<a class="post-next" href="{{ .Next.URL }}"><span class="muted">{{ t "ui.next" }}</span>{{ .Next.Title }}</a>{{ end }}
 		</nav>{{ end }}
@@ -62,7 +63,7 @@
 				async></script>
 		</section>{{ end }}
 	</article>
-	{{ if .TOC }}<aside class="toc-aside">{{ template "toc" . }}</aside>{{ end }}
+	{{ if .TOC }}<aside class="toc-aside" aria-label="{{ t "ui.toc" }}">{{ template "toc" . }}</aside>{{ end }}
 </div>
 <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top">↑</button>
 {{ template "footer" . }}{{ end }}

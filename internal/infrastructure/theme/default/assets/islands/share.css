@@ -20,5 +20,5 @@
 .share-island a:hover,
 .share-island .share-copy:hover {
 	border-color: var(--accent);
-	color: var(--accent);
+	color: var(--accent-text);
 }

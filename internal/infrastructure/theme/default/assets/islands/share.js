@@ -26,7 +26,7 @@ export function mount(el, props) {
 	var btn = document.createElement('button');
 	btn.type = 'button';
 	btn.className = 'share-copy';
-	btn.textContent = 'Copy link';
+	btn.textContent = (window.__i18n && window.__i18n.copy_link) || 'Copy link';
 	btn.addEventListener('click', function () {
 		var done = function () {
 			var old = btn.textContent;

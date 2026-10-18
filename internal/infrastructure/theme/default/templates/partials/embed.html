@@ -1,0 +1,3 @@
+{{ if .src }}<figure class="embed{{ if .ratio }} embed-{{ .ratio }}{{ end }}">
+	<iframe src="{{ .src }}" title="{{ if .title }}{{ .title }}{{ else }}Contenido embebido{{ end }}" loading="lazy" allowfullscreen></iframe>
+</figure>{{ end }}

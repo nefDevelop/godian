@@ -3,7 +3,7 @@
 	<div class="wrap header-inner">
 		<a class="brand" href="/">{{ .Site.Title }}</a>
 		<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">☰</button>
-		<nav class="site-nav" id="site-nav">
+		<nav class="site-nav" id="site-nav" aria-label="{{ t "ui.nav_main" }}">
 			{{ range .Nav }}{{ if .Children }}<div class="nav-group">
 				{{ if .URL }}<a class="nav-parent" href="{{ .URL }}">{{ .Label }}</a>{{ else }}<span class="nav-parent">{{ .Label }}</span>{{ end }}
 				<div class="nav-sub">{{ range .Children }}<a href="{{ .URL }}">{{ .Label }}</a>{{ end }}</div>

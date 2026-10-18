@@ -19,7 +19,7 @@
 }
 
 .tabs-nav .tab.is-active {
-	color: var(--accent);
+	color: var(--accent-text);
 	border-bottom-color: var(--accent);
 	font-weight: 600;
 }

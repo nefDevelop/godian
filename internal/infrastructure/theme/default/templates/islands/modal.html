@@ -1,0 +1,13 @@
+<div class="modal">
+	<button type="button" class="modal-trigger" data-modal-open>{{ if .label }}{{ .label }}{{ else }}Abrir modal{{ end }}</button>
+	<dialog class="modal-dialog{{ if .size }} modal-{{ .size }}{{ end }}" aria-modal="true">
+		<header class="modal-head">
+			<h3 class="modal-title">{{ if .title }}{{ .title }}{{ else }}Modal{{ end }}</h3>
+			<button type="button" class="modal-close" data-modal-close aria-label="Cerrar">×</button>
+		</header>
+		<div class="modal-body">{{ if .content }}{{ .content }}{{ else }}{{ .text }}{{ end }}</div>
+		<footer class="modal-foot">
+			<button type="button" class="modal-action" data-modal-close>{{ if .action }}{{ .action }}{{ else }}Entendido{{ end }}</button>
+		</footer>
+	</dialog>
+</div>

@@ -1,0 +1,6 @@
+.timeline { margin: 1rem 0; }
+.timeline-list { list-style: none; margin: 0; padding: 0 0 0 1.5rem; border-left: 2px solid var(--border); }
+.timeline-item { position: relative; padding: 0 0 1rem 0; }
+.timeline-item::before { content: ''; position: absolute; left: -1.5rem; top: .3rem; width: .6rem; height: .6rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--bg); transform: translateX(-50%) translateX(-1px); }
+.timeline-date { font-weight: 700; font-size: .8rem; color: var(--accent-text); margin-right: .5rem; }
+.timeline-text { font-size: .9rem; }

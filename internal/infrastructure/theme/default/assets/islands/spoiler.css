@@ -8,7 +8,7 @@
 .spoiler-btn {
 	border: 0;
 	background: none;
-	color: var(--accent);
+	color: var(--accent-text);
 	cursor: pointer;
 	font: inherit;
 	font-weight: 600;

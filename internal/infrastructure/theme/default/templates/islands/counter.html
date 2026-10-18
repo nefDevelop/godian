@@ -1,5 +1,5 @@
 <div class="counter">
 	<button type="button" data-counter-dec aria-label="−">−</button>
-	<output data-counter-out>{{ if .start }}{{ .start }}{{ else }}0{{ end }}</output>
+	<output data-counter-out aria-label="{{ t "ui.counter" }}">{{ if .start }}{{ .start }}{{ else }}0{{ end }}</output>
 	<button type="button" data-counter-inc aria-label="+">+</button>
 </div>

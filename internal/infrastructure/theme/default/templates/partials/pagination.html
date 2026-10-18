@@ -1,4 +1,4 @@
-{{define "pagination"}}{{ if gt .Page.Last 1 }}<nav class="pagination">
+{{define "pagination"}}{{ if gt .Page.Last 1 }}<nav class="pagination" aria-label="{{ t "ui.pagination" }}">
 	{{ if .Page.HasPrev }}<a class="page-nav" href="{{ .Page.PrevURL }}">{{ t "ui.prev" }}</a>{{ end }}
 	<span class="page-links">
 		{{ range .Page.Pages }}<a class="page-link{{ if eq . $.Page.Current }} is-current{{ end }}" href="{{ $.Page.BaseURL }}{{ if gt . 1 }}{{ . }}/{{ end }}">{{ . }}</a>{{ end }}

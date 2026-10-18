@@ -1,0 +1,4 @@
+<div class="popover">
+	<button type="button" class="popover-trigger">{{ if .label }}{{ .label }}{{ else }}Info{{ end }}</button>
+	<div class="popover-content" hidden>{{ if .content }}{{ .content }}{{ else }}{{ .text }}{{ end }}</div>
+</div>

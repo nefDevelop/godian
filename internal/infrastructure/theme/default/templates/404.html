@@ -1,5 +1,6 @@
 {{define "404"}}{{ template "head" . }}{{ template "header" . }}
 <div class="wrap">
+	{{ partial "callout" (dict "type" "danger" "title" "404" "text" (t "ui.not_found")) }}
 	<h1>404</h1>
 	<p>{{ if .Description }}{{ .Description }}{{ else }}{{ t "ui.not_found" }}{{ end }}</p>
 </div>
