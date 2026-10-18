@@ -143,6 +143,7 @@
 - [x] Shortcode `{{image src=… preset=… alt=…}}`
 - [x] **Vendorizado** de KaTeX, Mermaid y PhotoSwipe (sin CDN; `assets/vendor/`), carga diferida local
 - [x] Docs (`/docs/imagenes/`), ejemplo (`assets/demo-1.jpg`) y tests
+- [x] Imágenes de ejemplo de **dominio público (CC0)** y **audio** de ejemplo generado (con créditos en `assets/CREDITS.md`)
 
 ### F16 — Obsidian-first y `godian check`
 - [x] Wikilinks **entre colecciones** (resueltos por slug/basename)
@@ -176,7 +177,9 @@
 - [x] `about` enlazado en `nav` de `site.yaml` y test de integración para `pages/`
 - [x] Resaltado de líneas: las líneas vacías no se resaltan (evita barras grises); color de `hl` distinto al de los números de línea; demo con bloque normal y bloque resaltado
 
-### F21 — Calidad de islas y partials
+### F21 — Nuevas islas y partials (calidad)
+- [x] Islas nuevas: `modal`, `popover`, `progress-ring`, `toast`, `chart` (bar/pie/donut), `audio`, `lightbox`, `count-up`, `steps`, `timeline`, `qr-code`, `kanban`, `calendar`
+- [x] Partials nuevos: `stat`, `avatar`, `chip`, `figure`, `quote`, `divider`, `embed`, `tooltip`; `callout` unifica los antiguos `alert`/`note`
 - [x] Accesibilidad: `tabs` con roles ARIA y navegación por teclado; `carousel` con teclado + dots + `alt`; `chart` con `role="img"` y descripción; `progress-ring` y `rating` con ARIA; `modal` con foco gestionado y `aria-labelledby`; `qr-code` con `title` y aviso de límite; `calendar` construido por DOM (sin `innerHTML`)
 - [x] `calendar` con `source="site"`: marca los días con posts/docs (genera `content-dates.json`) y enlaza al contenido
 - [x] Unificación de avisos: `alert`/`note` eliminados; `callout` como componente único
@@ -209,29 +212,31 @@
 - [x] Overlay: un `theme_dir` en disco se superpone al tema embebido archivo a archivo
 - [x] README y `tools/genchroma` actualizados al nuevo path
 
+### F25 — Feeds/SEO y render hooks (integrados)
+- [x] **Sitemap index**: `sitemap.xml` se parte en `sitemap-N.xml` + índice si supera 50 000 URLs (los sitios pequeños siguen con un único sitemap)
+- [x] **Render hooks configurables** (`render:` en `site.yaml`): `external_links` (target/rel), `headings` (anclar + símbolo) e `images` (loading/decoding/figure)
+- [x] Tests de feed (sitemap) y de render hooks (enlaces, encabezados, imágenes)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.
 > Orden orientativo; se irá depurando ítem a ítem.
 
-### Feeds / SEO (pequeños, alto valor)
-- [ ] **Sitemap index** (sitios grandes) y **feeds por taxonomía**.
-
 ### Datos y contenido
-- [ ] **Render hooks** adicionales configurables (imágenes, headings).
 - [ ] **Menús por idioma**.
 
 ### Rendimiento / entrega
 - [ ] **Incremental builds** (reconstruir solo lo cambiado).
 - [ ] **HMR granular** (hot swap de CSS sin recargar).
 - [ ] **PWA / service worker** (offline).
-- [ ] **Minificado de JS** (o integrar un minificador seguro).
+- [ ] Dividir el CSS base por página; build de Mermaid con carga diferida por tipo de diagrama.
 
 ### Multilingüe (grande)
 - [ ] **Multilingüe real**: contenido por idioma, `hreflang` y selector. (Hoy solo i18n de UI.)
 
 ### Publicación
-- [ ] Publicar el tema `default` como plantilla reutilizable.
+- [x] Tema `default` como plantilla reutilizable: vive en `themes/default/` (editable) y `godian new-theme` lo copia (F24).
+- [ ] Publicarlo como plantilla independiente en un repositorio aparte.
 
 ### Descartado por diseño (documentado)
 - [x] **Sass/SCSS, PostCSS, bundling JS** (Hugo Pipes): el generador no compila CSS/JS; el tema los aporta.
