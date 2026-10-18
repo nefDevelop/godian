@@ -115,7 +115,7 @@ func TestBuildEndToEnd(t *testing.T) {
 		"docs/index.html",
 		"about/index.html",
 		"assets/islands/manifest.json",
-		"assets/vendor/mermaid/mermaid.esm.min.mjs",
+		"assets/vendor/mermaid/mermaid.min.js",
 		"assets/vendor/katex/katex.min.css",
 		"blog/viejo-hola/index.html",
 	} {
