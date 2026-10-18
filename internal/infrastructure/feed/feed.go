@@ -4,11 +4,16 @@ package feed
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/nefdevelop/godian/internal/domain"
 )
+
+// MaxSitemapURLs es el máximo de URLs por sitemap antes de partirlo en varios
+// ficheros y emitir un índice (límite recomendado por el protocolo sitemaps).
+const MaxSitemapURLs = 50000
 
 // Generator construye feeds del sitio.
 type Generator struct{}
@@ -176,13 +181,76 @@ type sitemapURL struct {
 	LastMod string `xml:"lastmod,omitempty"`
 }
 
-// Sitemap construye un sitemap a partir de las rutas indicadas.
+type sitemapIndexDoc struct {
+	XMLName  xml.Name       `xml:"sitemapindex"`
+	Xmlns    string         `xml:"xmlns,attr"`
+	Sitemaps []sitemapEntry `xml:"sitemap"`
+}
+
+type sitemapEntry struct {
+	Loc string `xml:"loc"`
+}
+
+// Sitemap construye un sitemap (urlset) a partir de las rutas indicadas.
 func (g *Generator) Sitemap(site domain.SiteConfig, paths []string) ([]byte, error) {
 	doc := sitemapDoc{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
 	for _, p := range paths {
 		doc.URLs = append(doc.URLs, sitemapURL{Loc: site.URL + p})
 	}
 	return marshal(doc)
+}
+
+// SitemapIndex construye un índice de sitemaps que apunta a las rutas hijas.
+// Devuelve el índice; los hijos los genera Sitemaps.
+func (g *Generator) SitemapIndex(site domain.SiteConfig, paths []string) ([]byte, error) {
+	doc := sitemapIndexDoc{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
+	for _, p := range paths {
+		doc.Sitemaps = append(doc.Sitemaps, sitemapEntry{Loc: site.URL + p})
+	}
+	return marshal(doc)
+}
+
+// Sitemaps construye el sitemap del sitio. Si el número de rutas no supera
+// MaxSitemapURLs, emite un único `sitemap.xml`. En caso contrario, lo parte en
+// `sitemap-N.xml` y emite `sitemap.xml` como índice. La clave del mapa es la
+// ruta relativa del fichero dentro de dist/.
+func (g *Generator) Sitemaps(site domain.SiteConfig, paths []string) (map[string][]byte, error) {
+	return g.sitemaps(site, paths, MaxSitemapURLs)
+}
+
+// sitemaps implementa el troceado con un límite parametrizable (testeable).
+func (g *Generator) sitemaps(site domain.SiteConfig, paths []string, max int) (map[string][]byte, error) {
+	files := make(map[string][]byte)
+	if len(paths) <= max {
+		data, err := g.Sitemap(site, paths)
+		if err != nil {
+			return nil, err
+		}
+		files["sitemap.xml"] = data
+		return files, nil
+	}
+
+	var children []string
+	for i := 0; i < len(paths); i += max {
+		end := i + max
+		if end > len(paths) {
+			end = len(paths)
+		}
+		name := fmt.Sprintf("sitemap-%d.xml", i/max+1)
+		data, err := g.Sitemap(site, paths[i:end])
+		if err != nil {
+			return nil, err
+		}
+		files[name] = data
+		children = append(children, "/"+name)
+	}
+
+	index, err := g.SitemapIndex(site, children)
+	if err != nil {
+		return nil, err
+	}
+	files["sitemap.xml"] = index
+	return files, nil
 }
 
 func marshal(v any) ([]byte, error) {
