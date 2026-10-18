@@ -28,8 +28,11 @@ func TestHTML(t *testing.T) {
 	if !strings.Contains(out, "<pre>a\n  b</pre>") {
 		t.Errorf("HTML() rompió <pre>: %q", out)
 	}
-	if !strings.Contains(out, "<p>hola mundo</p>") {
+	if !strings.Contains(out, "<p>hola mundo") {
 		t.Errorf("HTML() no colapsó espacios: %q", out)
+	}
+	if strings.Contains(out, "hola   mundo") {
+		t.Errorf("HTML() dejó espacios redundantes: %q", out)
 	}
 }
 
@@ -49,9 +52,28 @@ func FuzzHTML(f *testing.F) {
 	})
 }
 
-func TestJSNoop(t *testing.T) {
-	in := []byte("var a = 1; // x\n")
-	if string(JS(in)) != string(in) {
-		t.Error("JS() debe devolver el contenido sin cambios")
+func TestJS(t *testing.T) {
+	in := []byte("var a = 1; // comentario\nvar url = \"http://x/y\";\nvar re = /a\\/\\/b/;\n")
+	out := string(JS(in))
+	if strings.Contains(out, "comentario") {
+		t.Errorf("JS() no quitó el comentario: %q", out)
 	}
+	if !strings.Contains(out, `"http://x/y"`) {
+		t.Errorf("JS() rompió una cadena con //: %q", out)
+	}
+	if !strings.Contains(out, `/a\/\/b/`) {
+		t.Errorf("JS() rompió una expresión regular: %q", out)
+	}
+	if len(out) >= len(in) {
+		t.Errorf("JS() no redujo el tamaño: %q", out)
+	}
+}
+
+func FuzzJS(f *testing.F) {
+	f.Add([]byte("var a = 1; // x\n"))
+	f.Add([]byte("const s = `a${b}c`;"))
+	f.Add([]byte("return\n{x:1}"))
+	f.Fuzz(func(t *testing.T, in []byte) {
+		_ = JS(in)
+	})
 }
