@@ -219,11 +219,32 @@ func youtubeShortcode(args []string) (template.HTML, error) {
 	if len(args) == 0 {
 		return "", nil
 	}
-	id := template.HTMLEscapeString(args[0])
+	// Acepta "id" posicional y props clave=valor (p. ej. poster="/img.png").
+	id, poster := "", ""
+	for i, a := range args {
+		if k, v, ok := strings.Cut(a, "="); ok {
+			switch k {
+			case "id":
+				id = v
+			case "poster":
+				poster = v
+			}
+		} else if i == 0 {
+			id = a
+		}
+	}
+	if id == "" {
+		return "", nil
+	}
+	src := "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg"
+	if poster != "" {
+		src = poster // miniatura propia (p. ej. autohospedada)
+	}
+	esc := template.HTMLEscapeString
 	// Facade: solo la miniatura; el iframe (youtube-nocookie) se carga al pulsar
 	// play (sin cookies ni peticiones a terceros hasta entonces).
-	return template.HTML(`<div class="video-embed" data-youtube-id="` + id + `">` +
+	return template.HTML(`<div class="video-embed" data-youtube-id="` + esc(id) + `">` +
 		`<button type="button" class="video-play" aria-label="Play video">` +
-		`<img src="https://i.ytimg.com/vi/` + id + `/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async">` +
+		`<img src="` + esc(src) + `" alt="" width="480" height="360" loading="lazy" decoding="async">` +
 		`<span class="video-play-icon" aria-hidden="true">▶</span></button></div>`), nil
 }
