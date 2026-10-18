@@ -204,6 +204,8 @@
 - [x] **CSS de cada isla en su propio archivo** (`assets/islands/<n>.css`): se inyecta solo si la isla está en la página → `styles.css` de ~30,6 KB a 23,2 KB en todas las páginas
 - [x] **gzip en el dev server** (HTML/CSS/JS/JSON/SVG): la home de ejemplo pasa de 30,4 KB a 7,3 KB
 - [x] **Minificado de JS** con `tdewolff/minify` (también HTML y CSS)
+- [x] `progress` con `transform` (animación compuesta) y dimensiones explícitas/CLS en imágenes de islas (`gallery`, `carousel`, `lightbox`)
+- [x] **`chroma.css` solo en páginas con código** (`NeedsCode`) y **KaTeX diferido por viewport**
 - [ ] Backlog: dividir el CSS base por página, build de Mermaid con carga diferida por tipo de diagrama
 
 ### F24 — Tema extraído y `new-theme`
