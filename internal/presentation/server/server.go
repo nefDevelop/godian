@@ -2,6 +2,7 @@
 package server
 
 import (
+	"compress/gzip"
 	"context"
 	"fmt"
 	"io/fs"
@@ -142,19 +143,42 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	ct := ""
 	if strings.HasSuffix(full, ".html") {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		ct = "text/html; charset=utf-8"
 		index := strings.LastIndex(string(data), "</body>")
 		if index >= 0 {
 			data = []byte(string(data[:index]) + reloadSnippet + string(data[index:]))
 		} else {
 			data = append(data, reloadSnippet...)
 		}
-	} else if ct := contentType(full); ct != "" {
+	} else {
+		ct = contentType(full)
+	}
+	if ct != "" {
 		w.Header().Set("Content-Type", ct)
 	}
 	w.Header().Set("Cache-Control", "no-store")
+
+	// gzip si el cliente lo acepta y el tipo es comprimible (como haría un host real).
+	if compressible(ct) && strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Add("Vary", "Accept-Encoding")
+		gz := gzip.NewWriter(w)
+		_, _ = gz.Write(data)
+		_ = gz.Close()
+		return
+	}
 	_, _ = w.Write(data)
+}
+
+// compressible indica si el tipo de contenido se beneficia de gzip.
+func compressible(ct string) bool {
+	return strings.HasPrefix(ct, "text/") ||
+		strings.Contains(ct, "javascript") ||
+		strings.Contains(ct, "json") ||
+		strings.Contains(ct, "xml") ||
+		strings.Contains(ct, "svg")
 }
 
 // contentType resuelve el MIME por extensión (necesario para CSS/JS, que
