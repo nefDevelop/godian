@@ -1,6 +1,6 @@
 {{define "post"}}{{ template "head" . }}{{ template "header" . }}
 <div class="reading-progress"><div class="reading-progress-bar" id="reading-progress"></div></div>
-<div class="wrap post-layout">
+<div class="wrap post-layout" data-css="article-ux">
 	<article class="post">
 		<header class="post-head">
 			{{ if .SeriesNav }}<p class="series-badge"><a href="{{ .SeriesNav.URL }}">{{ .SeriesNav.Title }}</a> · {{ .SeriesNav.Index }}/{{ .SeriesNav.Total }}</p>{{ end }}

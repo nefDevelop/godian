@@ -284,7 +284,7 @@ themes/<nombre>/
 │   ├── partials/         # head, header, footer, card, toc, pagination, breadcrumb, docsnav, searchmodal
 │   └── islands/          # HTML SSR de islas (opcional)
 └── assets/
-    ├── css/              # estilos
+    ├── css/              # estilos (styles.css + chunks/<n>.css)
     ├── js/               # scripts
     └── islands/          # módulos JS de islas (+ css)
 ```
@@ -305,6 +305,7 @@ assets:
 ```
 
 - **CSS**: el generador no compila CSS; el tema aporta el suyo (Tailwind precompilado, CSS plano, etc.).
+- **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre>"` (p. ej. `article-ux` en posts, `docs` en `/docs/`, `lists` en listados). El generador los fingerprinta y añade el `<link>` en el `<head>` (sincrónico, sin FOUC).
 - **Overlay**: puedes sobrescribir un template/asset concreto sin copiar todo el tema.
 - **Fingerprinting/minify** se aplican a los assets del tema.
 

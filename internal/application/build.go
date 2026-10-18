@@ -97,10 +97,11 @@ type Build struct {
 	output  Output
 	feeds   FeedGenerator
 	opts    Options
-	nav     []Link
-	css     []string
-	js      []string
-	now     time.Time
+	nav       []Link
+	css       []string
+	js        []string
+	chunkURLs map[string]string
+	now       time.Time
 }
 
 // NewBuild construye el caso de uso con sus puertos.
@@ -1003,10 +1004,42 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 		return err
 	}
 	out := buf.Bytes()
+	if len(b.chunkURLs) > 0 {
+		out = injectChunks(out, b.chunkURLs)
+	}
 	if b.opts.Minify {
 		out = minify.HTML(out)
 	}
 	return b.output.Write(relPath, out)
+}
+
+var reDataCSS = regexp.MustCompile(`data-css="([a-zA-Z0-9_-]+)"`)
+
+// injectChunks añade al <head> un <link> por cada bloque referenciado con
+// data-css="<name>" en la página (sincrónico, sin FOUC).
+func injectChunks(html []byte, chunks map[string]string) []byte {
+	seen := map[string]bool{}
+	var links []string
+	for _, m := range reDataCSS.FindAllSubmatch(html, -1) {
+		url, ok := chunks[string(m[1])]
+		if !ok || seen[url] {
+			continue
+		}
+		seen[url] = true
+		links = append(links, `<link rel="stylesheet" href="`+url+`">`)
+	}
+	if len(links) == 0 {
+		return html
+	}
+	idx := bytes.LastIndex(html, []byte("</head>"))
+	if idx < 0 {
+		return html
+	}
+	out := make([]byte, 0, len(html)+len(links)*40)
+	out = append(out, html[:idx]...)
+	out = append(out, []byte(strings.Join(links, ""))...)
+	out = append(out, html[idx:]...)
+	return out
 }
 
 // withoutChroma quita el CSS de Chroma de la lista (páginas sin bloques de código).
@@ -1186,7 +1219,30 @@ func (b *Build) prepareAssets() error {
 	if err := b.writeFonts(); err != nil {
 		return err
 	}
+	if err := b.prepareChunks(); err != nil {
+		return err
+	}
 	return b.writeIslandManifest()
+}
+
+// prepareChunks indexa los CSS de bloque (assets/css/chunks/<name>.css) para
+// inyectarlos solo en las páginas que declaran data-css="<name>".
+func (b *Build) prepareChunks() error {
+	b.chunkURLs = map[string]string{}
+	return fs.WalkDir(b.opts.AssetsFS, "css/chunks", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || path.Ext(p) != ".css" {
+			return nil
+		}
+		name := strings.TrimSuffix(path.Base(p), ".css")
+		url := "/assets/" + p
+		if b.opts.Fingerprint {
+			if urls, ferr := b.fingerprint([]string{url}); ferr == nil && len(urls) == 1 {
+				url = urls[0]
+			}
+		}
+		b.chunkURLs[name] = url
+		return nil
+	})
 }
 
 // writeFonts escribe las fuentes autohospedadas y su CSS (opcional).
@@ -1276,6 +1332,10 @@ func (b *Build) copyAssets() error {
 			return err
 		}
 		if d.IsDir() {
+			return nil
+		}
+		// Los chunks de CSS se emiten con fingerprint en prepareChunks.
+		if strings.HasPrefix(p, "css/chunks/") {
 			return nil
 		}
 		data, err := fs.ReadFile(b.opts.AssetsFS, p)

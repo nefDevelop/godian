@@ -1,0 +1,150 @@
+/* --- Artículo UX --- */
+.reading-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	z-index: 60;
+	background: transparent;
+}
+
+.reading-progress-bar {
+	height: 100%;
+	width: 100%;
+	transform: scaleX(0);
+	transform-origin: left center;
+	background: var(--accent);
+	will-change: transform;
+}
+
+.back-to-top {
+	position: fixed;
+	right: 1rem;
+	bottom: 1rem;
+	z-index: 60;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 999px;
+	border: 1px solid var(--border);
+	background: var(--card);
+	color: var(--fg);
+	cursor: pointer;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s, visibility 0.2s;
+}
+
+.back-to-top.is-visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.back-to-top:hover {
+	border-color: var(--accent);
+	color: var(--accent-text);
+}
+
+.series-badge {
+	margin: 0 0 0.5rem;
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+.series-badge a {
+	color: var(--accent-text);
+	text-decoration: none;
+}
+
+.series-nav {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 2rem 0 0;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border);
+	font-size: 0.9375rem;
+}
+
+.series-nav a {
+	color: var(--accent-text);
+	text-decoration: none;
+}
+
+.share {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	margin-top: 1.5rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border);
+	font-size: 0.875rem;
+}
+
+.share-label {
+	color: var(--muted);
+}
+
+.share a,
+.share-copy {
+	color: var(--muted);
+	text-decoration: none;
+	border: 1px solid var(--border);
+	border-radius: 0.5rem;
+	padding: 0.25rem 0.6rem;
+	background: none;
+	cursor: pointer;
+	font: inherit;
+}
+
+.share a:hover,
+.share-copy:hover {
+	color: var(--accent-text);
+	border-color: var(--accent);
+}
+
+.post-nav {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-top: 2rem;
+}
+
+.post-prev,
+.post-next {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 0.75rem 1rem;
+	text-decoration: none;
+	color: var(--fg);
+	font-weight: 600;
+	font-size: 0.9375rem;
+}
+
+.post-next {
+	text-align: right;
+}
+
+.post-prev .muted,
+.post-next .muted {
+	font-weight: 400;
+	font-size: 0.8125rem;
+}
+
+.post-prev:hover,
+.post-next:hover {
+	border-color: var(--accent);
+}
+
+.related {
+	margin-top: 2.5rem;
+}
+
+.related h2 {
+	font-size: 1.15rem;
+	margin-bottom: 1rem;
+}

@@ -1,5 +1,5 @@
 {{define "author"}}{{ template "head" . }}{{ template "header" . }}
-<div class="wrap">
+<div class="wrap" data-css="lists">
 	{{ with .Author }}<div class="author-profile">
 		{{ if .Avatar }}<img class="avatar-lg" src="{{ .Avatar }}" alt="{{ .Name }}">{{ else }}<span class="avatar-lg avatar-fallback">{{ printf "%.1s" .Name }}</span>{{ end }}
 		<div class="author-info">

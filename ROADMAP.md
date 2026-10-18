@@ -206,6 +206,9 @@
 - [x] **Minificado de JS** con `tdewolff/minify` (también HTML y CSS)
 - [x] `progress` con `transform` (animación compuesta) y dimensiones explícitas/CLS en imágenes de islas (`gallery`, `carousel`, `lightbox`)
 - [x] **`chroma.css` solo en páginas con código** (`NeedsCode`) y **KaTeX diferido por viewport**
+- [x] **CSS por bloques (`data-css` + `assets/css/chunks/`)**: `article-ux`, `docs`, `lists` se inyectan solo en las páginas que los usan (sincrónico, sin FOUC); `styles.css` base baja de ~30 a ~21 KB
+- [x] **Mermaid con build ESM moderno** (chunks por tipo vía `import()`): fuera el JS legacy; ~2,4 MB en vez de 3,5 MB por página con diagramas
+- [x] Prop `poster` en la isla `video` y en el shortcode `{{youtube}}` (miniatura propia)
 - [ ] Backlog: dividir el CSS base por página, build de Mermaid con carga diferida por tipo de diagrama
 
 ### F24 — Tema extraído y `new-theme`

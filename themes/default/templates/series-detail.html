@@ -1,5 +1,5 @@
 {{define "series-detail"}}{{ template "head" . }}{{ template "header" . }}
-<div class="wrap">
+<div class="wrap" data-css="lists">
 	{{ with .Series }}
 	{{ if .Cover }}<img class="series-cover-lg" src="{{ .Cover }}" alt="">{{ end }}
 	<div class="list-head"><h1>{{ .Title }}</h1></div>

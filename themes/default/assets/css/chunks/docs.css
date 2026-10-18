@@ -1,0 +1,102 @@
+/* --- Docs --- */
+.docs-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.docs-sidebar {
+	font-size: 0.9rem;
+}
+
+.docs-nav-group {
+	margin-bottom: 1rem;
+}
+
+.docs-nav-title {
+	margin: 0 0 0.35rem;
+	font-weight: 700;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--muted);
+}
+
+.docs-nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.docs-nav a {
+	display: block;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.4rem;
+	color: var(--muted);
+	text-decoration: none;
+}
+
+.docs-nav a:hover {
+	color: var(--fg);
+	background: var(--card);
+}
+
+.docs-nav a.is-active {
+	color: var(--accent-text);
+	background: var(--card);
+	font-weight: 600;
+}
+
+.breadcrumb {
+	font-size: 0.85rem;
+	margin-bottom: 1rem;
+}
+
+.breadcrumb ol {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0;
+	padding: 0;
+	color: var(--muted);
+}
+
+.breadcrumb a {
+	color: var(--muted);
+	text-decoration: none;
+}
+
+.breadcrumb a:hover {
+	color: var(--accent-text);
+}
+
+.docs-section {
+	margin-top: 1.5rem;
+}
+
+.docs-list {
+	list-style: none;
+	padding: 0;
+	margin: 0.5rem 0 0;
+	display: grid;
+	gap: 0.35rem;
+}
+
+.docs-toc {
+	margin-top: 2rem;
+}
+
+@media (min-width: 60rem) {
+	.docs-layout {
+		display: grid;
+		grid-template-columns: 16rem minmax(0, 1fr);
+		gap: 3rem;
+		align-items: start;
+	}
+
+	.docs-sidebar {
+		position: sticky;
+		top: 5rem;
+	}
+}
