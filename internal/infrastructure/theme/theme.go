@@ -4,6 +4,7 @@
 package theme
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -116,17 +117,24 @@ func (o overlay) Open(name string) (fs.File, error) {
 
 func (o overlay) ReadDir(name string) ([]fs.DirEntry, error) {
 	merged := map[string]fs.DirEntry{}
+	// Un directorio puede existir solo en el tema en disco (p. ej. icons/) o solo
+	// en el embebido: se tolera que falte en cualquiera de los dos.
 	entries, err := fs.ReadDir(o.fallback, name)
-	if err != nil {
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
 	for _, e := range entries {
 		merged[e.Name()] = e
 	}
-	if primaryEntries, pErr := fs.ReadDir(o.primary, name); pErr == nil {
-		for _, e := range primaryEntries {
-			merged[e.Name()] = e
-		}
+	primaryEntries, pErr := fs.ReadDir(o.primary, name)
+	if pErr != nil && !errors.Is(pErr, fs.ErrNotExist) {
+		return nil, pErr
+	}
+	for _, e := range primaryEntries {
+		merged[e.Name()] = e
+	}
+	if len(merged) == 0 {
+		return nil, &fs.PathError{Op: "readdir", Path: name, Err: fs.ErrNotExist}
 	}
 	names := make([]string, 0, len(merged))
 	for n := range merged {
