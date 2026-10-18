@@ -86,6 +86,7 @@ type SiteConfig struct {
 	URL         string `yaml:"url"`
 	Language    string `yaml:"language"`
 	Color       string `yaml:"color"` // color de acento (hex) para el tema por defecto
+	Font        string `yaml:"font"`  // familia tipográfica del cuerpo (p. ej. "Inter")
 }
 
 // BuildConfig define las rutas y opciones del build.

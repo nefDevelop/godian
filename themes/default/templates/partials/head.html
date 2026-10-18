@@ -1,5 +1,5 @@
 {{define "head"}}<!doctype html>
-<html lang="{{ if .Site.Language }}{{ .Site.Language }}{{ else }}en{{ end }}"{{ if .Site.Color }} style="--accent: {{ .Site.Color }}"{{ end }}>
+<html lang="{{ if .Site.Language }}{{ .Site.Language }}{{ else }}en{{ end }}"{{ if or .Site.Color .Site.Font }} style="{{ if .Site.Color }}--accent: {{ .Site.Color }};{{ end }}{{ if .Site.Font }}--font-sans: '{{ .Site.Font }}', system-ui, sans-serif;{{ end }}"{{ end }}>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
