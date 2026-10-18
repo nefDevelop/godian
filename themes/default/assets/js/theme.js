@@ -67,18 +67,20 @@ document.addEventListener('click', function (e) {
 		document.head.appendChild(s);
 	}
 
-	// Mermaid (diagramas): se carga SOLO cuando el primer diagrama entra en pantalla.
-	// Evita descargar ~2,8 MB de JS si el usuario no llega a verlo.
+	// Mermaid (diagramas): se carga SOLO cuando el primer diagrama entra en pantalla,
+	// y con el build ESM moderno (cada tipo de diagrama se descarga en un chunk aparte).
 	var mermaidEl = document.querySelector('.mermaid');
 	if (mermaidEl && !window.mermaid) {
 		var loadMermaid = function () {
 			if (window.mermaid) return;
-			loadScript(BASE + 'mermaid/mermaid.min.js', function () {
-				if (!window.mermaid) return;
+			import(BASE + 'mermaid/mermaid.esm.min.mjs').then(function (mod) {
+				var mermaid = mod.default || mod.mermaid || window.mermaid;
+				if (!mermaid) return;
+				window.mermaid = mermaid;
 				var dark = document.documentElement.classList.contains('dark');
-				window.mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
-				window.mermaid.run({ querySelector: '.mermaid' });
-			});
+				mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
+				mermaid.run({ querySelector: '.mermaid' });
+			}).catch(function () {});
 		};
 		if ('IntersectionObserver' in window) {
 			var mObs = new IntersectionObserver(function (entries) {

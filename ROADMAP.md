@@ -208,9 +208,8 @@
 - [x] **`chroma.css` solo en páginas con código** (`NeedsCode`) y **KaTeX diferido por viewport**
 - [x] **CSS por bloques (`data-css` + `assets/css/chunks/`)**: `article-ux`, `docs`, `lists` se inyectan solo en las páginas que los usan (sincrónico, sin FOUC); `styles.css` base baja de ~30 a ~21 KB
 - [x] **CSS por bloques** (arriba) y **borde visible en modo claro** (`--border: #d1d5db`)
-- [ ] Mermaid: ESM moderno con chunks por tipo **descartado** (el bundle pasaba de 3,5 MB/1 fichero a 5,5 MB/104); se mantiene el IIFE con carga diferida. Backlog: build ligero por tipo de diagrama
+- [x] **Mermaid ESM moderno con chunks por tipo**: cada tipo de diagrama baja en su propio chunk (`graph` ~2,4 MB vs 3,5 MB del IIFE); la web descarga menos aunque el repo pase a 5,5 MB/104 ficheros
 - [x] Prop `poster` en la isla `video` y en el shortcode `{{youtube}}` (miniatura propia)
-- [ ] Backlog: dividir el CSS base por página, build de Mermaid con carga diferida por tipo de diagrama
 
 ### F24 — Tema extraído y `new-theme`
 - [x] Tema movido a `themes/default/` (plantilla editable) y embebido vía el paquete `themes` (`//go:embed`)
@@ -240,7 +239,6 @@
 - [ ] **Incremental builds** (reconstruir solo lo cambiado).
 - [ ] **HMR granular** (hot swap de CSS sin recargar).
 - [ ] **PWA / service worker** (offline).
-- [ ] Dividir el CSS base por página; build de Mermaid con carga diferida por tipo de diagrama.
 
 ### Multilingüe (grande)
 - [ ] **Multilingüe real**: contenido por idioma, `hreflang` y selector. (Hoy solo i18n de UI.)
