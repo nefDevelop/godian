@@ -178,14 +178,14 @@ librerías donde no hay equivalente razonable en stdlib.
 | Watch / reload | **propio** (polling de `fsnotify`-free) |
 | Slugs | **propio** |
 | RSS / sitemap / JSON-LD | **propio** (stdlib `encoding/xml`, `encoding/json`) |
-| Minify | **propio** (mínimo: HTML/CSS/JS) |
+| Minify | `tdewolff/minify` (HTML/CSS/JS) |
 | OG images | **nativo** (`golang.org/x/image/font` + dibujo stdlib) |
 
-**Descartadas:** `gorilla/feeds`, `fsnotify`, `gosimple/slug`, `tdewolff/minify`,
+**Descartadas:** `gorilla/feeds`, `fsnotify`, `gosimple/slug`,
 `disintegration/imaging`, `fogleman/gg`, `a-h/templ`.
 
 **Pendiente de aprobación explícita (AGENTS.md):** `goldmark`, `yaml.v3`, `chroma`,
-`gen2brain/webp`, `golang.org/x/image`.
+`gen2brain/webp`, `golang.org/x/image`, `tdewolff/minify`.
 
 ---
 

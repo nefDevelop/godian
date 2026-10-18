@@ -63,7 +63,7 @@ build:
   assets_dir: assets          # estáticos fuente (imágenes, favicon…) servidos desde /
   data_dir: data              # datos estructurados (JSON/YAML/CSV)
   i18n_dir: i18n              # traducciones de la interfaz (i18n/<lang>.json)
-  minify: true                # minifica HTML y CSS
+  minify: true                # minifica HTML, CSS y JS (tdewolff/minify)
   fingerprint: true           # hash en el nombre de CSS/JS
   optimize_images: true       # variantes WebP + <picture>/srcset + LQIP
   clean: true                 # limpia dist/ antes de cada build
