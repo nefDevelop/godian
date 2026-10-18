@@ -2,6 +2,11 @@ BINARY := godian
 PKG    := ./...
 GO     ?= go
 
+# Versión para release (se puede sobrescribir: make release VERSION=1.2.3).
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+# Flags del linker para release: -s/-w reducen el binario (~26%) y -X inyecta la versión.
+LDFLAGS  = -s -w -X github.com/nefdevelop/godian/internal/presentation/cli.Version=$(VERSION)
+
 STATICCHECK := honnef.co/go/tools/cmd/staticcheck@v0.8.2
 GOVULN      := golang.org/x/vuln/cmd/govulncheck@v1.9.0
 GOSEC       := github.com/securego/gosec/v2/cmd/gosec@v2.29.0
@@ -16,12 +21,16 @@ GOSEC_EXCLUDE := G301,G306,G304,G703,G203,G705,G122
 # "nodynamic" usa el libwebp transpilado a Go (sin cgo ni dependencias de runtime).
 export GOFLAGS := -tags=nodynamic
 
-.PHONY: all build test test-unit vet cover staticcheck vuln gosec security lint fmt tidy run clean
+.PHONY: all build release test test-unit vet cover staticcheck vuln gosec security lint fmt tidy run serve clean
 
 all: build
 
 build:
 	$(GO) build -trimpath -o bin/$(BINARY) ./cmd/godian
+
+# Binario de release: sin símbolos de depuración y con la versión inyectada.
+release:
+	$(GO) build -trimpath -ldflags="$(LDFLAGS)" -o bin/$(BINARY) ./cmd/godian
 
 test:
 	$(GO) test $(PKG)
@@ -56,6 +65,9 @@ tidy:
 
 run:
 	$(GO) run ./cmd/godian build
+
+serve:
+	$(GO) run ./cmd/godian serve
 
 clean:
 	rm -rf bin
