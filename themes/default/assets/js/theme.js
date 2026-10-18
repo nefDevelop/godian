@@ -89,25 +89,37 @@ document.addEventListener('click', function (e) {
 		}
 	}
 
-	// KaTeX (matemáticas)
-	if (document.querySelector('[data-math]') && !window.renderMathInElement) {
-		loadStyle(BASE + 'katex/katex.min.css');
-		loadScript(BASE + 'katex/katex.min.js', function () {
-			loadScript(BASE + 'katex/contrib/auto-render.min.js', function () {
-				if (!window.renderMathInElement) return;
-				window.renderMathInElement(document.querySelector('.prose') || document.body, {
-					delimiters: [
-						{ left: '$$', right: '$$', display: true },
-						{ left: '$', right: '$', display: false },
-						{ left: '\\(', right: '\\)', display: false },
-						{ left: '\\[', right: '\\]', display: true }
-					],
-					throwOnError: false,
-					ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option']
+	// KaTeX (matemáticas): se carga solo cuando la marca [data-math] entra en pantalla.
+	var mathEl = document.querySelector('[data-math]');
+	if (mathEl && !window.renderMathInElement) {
+		var loadMath = function () {
+			if (window.renderMathInElement) return;
+			loadStyle(BASE + 'katex/katex.min.css');
+			loadScript(BASE + 'katex/katex.min.js', function () {
+				loadScript(BASE + 'katex/contrib/auto-render.min.js', function () {
+					if (!window.renderMathInElement) return;
+					window.renderMathInElement(document.querySelector('.prose') || document.body, {
+						delimiters: [
+							{ left: '$$', right: '$$', display: true },
+							{ left: '$', right: '$', display: false },
+							{ left: '\\(', right: '\\)', display: false },
+							{ left: '\\[', right: '\\]', display: true }
+						],
+						throwOnError: false,
+						ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option']
+					});
+					document.querySelectorAll('[data-math]').forEach(function (el) { el.remove(); });
 				});
-				document.querySelectorAll('[data-math]').forEach(function (el) { el.remove(); });
 			});
-		});
+		};
+		if ('IntersectionObserver' in window) {
+			var mathObs = new IntersectionObserver(function (entries) {
+				if (entries.some(function (e) { return e.isIntersecting; })) { mathObs.disconnect(); loadMath(); }
+			}, { rootMargin: '300px' });
+			mathObs.observe(mathEl);
+		} else {
+			loadMath();
+		}
 	}
 
 	// PhotoSwipe (lightbox)
