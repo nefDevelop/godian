@@ -1,4 +1,4 @@
 <div class="progress" data-value="{{ if .value }}{{ .value }}{{ else }}0{{ end }}" data-max="{{ if .max }}{{ .max }}{{ else }}100{{ end }}">
 	{{ if .label }}<div class="progress-label">{{ .label }}</div>{{ end }}
-	<div class="progress-track"><div class="progress-bar" role="progressbar" aria-label="{{ if .label }}{{ .label }}{{ else }}{{ t "ui.progress" }}{{ end }}" aria-valuemin="0" style="width:0"></div></div>
+	<div class="progress-track"><div class="progress-bar" role="progressbar" aria-label="{{ if .label }}{{ .label }}{{ else }}{{ t "ui.progress" }}{{ end }}" aria-valuemin="0"></div></div>
 </div>

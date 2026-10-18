@@ -21,6 +21,13 @@ export function mount(el, props) {
 		img.loading = 'lazy';
 		img.decoding = 'async';
 		img.alt = '';
+		// Dimensiones explícitas (CLS) tras cargar; el CSS fija el tamaño real.
+		img.addEventListener('load', function () {
+			if (!img.getAttribute('width') && img.naturalWidth) {
+				img.setAttribute('width', img.naturalWidth);
+				img.setAttribute('height', img.naturalHeight);
+			}
+		});
 		a.appendChild(img);
 		el.appendChild(a);
 		return a;

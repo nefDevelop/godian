@@ -26,6 +26,12 @@ export function mount(el, props) {
 	img.loading = 'lazy';
 	img.decoding = 'async';
 	img.alt = props.alt || '';
+	img.addEventListener('load', function () {
+		if (!img.getAttribute('width') && img.naturalWidth) {
+			img.setAttribute('width', img.naturalWidth);
+			img.setAttribute('height', img.naturalHeight);
+		}
+	});
 
 	var next = document.createElement('button');
 	next.type = 'button';

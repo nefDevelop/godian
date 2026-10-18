@@ -8,6 +8,12 @@ export function mount(el, props) {
   var img = document.createElement('img');
   img.src = src; img.alt = alt; img.loading = 'lazy'; img.decoding = 'async';
   img.style.cursor = 'zoom-in';
+  img.addEventListener('load', function () {
+    if (!img.getAttribute('width') && img.naturalWidth) {
+      img.setAttribute('width', img.naturalWidth);
+      img.setAttribute('height', img.naturalHeight);
+    }
+  });
   el.appendChild(img);
   if (caption) { var c = document.createElement('p'); c.className = 'lightbox-caption'; c.textContent = caption; el.appendChild(c); }
   img.addEventListener('click', function () {

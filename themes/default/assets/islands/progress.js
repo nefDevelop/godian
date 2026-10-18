@@ -5,7 +5,8 @@ export function mount(el, props) {
 	var pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
 	var bar = el.querySelector('.progress-bar');
 	if (bar) {
-		bar.style.width = pct + '%';
+		// transform (composited) en vez de width, para no forzar layout.
+		bar.style.transform = 'scaleX(' + (pct / 100) + ')';
 		bar.setAttribute('aria-valuenow', String(value));
 		bar.setAttribute('aria-valuemax', String(max));
 	}
