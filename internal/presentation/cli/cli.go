@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -21,6 +22,7 @@ import (
 	"github.com/nefdevelop/godian/internal/infrastructure/content"
 	"github.com/nefdevelop/godian/internal/infrastructure/data"
 	"github.com/nefdevelop/godian/internal/infrastructure/feed"
+	"github.com/nefdevelop/godian/internal/infrastructure/fonts"
 	"github.com/nefdevelop/godian/internal/infrastructure/images"
 	"github.com/nefdevelop/godian/internal/infrastructure/islands"
 	"github.com/nefdevelop/godian/internal/infrastructure/markdown"
@@ -345,33 +347,46 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		cfg.Build.OutputDir != cfg.Build.ContentDir &&
 		cfg.Build.OutputDir != cfg.Build.ThemeDir
 
+	opts := application.Options{
+		Site:          cfg.Site,
+		Taxonomies:    cfg.Taxonomies,
+		Giscus:        cfg.Giscus,
+		Nav:           cfg.Nav,
+		Social:        cfg.Social,
+		Support:       cfg.Support,
+		Analytics:     cfg.Analytics,
+		Data:          siteData,
+		Links:         linkIndex,
+		I18n:          dict,
+		CSS:           th.Manifest.Assets.CSS,
+		JS:            th.Manifest.Assets.JS,
+		AssetsFS:      assetsFS,
+		Images:        imagesProc,
+		OG:            ogGen,
+		IncludeDrafts: drafts,
+		Minify:        cfg.Build.Minify,
+		Fingerprint:   cfg.Build.Fingerprint,
+		Clean:         clean,
+	}
+
+	// Fuentes autohospedadas: se descargan en el build; si falla, se avisa y sigue.
+	if len(cfg.Fonts) > 0 {
+		fres, ferr := fonts.Fetch(&http.Client{Timeout: 30 * time.Second}, fontSpecs(cfg.Fonts), "")
+		if ferr != nil {
+			fmt.Fprintf(os.Stderr, "aviso: no se pudieron descargar las fuentes: %v\n", ferr)
+		} else {
+			opts.FontsCSS = fres.CSS
+			opts.FontFiles = fres.Files
+		}
+	}
+
 	builder := application.NewBuild(
 		content.NewLoader(cfg),
 		md,
 		renderer,
 		output.NewWriter(filepath.FromSlash(cfg.Build.OutputDir)),
 		feed.New(),
-		application.Options{
-			Site:          cfg.Site,
-			Taxonomies:    cfg.Taxonomies,
-			Giscus:        cfg.Giscus,
-			Nav:           cfg.Nav,
-			Social:        cfg.Social,
-			Support:       cfg.Support,
-			Analytics:     cfg.Analytics,
-			Data:          siteData,
-			Links:         linkIndex,
-			I18n:          dict,
-			CSS:           th.Manifest.Assets.CSS,
-			JS:            th.Manifest.Assets.JS,
-			AssetsFS:      assetsFS,
-			Images:        imagesProc,
-			OG:            ogGen,
-			IncludeDrafts: drafts,
-			Minify:        cfg.Build.Minify,
-			Fingerprint:   cfg.Build.Fingerprint,
-			Clean:         clean,
-		},
+		opts,
 	)
 
 	summary, err := builder.Run()
@@ -383,6 +398,21 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		summary.Errors = problems
 	}
 	return summary, nil
+}
+
+// fontSpecs convierte la config de fuentes al modelo del paquete fonts.
+func fontSpecs(cfg []domain.FontConfig) []fonts.Spec {
+	out := make([]fonts.Spec, 0, len(cfg))
+	for _, f := range cfg {
+		out = append(out, fonts.Spec{
+			Family:  f.Family,
+			Weights: f.Weights,
+			Styles:  f.Styles,
+			Subsets: f.Subsets,
+			Display: f.Display,
+		})
+	}
+	return out
 }
 
 func runCheck(args []string) int {

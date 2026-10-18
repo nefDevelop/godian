@@ -69,6 +69,14 @@ support:
 #   provider: plausible
 #   id: ""
 
+# Fuentes autohospedadas (opcional). Se descargan en el build y se sirven desde
+# /assets/fonts (sin peticiones a Google Fonts en tiempo de uso). Si se omite,
+# se usan las fuentes del sistema.
+# fonts:
+#   - family: Inter
+#     weights: [400, 700]
+#     subsets: [latin]
+
 # Taxonomías configurables. Si se omite, se usan tags y categories por defecto.
 taxonomies:
   - name: tags

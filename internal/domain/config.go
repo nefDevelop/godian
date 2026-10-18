@@ -12,6 +12,16 @@ type Config struct {
 	Social      []SocialLink       `yaml:"social"`
 	Support     []SocialLink       `yaml:"support"`
 	Analytics   AnalyticsConfig    `yaml:"analytics"`
+	Fonts       []FontConfig       `yaml:"fonts"`
+}
+
+// FontConfig declara una fuente a descargar y autohospedar durante el build.
+type FontConfig struct {
+	Family  string   `yaml:"family"`  // nombre en Google Fonts (p. ej. "Inter")
+	Weights []int    `yaml:"weights"` // pesos (por defecto [400])
+	Styles  []string `yaml:"styles"`  // normal | italic (por defecto [normal])
+	Subsets []string `yaml:"subsets"` // latin, latin-ext, cyrillic… (por defecto [latin])
+	Display string   `yaml:"display"` // swap (por defecto) | block | fallback | optional
 }
 
 // RenderConfig agrupa los render hooks configurables: cómo ciertos elementos

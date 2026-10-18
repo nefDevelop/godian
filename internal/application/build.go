@@ -82,6 +82,11 @@ type Options struct {
 	Minify        bool
 	Fingerprint   bool
 	Clean         bool
+
+	// Fuentes autohospedadas (descargadas en el build): CSS de @font-face y
+	// ficheros (ruta relativa al output → datos).
+	FontsCSS  []byte
+	FontFiles map[string][]byte
 }
 
 // Build orquesta la construcción del sitio estático.
@@ -1156,7 +1161,36 @@ func (b *Build) prepareAssets() error {
 	if err := b.copyAssets(); err != nil {
 		return err
 	}
+	if err := b.writeFonts(); err != nil {
+		return err
+	}
 	return b.writeIslandManifest()
+}
+
+// writeFonts escribe las fuentes autohospedadas y su CSS (opcional).
+func (b *Build) writeFonts() error {
+	if len(b.opts.FontFiles) == 0 {
+		return nil
+	}
+	for p, data := range b.opts.FontFiles {
+		if err := b.output.Write(p, data); err != nil {
+			return err
+		}
+	}
+	if len(b.opts.FontsCSS) == 0 {
+		return nil
+	}
+	css := b.minifyAsset("fonts.css", b.opts.FontsCSS)
+	name := "assets/css/fonts.css"
+	if b.opts.Fingerprint {
+		sum := sha256.Sum256(css)
+		name = "assets/css/fonts." + hex.EncodeToString(sum[:])[:8] + ".css"
+	}
+	if err := b.output.Write(name, css); err != nil {
+		return err
+	}
+	b.css = append(b.css, "/"+name)
+	return nil
 }
 
 // writeIslandManifest genera assets/islands/manifest.json (nombre → js/css).

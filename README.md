@@ -114,7 +114,34 @@ support:
 analytics:
   provider: ""
   id: ""
+
+# Fuentes autohospedadas (opcional): se descargan en el build a /assets/fonts
+fonts:
+  - family: Inter
+    weights: [400, 700]
+    subsets: [latin]
 ```
+
+---
+
+## Fuentes
+
+`fonts:` en `site.yaml` descarga tipografías de Google Fonts **en el build** y las
+sirve desde `/assets/fonts` (sin peticiones a terceros en tiempo de uso):
+
+```yaml
+fonts:
+  - family: Inter
+    weights: [400, 700]
+    styles: [normal]      # normal | italic
+    subsets: [latin]      # latin, latin-ext, cyrillic…
+    display: swap         # swap (por defecto) | block | fallback | optional
+```
+
+- Se genera `/assets/css/fonts.css` con los `@font-face` (con `font-display`) y se añade al `<head>`.
+- Se pueden declarar **varias** fuentes (una entrada por familia).
+- Si el build no tiene red, **avisa y sigue** con las fuentes del sistema (no rompe).
+- Licencias: la mayoría son OFL (autohospedaje permitido).
 
 ---
 
