@@ -200,7 +200,14 @@
 - [x] Botones primarios (`.cta`, `.modal-trigger`, `.modal-action`) con acento oscurecido → contraste 6.75:1
 - [x] **CSS de cada isla en su propio archivo** (`assets/islands/<n>.css`): se inyecta solo si la isla está en la página → `styles.css` de ~30,6 KB a 23,2 KB en todas las páginas
 - [x] **gzip en el dev server** (HTML/CSS/JS/JSON/SVG): la home de ejemplo pasa de 30,4 KB a 7,3 KB
-- [ ] Backlog: dividir el CSS base por página, minificar el JS propio (requiere parser/dependencia), build de Mermaid con carga diferida por tipo de diagrama
+- [x] **Minificado de JS** con `tdewolff/minify` (también HTML y CSS)
+- [ ] Backlog: dividir el CSS base por página, build de Mermaid con carga diferida por tipo de diagrama
+
+### F24 — Tema extraído y `new-theme`
+- [x] Tema movido a `themes/default/` (plantilla editable) y embebido vía el paquete `themes` (`//go:embed`)
+- [x] Comando `godian new-theme <dir>` (+ `theme.Scaffold`) para copiar y personalizar el tema
+- [x] Overlay: un `theme_dir` en disco se superpone al tema embebido archivo a archivo
+- [x] README y `tools/genchroma` actualizados al nuevo path
 
 ## 🧭 Backlog (competencias y mejoras)
 
