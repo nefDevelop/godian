@@ -195,6 +195,7 @@ type PageData struct {
 	HomeCats    []Term
 	Stats       *SiteStats
 	NeedsMath   bool
+	NeedsCode   bool
 	OGImage     string
 	FeedURL     string
 	JSONLD      template.JS

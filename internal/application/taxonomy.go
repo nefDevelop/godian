@@ -19,11 +19,31 @@ var (
 	reMarkers    = regexp.MustCompile("[#>*_`~]+")
 	reSpaces     = regexp.MustCompile(`\s+`)
 	reMath       = regexp.MustCompile(`\$\$?[^$]+\$\$?|\\\(.+?\\\)|\\\[.+?\\\]`)
+	reFence      = regexp.MustCompile("(?m)^\\s*(```|~~~)\\s*(\\w*)")
 )
 
 // needsMath indica si el cuerpo contiene fórmulas (KaTeX).
 func needsMath(body string) bool {
 	return reMath.MatchString(body)
+}
+
+// needsCode indica si el cuerpo tiene bloques de código resaltados con Chroma
+// (se excluyen los de Mermaid, que no usan resaltado).
+func needsCode(body string) bool {
+	open := false
+	lang := ""
+	for _, m := range reFence.FindAllStringSubmatch(body, -1) {
+		if !open {
+			open = true
+			lang = m[2]
+			continue
+		}
+		open = false
+		if lang != "mermaid" {
+			return true
+		}
+	}
+	return false
 }
 
 // plainText convierte Markdown en texto plano para el índice de búsqueda.

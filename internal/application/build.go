@@ -283,6 +283,7 @@ func (b *Build) renderPosts(posts []domain.BlogPost, series []domain.Series) ([]
 		data.ReadingTime = readingTime(p.Body)
 		data.TOC = tocItems(headings)
 		data.NeedsMath = needsMath(p.Body)
+		data.NeedsCode = needsCode(p.Body)
 		data.OGImage = b.ogImage(p.Slug)
 		data.JSONLD = b.jsonLD(p)
 		data.Related = relatedPosts(p, ordered, 3)
@@ -775,6 +776,7 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 			}
 			data := b.newPage(d.Title, d.Description)
 			data.Body = body
+			data.NeedsCode = needsCode(d.Body)
 			data.TOC = tocItems(headings)
 			data.DocsNav = buildNav(d.Slug)
 			if b.opts.Links != nil {
@@ -810,6 +812,7 @@ func (b *Build) renderPages(pages []domain.Page) ([]string, error) {
 		}
 		data := b.newPage(p.Title, p.Description)
 		data.Body = body
+		data.NeedsCode = needsCode(p.Body)
 		data.Stack = p.Stack
 		data.TOC = tocItems(headings)
 		data.Breadcrumb = []Link{
@@ -991,6 +994,10 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 	if b.opts.Site.URL != "" {
 		data.Canonical = strings.TrimRight(b.opts.Site.URL, "/") + data.PageURL
 	}
+	// Chroma (resaltado de código) solo se carga en páginas con bloques de código.
+	if !data.NeedsCode {
+		data.CSS = withoutChroma(data.CSS)
+	}
 	var buf bytes.Buffer
 	if err := b.render.Render(&buf, name, data); err != nil {
 		return err
@@ -1000,6 +1007,21 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 		out = minify.HTML(out)
 	}
 	return b.output.Write(relPath, out)
+}
+
+// withoutChroma quita el CSS de Chroma de la lista (páginas sin bloques de código).
+func withoutChroma(css []string) []string {
+	if len(css) == 0 {
+		return css
+	}
+	out := make([]string, 0, len(css))
+	for _, u := range css {
+		if strings.Contains(u, "/chroma.") {
+			continue
+		}
+		out = append(out, u)
+	}
+	return out
 }
 
 func (b *Build) writeFeeds(posts []domain.BlogPost, paths []string) error {
