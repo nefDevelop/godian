@@ -177,6 +177,7 @@ type PageData struct {
 	Title       string
 	Description string
 	Body        template.HTML
+	Stack       []string
 	Date        string
 	Tags        []string
 	Categories  []string

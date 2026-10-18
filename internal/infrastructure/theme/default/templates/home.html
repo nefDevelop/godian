@@ -41,6 +41,10 @@
 			<h2>{{ t "ui.links" }}</h2>
 			<ul class="stats">{{ range . }}<li><a href="{{ .url }}">{{ .label }}</a></li>{{ end }}</ul>
 		</div>{{ end }}
+		{{ with index .Data "equipo" }}<div class="widget">
+			<h2>{{ t "ui.team" }}</h2>
+			<ul class="stats">{{ range . }}<li><strong>{{ .nombre }}</strong> · {{ .rol }}</li>{{ end }}</ul>
+		</div>{{ end }}
 	</section>
 </div>
 {{ template "footer" . }}{{ end }}

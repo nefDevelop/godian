@@ -1,0 +1,17 @@
+{{define "page"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap page-layout">
+	{{ template "breadcrumb" . }}
+	<article class="prose">
+		<h1>{{ .Title }}</h1>
+		{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+		{{ if .NeedsMath }}<div data-math hidden></div>{{ end }}
+		{{ .Body }}
+		{{ if .Stack }}<ul class="page-stack">{{ range .Stack }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
+	</article>
+	{{ if .TOC }}<div class="docs-toc">{{ template "toc" . }}</div>{{ end }}
+	{{ if .Backlinks }}<section class="backlinks">
+		<h2>{{ t "ui.backlinks" }}</h2>
+		<ul>{{ range .Backlinks }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}</ul>
+	</section>{{ end }}
+</div>
+{{ template "footer" . }}{{ end }}

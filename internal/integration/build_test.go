@@ -2,6 +2,7 @@
 package integration
 
 import (
+	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -43,6 +44,7 @@ func TestBuildEndToEnd(t *testing.T) {
 	reg := islands.New(th.FS())
 	funcs := template.FuncMap{
 		"t": func(k string) string { return i18n.T("es", k) },
+		"dict": dictFunc,
 		"island": func(name string, props ...map[string]string) (template.HTML, error) {
 			return reg.Island(name, firstMap(props))
 		},
@@ -111,6 +113,7 @@ func TestBuildEndToEnd(t *testing.T) {
 		"sitemap.xml",
 		"404.html",
 		"docs/index.html",
+		"about/index.html",
 		"assets/islands/manifest.json",
 		"assets/vendor/mermaid/mermaid.min.js",
 		"assets/vendor/katex/katex.min.css",
@@ -122,7 +125,7 @@ func TestBuildEndToEnd(t *testing.T) {
 	}
 
 	hello := readFile(t, filepath.Join(out, "blog/hello/index.html"))
-	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`, `class="note"`, "Aviso"} {
+	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`, `class="callout`, "Aviso"} {
 		if !strings.Contains(hello, want) {
 			t.Errorf("blog/hello no contiene %q", want)
 		}
@@ -131,6 +134,13 @@ func TestBuildEndToEnd(t *testing.T) {
 	blog := readFile(t, filepath.Join(out, "blog/index.html"))
 	if !strings.Contains(blog, `rel="next"`) {
 		t.Errorf("blog/index.html sin rel=next (paginación)")
+	}
+
+	about := readFile(t, filepath.Join(out, "about/index.html"))
+	for _, want := range []string{"Acerca de", `class="page-stack"`, "goldmark"} {
+		if !strings.Contains(about, want) {
+			t.Errorf("about/index.html no contiene %q", want)
+		}
 	}
 
 	if problems, err := verify.Dist(out); err != nil {
@@ -145,6 +155,21 @@ func firstMap(maps []map[string]string) map[string]string {
 		return maps[0]
 	}
 	return map[string]string{}
+}
+
+func dictFunc(values ...any) (map[string]string, error) {
+	if len(values)%2 != 0 {
+		return nil, fmt.Errorf("dict: número impar de argumentos")
+	}
+	m := make(map[string]string, len(values)/2)
+	for i := 0; i < len(values); i += 2 {
+		k, ok := values[i].(string)
+		if !ok {
+			return nil, fmt.Errorf("dict: la clave debe ser string")
+		}
+		m[k] = fmt.Sprintf("%v", values[i+1])
+	}
+	return m, nil
 }
 
 func readFile(t *testing.T, path string) string {

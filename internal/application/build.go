@@ -58,7 +58,7 @@ type FeedGenerator interface {
 	RSS(site domain.SiteConfig, posts []domain.BlogPost) ([]byte, error)
 	Atom(site domain.SiteConfig, posts []domain.BlogPost) ([]byte, error)
 	JSONFeed(site domain.SiteConfig, posts []domain.BlogPost) ([]byte, error)
-	Sitemap(site domain.SiteConfig, paths []string) ([]byte, error)
+	Sitemaps(site domain.SiteConfig, paths []string) (map[string][]byte, error)
 }
 
 // Options agrupa parámetros de presentación del build.
@@ -189,6 +189,11 @@ func (b *Build) Run() (Summary, error) {
 	}
 	paths = append(paths, "/search/")
 
+	// Índice de fechas de contenido (para la isla calendar con source="site").
+	if err := b.writeContentDates(posts, c.Docs); err != nil {
+		return Summary{}, err
+	}
+
 	// Autores.
 	authorPaths, err := b.renderAuthors(c, posts)
 	if err != nil {
@@ -216,6 +221,13 @@ func (b *Build) Run() (Summary, error) {
 		return Summary{}, err
 	}
 	paths = append(paths, docsPaths...)
+
+	// Páginas sueltas (colección "pages", p. ej. "about").
+	pagePaths, err := b.renderPages(c.Pages)
+	if err != nil {
+		return Summary{}, err
+	}
+	paths = append(paths, pagePaths...)
 
 	// Imágenes Open Graph.
 	if b.opts.OG != nil {
@@ -549,6 +561,43 @@ func (b *Build) renderSearch(posts []domain.BlogPost) error {
 	return b.output.Write("search-index.json", encoded)
 }
 
+// ContentDate es una entrada del índice de fechas (para la isla calendar).
+type ContentDate struct {
+	Date  string `json:"date"` // YYYY-MM-DD
+	Title string `json:"title"`
+	URL   string `json:"url"`
+	Type  string `json:"type"` // post | doc
+}
+
+// writeContentDates genera content-dates.json con las fechas de posts y docs.
+func (b *Build) writeContentDates(posts []domain.BlogPost, docs []domain.Doc) error {
+	dates := make([]ContentDate, 0, len(posts)+len(docs))
+	for _, p := range posts {
+		dates = append(dates, ContentDate{
+			Date:  p.Published.Format("2006-01-02"),
+			Title: p.Title,
+			URL:   "/blog/" + p.Slug + "/",
+			Type:  "post",
+		})
+	}
+	for _, d := range docs {
+		if d.PubDate == nil {
+			continue
+		}
+		dates = append(dates, ContentDate{
+			Date:  d.PubDate.Format("2006-01-02"),
+			Title: d.Title,
+			URL:   "/docs/" + d.Slug + "/",
+			Type:  "doc",
+		})
+	}
+	encoded, err := json.Marshal(dates)
+	if err != nil {
+		return err
+	}
+	return b.output.Write("content-dates.json", encoded)
+}
+
 func (b *Build) renderAuthors(c domain.Content, posts []domain.BlogPost) ([]string, error) {
 	info := map[string]domain.Author{}
 	for _, a := range c.Authors {
@@ -742,6 +791,34 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 			}
 			paths = append(paths, url)
 		}
+	}
+	return paths, nil
+}
+
+// renderPages renderiza la colección "pages" (páginas sueltas) en /<slug>/.
+func (b *Build) renderPages(pages []domain.Page) ([]string, error) {
+	var paths []string
+	for _, p := range pages {
+		body, headings, err := b.md.Render(p.Body)
+		if err != nil {
+			return nil, err
+		}
+		data := b.newPage(p.Title, p.Description)
+		data.Body = body
+		data.Stack = p.Stack
+		data.TOC = tocItems(headings)
+		data.Breadcrumb = []Link{
+			{Label: i18n.T(langOf(b.opts.Site), "nav.home"), URL: "/"},
+			{Label: p.Title, URL: "/" + p.Slug + "/"},
+		}
+		if b.opts.Links != nil {
+			data.Backlinks = b.opts.Links.Backlinks(p.Slug)
+		}
+		url := "/" + p.Slug + "/"
+		if err := b.writeTemplate("page", strings.TrimPrefix(url, "/")+"index.html", data); err != nil {
+			return nil, err
+		}
+		paths = append(paths, url)
 	}
 	return paths, nil
 }
@@ -945,12 +1022,14 @@ func (b *Build) writeFeeds(posts []domain.BlogPost, paths []string) error {
 		return err
 	}
 
-	sitemap, err := b.feeds.Sitemap(b.opts.Site, paths)
+	sitemaps, err := b.feeds.Sitemaps(b.opts.Site, paths)
 	if err != nil {
 		return err
 	}
-	if err := b.output.Write("sitemap.xml", sitemap); err != nil {
-		return err
+	for name, data := range sitemaps {
+		if err := b.output.Write(name, data); err != nil {
+			return err
+		}
 	}
 
 	return b.writeRobots()
