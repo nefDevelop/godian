@@ -84,6 +84,7 @@ func TestBuildEndToEnd(t *testing.T) {
 			Taxonomies:  cfg.Taxonomies,
 			CSS:         th.Manifest.Assets.CSS,
 			JS:          th.Manifest.Assets.JS,
+			ChunkDeps:   th.Manifest.Chunks,
 			AssetsFS:    assetsFS,
 			Minify:      true,
 			Fingerprint: true,
@@ -143,6 +144,7 @@ func TestBuildEndToEnd(t *testing.T) {
 		`class="code-block"`, `data-island="counter"`, `class="callout`, "Aviso",
 		`class="post-hero"`, `href="/authors/nef/"`, `class="difficulty difficulty-beginner"`,
 		"Actualizado", `class="post-links"`, `class="downloads"`, `class="pinned-badge"`,
+		"chunks/lists.",
 	} {
 		if !strings.Contains(hello, want) {
 			t.Errorf("blog/hello no contiene %q", want)
@@ -162,7 +164,7 @@ func TestBuildEndToEnd(t *testing.T) {
 	}
 
 	doc := readFile(t, filepath.Join(out, "docs/guia/index.html"))
-	for _, want := range []string{`class="docs-hero"`, `class="tags docs-tags"`, `href="/docs/tags/guide/"`, "Actualizado"} {
+	for _, want := range []string{`class="docs-hero"`, `class="tags docs-tags"`, `href="/docs/tags/guide/"`, "Actualizado", "chunks/lists."} {
 		if !strings.Contains(doc, want) {
 			t.Errorf("docs/guia/index.html no contiene %q", want)
 		}

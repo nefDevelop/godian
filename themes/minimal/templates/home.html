@@ -1,0 +1,7 @@
+{{define "home"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap" data-css="lists">
+	<h1>{{ .Site.Title }}</h1>
+	{{ if .Site.Description }}<p class="muted">{{ .Site.Description }}</p>{{ end }}
+	<div class="post-grid">{{ range .Posts }}{{ template "card" . }}{{ end }}</div>
+</div>
+{{ template "footer" . }}{{ end }}

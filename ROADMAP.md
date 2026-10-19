@@ -257,6 +257,16 @@
 - [x] Borde único en bloques de código (sin doble borde/redondeo interior)
 - [x] Cambio de tema claro/oscuro y de acento con transición (`html.theme-transition` + `--motion-base`)
 
+### F31 — Ergonomía de temas
+- [x] Dependencias de chunks en `theme.yaml` (`chunks: {article-ux: [lists], docs: [lists]}`) con resolución recursiva y sin duplicados
+- [x] `godian new-theme --minimal`: scaffold con `home`, `post`, `custom.css` y fallback al tema embebido
+- [x] Tests de dependencias/ciclos y del scaffold mínimo
+
+### F32 — Tipografía del tema
+- [x] Tres roles: `--font-heading` (títulos), `--font-body`/`--font-sans` (contenido) y `--font-extra`/`--font-mono` (código y metadatos)
+- [x] Defaults Space Grotesk / Inter / JetBrains Mono y `fonts:` autohospedado en `site.yaml`
+- [x] `site.font` sigue sobrescribiendo solo el contenido
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

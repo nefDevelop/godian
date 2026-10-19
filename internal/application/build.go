@@ -75,6 +75,7 @@ type Options struct {
 	I18n          map[string]string
 	CSS           []string
 	JS            []string
+	ChunkDeps     map[string][]string
 	AssetsFS      fs.FS
 	Images        ImageProcessor
 	OG            OGGenerator
@@ -101,6 +102,7 @@ type Build struct {
 	css       []string
 	js        []string
 	chunkURLs map[string]string
+	chunkDeps map[string][]string
 	now       time.Time
 }
 
@@ -110,7 +112,7 @@ func NewBuild(content ContentLoader, md MarkdownRenderer, render PageRenderer, o
 	if len(opts.Nav) > 0 {
 		nav = navFromLinks(opts.Nav)
 	}
-	return &Build{content: content, md: md, render: render, output: out, feeds: feeds, opts: opts, nav: nav, css: opts.CSS, js: opts.JS}
+	return &Build{content: content, md: md, render: render, output: out, feeds: feeds, opts: opts, nav: nav, css: opts.CSS, js: opts.JS, chunkDeps: opts.ChunkDeps}
 }
 
 // Run carga el contenido, renderiza todas las páginas y escribe la salida.
@@ -1169,7 +1171,7 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 	}
 	out := buf.Bytes()
 	if len(b.chunkURLs) > 0 {
-		out = injectChunks(out, b.chunkURLs)
+		out = injectChunks(out, b.chunkURLs, b.chunkDeps)
 	}
 	if b.opts.Minify {
 		out = minify.HTML(out)
@@ -1180,18 +1182,28 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 var reDataCSS = regexp.MustCompile(`data-css="([^"]+)"`)
 
 // injectChunks añade al <head> un <link> por cada bloque referenciado con
-// data-css="<name>" en la página (sincrónico, sin FOUC).
-func injectChunks(html []byte, chunks map[string]string) []byte {
+// data-css="<name> [<name>…]" en la página (sincrónico, sin FOUC). Las
+// dependencias declaradas en theme.yaml se resuelven de forma recursiva.
+func injectChunks(html []byte, chunks map[string]string, deps map[string][]string) []byte {
 	seen := map[string]bool{}
 	var links []string
+
+	var add func(string)
+	add = func(name string) {
+		url, ok := chunks[name]
+		if !ok || seen[url] {
+			return
+		}
+		seen[url] = true
+		links = append(links, `<link rel="stylesheet" href="`+url+`">`)
+		for _, dep := range deps[name] {
+			add(dep)
+		}
+	}
+
 	for _, m := range reDataCSS.FindAllSubmatch(html, -1) {
 		for _, name := range strings.Fields(string(m[1])) {
-			url, ok := chunks[name]
-			if !ok || seen[url] {
-				continue
-			}
-			seen[url] = true
-			links = append(links, `<link rel="stylesheet" href="`+url+`">`)
+			add(name)
 		}
 	}
 	if len(links) == 0 {

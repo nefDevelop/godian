@@ -70,13 +70,20 @@ support:
 #   id: ""
 
 # Fuentes autohospedadas (opcional). Se descargan en el build y se sirven desde
-# /assets/fonts (sin peticiones a Google Fonts en tiempo de uso). Si se omite,
-# se usan las fuentes del sistema.
-# fonts:
-#   - family: Inter
-#     weights: [400, 700]
-#     subsets: [latin]
-# Y para aplicarla al cuerpo:  site.font: Inter
+# /assets/fonts (sin peticiones a Google Fonts en tiempo de uso).
+# El tema default usa tres roles: títulos (Space Grotesk), contenido (Inter)
+# y extras/código (JetBrains Mono).
+fonts:
+  - family: Inter
+    weights: [400, 500, 700]
+    subsets: [latin]
+  - family: Space Grotesk
+    weights: [500, 700]
+    subsets: [latin]
+  - family: JetBrains Mono
+    weights: [400, 600]
+    subsets: [latin]
+# Para sobrescribir solo el contenido: site.font: Inter
 
 # Taxonomías configurables. Si se omite, se usan tags y categories por defecto.
 taxonomies:

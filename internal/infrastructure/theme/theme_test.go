@@ -16,6 +16,9 @@ func TestLoadEmbedded(t *testing.T) {
 	if th.Manifest.Name == "" {
 		t.Error("manifest sin nombre")
 	}
+	if got := th.Manifest.Chunks["article-ux"]; len(got) != 1 || got[0] != "lists" {
+		t.Errorf("chunks por defecto = %+v", th.Manifest.Chunks)
+	}
 }
 
 func TestScaffold(t *testing.T) {
@@ -66,5 +69,34 @@ func TestOverlayReadDirMergesAndToleratesMissing(t *testing.T) {
 
 	if _, err := fs.ReadDir(th.FS(), "no-existe"); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("se esperaba ErrNotExist, got %v", err)
+	}
+}
+
+func TestScaffoldMinimal(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "minimal")
+	if err := ScaffoldMinimal(out); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range []string{
+		"theme.yaml",
+		"templates/home.html",
+		"templates/post.html",
+		"assets/css/custom.css",
+		"README.md",
+	} {
+		if _, err := os.Stat(filepath.Join(out, filepath.FromSlash(f))); err != nil {
+			t.Errorf("falta %s: %v", f, err)
+		}
+	}
+
+	th, err := Load(out)
+	if err != nil {
+		t.Fatalf("Load del tema mínimo: %v", err)
+	}
+	if th.Manifest.Name != "minimal" {
+		t.Errorf("manifest = %+v", th.Manifest)
+	}
+	if got := th.Manifest.Chunks["article-ux"]; len(got) != 1 || got[0] != "lists" {
+		t.Errorf("chunks del mínimo = %+v", th.Manifest.Chunks)
 	}
 }

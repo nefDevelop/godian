@@ -1,0 +1,9 @@
+{{define "post"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap post-layout" data-css="article-ux">
+	<article class="prose">
+		<h1>{{ .Title }}</h1>
+		{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+		{{ .Body }}
+	</article>
+</div>
+{{ template "footer" . }}{{ end }}

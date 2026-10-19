@@ -24,9 +24,10 @@ type Assets struct {
 
 // Manifest es el contenido de theme.yaml.
 type Manifest struct {
-	Name    string `yaml:"name"`
-	Version string `yaml:"version"`
-	Assets  Assets `yaml:"assets"`
+	Name    string              `yaml:"name"`
+	Version string              `yaml:"version"`
+	Assets  Assets              `yaml:"assets"`
+	Chunks  map[string][]string `yaml:"chunks"`
 }
 
 // Theme es un tema cargado y listo para usar.
@@ -57,7 +58,16 @@ func Load(themeDir string) (*Theme, error) {
 // Scaffold copia el tema por defecto embebido a dir para poder personalizarlo
 // (overlay: los archivos presentes en dir sobrescriben el tema embebido).
 func Scaffold(dir string) error {
-	base := themes.Default()
+	return copyFS(themes.Default(), dir)
+}
+
+// ScaffoldMinimal copia el scaffold mínimo embebido a dir. Solo incluye unas
+// pocas plantillas y CSS; el resto cae al tema por defecto por overlay.
+func ScaffoldMinimal(dir string) error {
+	return copyFS(themes.Minimal(), dir)
+}
+
+func copyFS(base fs.FS, dir string) error {
 	return fs.WalkDir(base, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err

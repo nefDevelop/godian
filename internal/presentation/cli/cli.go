@@ -45,7 +45,7 @@ Uso:
   godian build [-config site.yaml] [-drafts]      Genera el sitio estático
   godian serve [-config site.yaml] [-addr :4321]  Dev server con recarga
   godian new [-collection blog] [-title "..."] <slug>  Crea un post nuevo
-  godian new-theme <dir>                          Copia el tema por defecto a <dir>
+  godian new-theme [--minimal] <dir>              Copia el tema default o crea uno mínimo
   godian check [-config site.yaml]                Valida el contenido
   godian version                                  Muestra la versión
 `
@@ -220,12 +220,13 @@ func runNew(args []string) int {
 
 func runNewTheme(args []string) int {
 	fs := flag.NewFlagSet("new-theme", flag.ContinueOnError)
+	minimal := fs.Bool("minimal", false, "crear un tema mínimo con fallback al tema embebido")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
 	rest := fs.Args()
 	if len(rest) < 1 {
-		fmt.Fprintln(os.Stderr, "uso: godian new-theme <dir>")
+		fmt.Fprintln(os.Stderr, "uso: godian new-theme [--minimal] <dir>")
 		return 2
 	}
 	dir := rest[0]
@@ -234,11 +235,22 @@ func runNewTheme(args []string) int {
 		fmt.Fprintf(os.Stderr, "el directorio ya existe y no está vacío: %s\n", dir)
 		return 1
 	}
-	if err := theme.Scaffold(dir); err != nil {
+	var err error
+	if *minimal {
+		err = theme.ScaffoldMinimal(dir)
+	} else {
+		err = theme.Scaffold(dir)
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "error copiando el tema: %v\n", err)
 		return 1
 	}
-	fmt.Println("tema creado en:", dir)
+	if *minimal {
+		fmt.Println("tema mínimo creado en:", dir)
+		fmt.Println("Las plantillas que no copies caen al tema embebido por overlay.")
+	} else {
+		fmt.Println("tema creado en:", dir)
+	}
 	fmt.Printf("Apunta build.theme_dir a %q en site.yaml para usarlo.\n", dir)
 	return 0
 }
@@ -388,6 +400,7 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		I18n:          dict,
 		CSS:           th.Manifest.Assets.CSS,
 		JS:            th.Manifest.Assets.JS,
+		ChunkDeps:     th.Manifest.Chunks,
 		AssetsFS:      assetsFS,
 		Images:        imagesProc,
 		OG:            ogGen,

@@ -36,6 +36,9 @@ assets:
     - /assets/js/theme.js
     - /assets/js/search.js
     - /assets/js/islands.js
+chunks:
+  article-ux: [lists]
+  docs: [lists]
 ```
 
 El generador **no compila CSS ni JS**: copia, minifica y fingerprinta lo que
@@ -123,8 +126,20 @@ Dependencias del tema por defecto:
 | Página | `data-css` |
 |---|---|
 | `home`, `blog`, `terms`, `taxonomy`, `archive`, `authors`, `author`, `series`, `series-detail`, `search` | `lists` |
-| `post` | `article-ux lists` |
-| `docs`, `docs-index`, `docs-tags`, `docs-tag` | `docs lists` |
+| `post` | `article-ux` (`lists` por dependencia) |
+| `docs`, `docs-index`, `docs-tags`, `docs-tag` | `docs` (`lists` por dependencia) |
+
+Si un chunk necesita otro, decláralo en `theme.yaml`:
+
+```yaml
+chunks:
+  article-ux: [lists]
+  docs: [lists]
+```
+
+El generador resuelve las dependencias de forma recursiva y evita duplicados.
+Así una plantilla puede usar `data-css="article-ux"` y recibir `lists` sin
+tener que recordarlo.
 
 `lists` contiene `.card*`, `.tags`, `.tag`, `.cat`, `.term*`, `.difficulty`,
 `.pinned-badge` y los listados. Si una plantilla usa alguno de esos estilos,
@@ -148,6 +163,18 @@ templates/partials/<nombre>.html componente estático
 
 Desde Markdown: `{{island counter start=3}}`, `{{partial cta text="Docs" url="/docs/"}}`.
 Desde plantillas: `{{ island "tabs" (dict "items" "A,B") }}`.
+
+## Fuentes
+
+El tema usa tres roles tipográficos:
+
+- `--font-heading`: títulos (`Space Grotesk`).
+- `--font-body` / `--font-sans`: contenido (`Inter`).
+- `--font-extra` / `--font-mono`: código, metadatos y etiquetas (`JetBrains Mono`).
+
+`site.font` sobrescribe `--font-sans` (contenido). Para autohospedarlas, declara
+las familias en `fonts:` de `site.yaml`; el build genera `/assets/css/fonts.css`.
+Si no hay red, se usan las pilas de fallback.
 
 ## Movimiento
 
@@ -246,9 +273,20 @@ Las plantillas usan `{{ t "clave" }}`. Las claves salen de
 i18n a nivel de tema**: si creas un tema reutilizable, reutiliza las claves
 existentes o añade las nuevas al i18n del sitio.
 
+## Scaffold mínimo
+
+```sh
+godian new-theme --minimal mi-tema
+```
+
+Crea `theme.yaml`, `templates/home.html`, `templates/post.html`,
+`assets/css/custom.css` y un README. El resto de plantillas y assets caen al
+tema embebido por overlay. Es la forma más rápida de empezar sin copiar todo.
+
 ## Checklist para un tema nuevo
 
-1. `godian new-theme mi-tema` y apunta `build.theme_dir` a esa carpeta.
+1. `godian new-theme mi-tema` (completo) o `godian new-theme --minimal mi-tema`
+   y apunta `build.theme_dir` a esa carpeta.
 2. Mantén los nombres de plantillas obligatorios.
 3. Declara en `theme.yaml` los CSS/JS globales.
 4. Asigna el chunk correcto con `data-css` en cada plantilla.

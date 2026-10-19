@@ -1,0 +1,6 @@
+/* Personaliza el tema aquí.
+   Los assets del tema embebido (styles.css, motion.css, chunks, JS…) siguen
+   disponibles por overlay; este archivo se carga después. */
+:root {
+	--accent: #0ea5e9;
+}

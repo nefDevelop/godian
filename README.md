@@ -32,7 +32,7 @@ make build          # compila a bin/godian (usa -tags nodynamic)
 godian build [-config site.yaml] [-drafts]        # genera el sitio en dist/
 godian serve [-config site.yaml] [-addr :4321]    # dev server + hot reload (SSE)
 godian new [-config site.yaml] [-collection blog] [-title "Título"] <slug>
-godian new-theme <dir>                            # copia el tema por defecto a <dir>
+godian new-theme [--minimal] <dir>                # copia el tema default o crea uno mínimo
 godian check [-config site.yaml]                  # valida el contenido
 godian version
 ```
@@ -40,7 +40,7 @@ godian version
 - `build`: genera el sitio. `-drafts` incluye borradores.
 - `serve`: sirve `dist/` y **reconstruye al detectar cambios** en contenido/tema/assets/config; recarga el navegador.
 - `new`: crea `content/<colección>/<slug>.md` con frontmatter listo (`draft: true`). *Las banderas van antes del slug.*
-- `new-theme`: copia el tema por defecto (`themes/default/`) a `<dir>` para personalizarlo; apunta `build.theme_dir` a esa carpeta.
+- `new-theme`: copia el tema por defecto (`themes/default/`) a `<dir>`; con `--minimal` crea un scaffold de 2 plantillas que usa el resto del tema embebido por overlay. Apunta `build.theme_dir` a esa carpeta.
 - `check`: valida el contenido (imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos); sale con código 1 si hay problemas.
 - `version`: imprime la versión (sobrescribible con `-ldflags "-X .../cli.Version=x.y.z"`).
 
@@ -140,7 +140,8 @@ fonts:
 
 - Se genera `/assets/css/fonts.css` con los `@font-face` (con `font-display`) y se añade al `<head>`.
 - Se pueden declarar **varias** fuentes (una entrada por familia).
-- Para **aplicarla** al cuerpo: `site.font: Inter` (el tema usa `--font-sans`/`--font-mono`).
+- Para **aplicarla** al cuerpo: `site.font: Inter` (sobrescribe `--font-sans`).
+- El tema default usa **tres roles**: `--font-heading` (Space Grotesk, títulos), `--font-body`/`--font-sans` (Inter, contenido) y `--font-extra`/`--font-mono` (JetBrains Mono, código y metadatos).
 - Si el build no tiene red, **avisa y sigue** con las fuentes del sistema (no rompe).
 - Licencias: la mayoría son OFL (autohospedaje permitido).
 
@@ -312,10 +313,13 @@ assets:
     - /assets/js/theme.js
     - /assets/js/search.js
     - /assets/js/islands.js
+chunks:
+  article-ux: [lists]
+  docs: [lists]
 ```
 
 - **CSS**: el generador no compila CSS; el tema aporta el suyo (Tailwind precompilado, CSS plano, etc.).
-- **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre> [<nombre>…]"` (p. ej. `article-ux lists` en posts y `docs lists` en documentación). El generador los fingerprinta y añade los `<link>` en el `<head>` (sincrónico, sin FOUC). `lists` aporta tarjetas, tags, términos y badges: cualquier plantilla que use esas clases debe declararlo.
+- **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre> [<nombre>…]"`. Además, `theme.yaml` puede declarar dependencias (`chunks: {article-ux: [lists], docs: [lists]}`) y el generador las resuelve de forma recursiva, sin duplicados. `lists` aporta tarjetas, tags, términos y badges. El generador fingerprinta los chunks y añade los `<link>` en el `<head>` (sincrónico, sin FOUC).
 - **Overlay**: puedes sobrescribir un template/asset concreto sin copiar todo el tema.
 - **Movimiento**: `assets/css/motion.css` define duraciones, curvas y utilidades (`.collapse`, `.motion-fade-in`, `.motion-slide-up`); las islas usan esos tokens.
 - **Fingerprinting/minify** se aplican a los assets del tema.

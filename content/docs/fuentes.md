@@ -15,12 +15,15 @@ cookies) en tiempo de uso.
 ```yaml
 fonts:
   - family: Inter
-    weights: [400, 700]
+    weights: [400, 500, 700]
     styles: [normal]      # normal | italic
     subsets: [latin]      # latin, latin-ext, cyrillic…
     display: swap         # swap (por defecto) | block | fallback | optional
+  - family: Space Grotesk
+    weights: [500, 700]
+    subsets: [latin]
   - family: JetBrains Mono
-    weights: [400]
+    weights: [400, 600]
     subsets: [latin]
 ```
 
@@ -49,14 +52,20 @@ site:
   font: Inter
 ```
 
-El tema aplica `--font-sans: 'Inter', system-ui, sans-serif` en `<html>`. Si
-prefieres controlarlo por CSS, el tema usa dos variables:
+El tema default usa **tres roles** tipográficos:
 
-- `--font-sans`: tipografía del cuerpo (por defecto la pila del sistema).
-- `--font-mono`: código y bloques monoespaciados.
+- `--font-heading`: títulos (`Space Grotesk`).
+- `--font-body` / `--font-sans`: contenido (`Inter`).
+- `--font-extra` / `--font-mono`: código, metadatos y etiquetas (`JetBrains Mono`).
+
+`site.font` sobrescribe `--font-sans` (contenido), no los otros dos roles.
 
 ```css
-:root { --font-sans: 'Inter', system-ui, sans-serif; --font-mono: 'JetBrains Mono', monospace; }
+:root {
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-extra: 'JetBrains Mono', monospace;
+}
 ```
 
 ## Licencias

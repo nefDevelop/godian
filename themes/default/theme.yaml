@@ -9,3 +9,7 @@ assets:
     - /assets/js/theme.js
     - /assets/js/search.js
     - /assets/js/islands.js
+
+chunks:
+  article-ux: [lists]
+  docs: [lists]

@@ -1,0 +1,15 @@
+name: minimal
+version: 0.1.0
+assets:
+  css:
+    - /assets/css/styles.css
+    - /assets/css/motion.css
+    - /assets/css/chroma.css
+    - /assets/css/custom.css
+  js:
+    - /assets/js/theme.js
+    - /assets/js/search.js
+    - /assets/js/islands.js
+chunks:
+  article-ux: [lists]
+  docs: [lists]

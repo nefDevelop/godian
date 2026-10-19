@@ -7,6 +7,13 @@
 	--card: #f8fafc;
 	--radius: 0.75rem;
 	--wrap: 64rem;
+
+	/* Tipografía: tres roles. */
+	--font-heading: 'Space Grotesk', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-body: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-extra: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+	--font-sans: var(--font-body);
+	--font-mono: var(--font-extra);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,6 +87,48 @@ body {
 	font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 	line-height: 1.65;
 	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand,
+.card-title,
+.callout-title {
+	font-family: var(--font-heading);
+}
+
+code,
+kbd,
+pre,
+samp,
+.code-lang,
+.code-title,
+.code-copy,
+.card-meta,
+.card-author,
+.post-meta,
+.tag,
+.cat,
+.difficulty,
+.pinned-badge,
+.term,
+.term-count,
+.search-type,
+.search-hint,
+.toc,
+.breadcrumb,
+.chapter-meta,
+.archive-date,
+.archive-cat,
+.stats,
+.footer-nav,
+.docs-nav-title,
+.stat-value {
+	font-family: var(--font-extra);
 }
 
 a {
