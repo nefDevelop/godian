@@ -30,7 +30,7 @@ make build          # compila a bin/godian (usa -tags nodynamic)
 
 ```sh
 godian build [-config site.yaml] [-drafts]        # genera el sitio en dist/
-godian serve [-config site.yaml] [-addr :4321]    # dev server + hot reload (SSE)
+godian serve [-config site.yaml] [-addr :4321]    # dev server + hot reload + admin en /admin/
 godian new [-config site.yaml] [-collection blog] [-title "Título"] <slug>
 godian new-theme [--minimal] <dir>                # copia el tema default o crea uno mínimo
 godian check [-config site.yaml]                  # valida el contenido
@@ -38,7 +38,7 @@ godian version
 ```
 
 - `build`: genera el sitio. `-drafts` incluye borradores.
-- `serve`: sirve `dist/` y **reconstruye al detectar cambios** en contenido/tema/assets/config; recarga el navegador.
+- `serve`: sirve `dist/`, **reconstruye al detectar cambios** en contenido/tema/assets/config, recarga el navegador y expone el admin en `/admin/` (solo localhost).
 - `new`: crea `content/<colección>/<slug>.md` con frontmatter listo (`draft: true`). *Las banderas van antes del slug.*
 - `new-theme`: copia el tema por defecto (`themes/default/`) a `<dir>`; con `--minimal` crea un scaffold de 2 plantillas que usa el resto del tema embebido por overlay. Apunta `build.theme_dir` a esa carpeta.
 - `check`: valida el contenido (imágenes referenciadas/huérfanas, `alt` faltante, series con capítulos inexistentes, títulos vacíos); sale con código 1 si hay problemas.
@@ -53,6 +53,7 @@ site:
   title: Mi sitio
   description: Blog y documentación
   url: https://ejemplo.com
+  base_path: /godian    # opcional; si se omite, se deriva del path de url
   language: es          # en | es (i18n de la interfaz)
   color: "#2563eb"      # color de acento del tema por defecto
 
@@ -493,6 +494,7 @@ deploy/                              ejemplos de despliegue
 ```sh
 make build        # bin/godian (con símbolos, depurable)
 make release      # bin/godian sin símbolos (-s -w) y con la versión inyectada
+make schema       # genera content.schema.json desde site.yaml
 make run          # go run ./cmd/godian build
 make serve        # go run ./cmd/godian serve (dev server en :4321)
 make test         # tests (unit + integración end-to-end)
@@ -511,9 +513,52 @@ make clean        # rm -rf bin
 - Regenerar el CSS de resaltado (Chroma): `go run ./tools/genchroma`.
 - `-race`: no soportado en android/arm64; disponible en CI (linux, `CGO_ENABLED=1`).
 
+## Admin nativo (`/admin`)
+
+`godian serve` levanta el sitio en `/` y un panel de edición en `/admin/`, en el
+mismo puerto. **No necesita npm** ni un frontend aparte: las plantillas, el CSS
+y el JS del admin van embebidos en el binario.
+
+- **Solo localhost**: `/admin/` rechaza peticiones que no vengan de loopback.
+  `/uploads/` queda público porque son assets del sitio.
+- **Theme-aware**: carga el CSS global, tokens, tipografía, chunks e iconos del
+  tema activo. Si el tema incluye `assets/css/admin.css`, se carga después del
+  CSS core; un tema propio cambia el admin sin tocar Go.
+- **Schema compartido**: `content.BuildSchema` —la misma fuente de
+  `content.schema.json`— genera los formularios; no hay schema duplicado.
+- **Colecciones**: blog/docs/pages Markdown y authors/series YAML.
+- **Edición**: crear/editar, vista previa server-side con el pipeline de
+  Markdown, KaTeX en el preview y subida de imágenes a `assets/uploads`.
+  Las islas/shortcodes pueden quedar aproximados en el preview; el build real
+  sigue siendo la fuente de verdad.
+- **Guardado**: escribe en `content/` con escritura atómica; el watcher
+  reconstruye el sitio.
+- **Sin Git**: el admin no hace commit/push; lo haces tú.
+- **Arranque**: `make serve` o `godian serve`; abre
+  `http://localhost:4321/admin/`.
+
+`godian-cms/` queda como referencia local de la etapa Svelte; no forma parte del
+build ni se commitea (ver `.gitignore`). El admin nativo es la vía soportada.
+`content.schema.json` se sigue generando con `make schema` para consumidores
+externos.
+
 ## Despliegue
 
 Ver `deploy/README.md` (GitHub Pages, Netlify, Cloudflare Pages, Vercel).
+
+### Subruta / GitHub Pages proyecto
+
+Si el sitio se sirve en una subruta (`https://usuario.github.io/godian/`),
+indica la URL pública completa:
+
+```yaml
+site:
+  url: https://usuario.github.io/godian
+```
+
+Godian deriva `base_path: /godian` y prefija enlaces internos, assets, feeds,
+sitemap, búsqueda y manifests. También puedes forzarlo con `site.base_path`.
+En raíz (dominio propio, Cloudflare, Vercel, Netlify) no hace falta.
 
 ## Licencia
 

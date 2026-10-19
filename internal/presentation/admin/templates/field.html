@@ -1,0 +1,56 @@
+{{ define "field" -}}
+{{ if eq .Type "object" }}
+<fieldset class="admin-fieldset">
+	<legend>{{ .Label }}</legend>
+	<div class="admin-form-grid">
+		{{ range .Fields }}{{ template "field" . }}{{ end }}
+	</div>
+</fieldset>
+{{ else if eq .Type "boolean" }}
+<label class="admin-field admin-check">
+	<input type="checkbox" name="{{ .Name }}"{{ if .Bool }} checked{{ end }}>
+	<span>{{ .Label }}</span>
+</label>
+{{ else if eq .Type "text" }}
+<div class="admin-field admin-field-wide">
+	<label for="f-{{ .Name }}">{{ .Label }}{{ if .Required }} *{{ end }}</label>
+	<textarea id="f-{{ .Name }}" name="{{ .Name }}" rows="3"{{ if .Required }} required{{ end }}>{{ .Value }}</textarea>
+</div>
+{{ else if eq .Type "select" }}
+{{ $value := .Value }}
+<div class="admin-field">
+	<label for="f-{{ .Name }}">{{ .Label }}{{ if .Required }} *{{ end }}</label>
+	<select id="f-{{ .Name }}" name="{{ .Name }}"{{ if .Required }} required{{ end }}>
+		<option value="">—</option>
+		{{ range .Options }}<option value="{{ . }}"{{ if eq . $value }} selected{{ end }}>{{ . }}</option>{{ end }}
+	</select>
+</div>
+{{ else if eq .Type "list" }}
+{{ if .IsListObject }}
+<div class="admin-field admin-field-wide">
+	<label for="f-{{ .Name }}">{{ .Label }}</label>
+	<textarea id="f-{{ .Name }}" name="{{ .Name }}_json" rows="6" class="admin-code">{{ .JSON }}</textarea>
+	<p class="admin-hint">JSON: lista de objetos.</p>
+</div>
+{{ else }}
+<div class="admin-field admin-field-wide">
+	<label for="f-{{ .Name }}">{{ .Label }}{{ if .Required }} *{{ end }}</label>
+	<input id="f-{{ .Name }}" name="{{ .Name }}" value="{{ .Value }}" list="dl-{{ .Name }}"{{ if .Required }} required{{ end }}>
+	{{ if .Options }}<datalist id="dl-{{ .Name }}">{{ range .Options }}<option value="{{ . }}"></option>{{ end }}</datalist>{{ end }}
+	<p class="admin-hint">Separa por comas.</p>
+</div>
+{{ end }}
+{{ else if eq .Type "image" }}
+<div class="admin-field">
+	<label for="f-{{ .Name }}">{{ .Label }}</label>
+	<input id="f-{{ .Name }}" name="{{ .Name }}" value="{{ .Value }}" placeholder="/uploads/…">
+	<input type="file" name="upload_{{ .Name }}" accept="image/*" class="admin-file-input">
+	{{ if .Value }}<img class="admin-thumb" src="{{ .Value }}" alt="">{{ end }}
+</div>
+{{ else }}
+<div class="admin-field">
+	<label for="f-{{ .Name }}">{{ .Label }}{{ if .Required }} *{{ end }}</label>
+	<input id="f-{{ .Name }}" type="{{ .InputType }}" name="{{ .Name }}" value="{{ .Value }}"{{ if eq .InputType "number" }} step="1"{{ end }}{{ if .Required }} required{{ end }}>
+</div>
+{{ end }}
+{{- end }}

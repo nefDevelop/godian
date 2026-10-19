@@ -1,5 +1,6 @@
 (function () {
 	var index = null;
+	var BASE = window.__BASE_PATH__ || '';
 
 	function esc(s) {
 		return (s || '').replace(/[&<>"]/g, function (c) {
@@ -58,7 +59,7 @@
 
 	function load() {
 		if (index) return Promise.resolve(index);
-		return fetch('/search-index.json')
+		return fetch(BASE + '/search-index.json')
 			.then(function (r) { return r.json(); })
 			.then(function (d) { index = d; return d; });
 	}
@@ -147,7 +148,7 @@
 			form.addEventListener('submit', function (e) {
 				e.preventDefault();
 				var v = input.value;
-				history.replaceState(null, '', '/search/' + (v ? '?q=' + encodeURIComponent(v) : ''));
+				history.replaceState(null, '', BASE + '/search/' + (v ? '?q=' + encodeURIComponent(v) : ''));
 				renderInto(results, v);
 			});
 		}

@@ -33,11 +33,12 @@ export function mount(el, props) {
 		return a;
 	});
 
-	import('/assets/vendor/photoswipe/photoswipe.esm.min.js').then(function (mod) {
+	import('../vendor/photoswipe/photoswipe.esm.min.js').then(function (mod) {
 		var PhotoSwipe = mod.default || mod.PhotoSwipe;
 		var link = document.createElement('link');
 		link.rel = 'stylesheet';
-		link.href = '/assets/vendor/photoswipe/photoswipe.css';
+		var cssHref = new URL('../vendor/photoswipe/photoswipe.css', import.meta.url).href;
+		link.href = cssHref;
 		document.head.appendChild(link);
 
 		el.addEventListener('click', function (e) {

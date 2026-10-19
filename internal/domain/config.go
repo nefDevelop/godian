@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"net/url"
+	"strings"
+)
+
 // Config es la configuración raíz del sitio, cargada desde site.yaml.
 type Config struct {
 	Site        SiteConfig         `yaml:"site"`
@@ -85,8 +90,53 @@ type SiteConfig struct {
 	Description string `yaml:"description"`
 	URL         string `yaml:"url"`
 	Language    string `yaml:"language"`
-	Color       string `yaml:"color"` // color de acento (hex) para el tema por defecto
-	Font        string `yaml:"font"`  // familia tipográfica del cuerpo (p. ej. "Inter")
+	Color       string `yaml:"color"`     // color de acento (hex) para el tema por defecto
+	Font        string `yaml:"font"`      // familia tipográfica del cuerpo (p. ej. "Inter")
+	BasePath    string `yaml:"base_path"` // subruta de despliegue; si se omite, se deriva de URL
+}
+
+// EffectiveBasePath devuelve la subruta normalizada: explícita o derivada de URL.
+func (s SiteConfig) EffectiveBasePath() string {
+	if strings.TrimSpace(s.BasePath) != "" {
+		return NormalizeBasePath(s.BasePath)
+	}
+	return BasePathFromURL(s.URL)
+}
+
+// BasePathFromURL extrae y normaliza el path de una URL.
+func BasePathFromURL(raw string) string {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil {
+		return ""
+	}
+	return NormalizeBasePath(u.Path)
+}
+
+// NormalizeBasePath deja la subruta con "/" inicial y sin "/" final.
+func NormalizeBasePath(p string) string {
+	p = strings.TrimSpace(p)
+	if p == "" || p == "/" {
+		return ""
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return strings.TrimRight(p, "/")
+}
+
+// NormalizeSite resuelve BasePath y alinea Site.URL con esa subruta.
+// Así canonical, feeds, sitemap y OG usan la URL pública correcta.
+func NormalizeSite(s *SiteConfig) {
+	s.BasePath = s.EffectiveBasePath()
+	if s.BasePath == "" || strings.TrimSpace(s.URL) == "" {
+		return
+	}
+	u, err := url.Parse(s.URL)
+	if err != nil {
+		return
+	}
+	u.Path = s.BasePath
+	s.URL = strings.TrimRight(u.String(), "/")
 }
 
 // BuildConfig define las rutas y opciones del build.

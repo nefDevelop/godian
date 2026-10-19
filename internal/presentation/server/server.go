@@ -23,6 +23,7 @@ type Server struct {
 	dir       string
 	watch     []string
 	rebuild   func() error
+	admin     http.Handler
 	mu        sync.Mutex
 	clients   map[chan struct{}]struct{}
 	signature string
@@ -39,18 +40,32 @@ func New(addr, dir string, watch []string, rebuild func() error) *Server {
 	}
 }
 
+// SetAdmin registra el panel de edición. Debe llamarse antes de Run.
+func (s *Server) SetAdmin(h http.Handler) {
+	s.admin = h
+}
+
+// handler construye el mux del sitio y, si existe, del admin.
+func (s *Server) handler() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/__reload", s.handleReload)
+	if s.admin != nil {
+		mux.Handle("/admin", s.admin)
+		mux.Handle("/admin/", s.admin)
+		mux.Handle("/uploads/", s.admin)
+	}
+	mux.HandleFunc("/", s.handleStatic)
+	return mux
+}
+
 // Run arranca el servidor (bloquea hasta que falle o se cancele el contexto).
 func (s *Server) Run(ctx context.Context) error {
 	s.signature = signature(s.watch)
 	go s.watchLoop(ctx)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/__reload", s.handleReload)
-	mux.HandleFunc("/", s.handleStatic)
-
 	srv := &http.Server{
 		Addr:              s.addr,
-		Handler:           mux,
+		Handler:           s.handler(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	go func() {
@@ -64,6 +79,9 @@ func (s *Server) Run(ctx context.Context) error {
 		host = "localhost" + host
 	}
 	fmt.Printf("Dev server en http://%s\n", host)
+	if s.admin != nil {
+		fmt.Printf("Admin en http://%s/admin/\n", host)
+	}
 	return srv.ListenAndServe()
 }
 

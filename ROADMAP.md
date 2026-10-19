@@ -267,6 +267,30 @@
 - [x] Defaults Space Grotesk / Inter / JetBrains Mono y `fonts:` autohospedado en `site.yaml`
 - [x] `site.font` sigue sobrescribiendo solo el contenido
 
+### F33 — Base path / despliegue en subruta
+- [x] `site.base_path` explícito o derivado del path de `site.url`
+- [x] Prefijado de HTML, CSS, JSON, imágenes/srcset, manifests y búsqueda
+- [x] `window.__BASE_PATH__` para JS e imports relativos en islas
+- [x] Verificación base-aware (`verify.DistBase`) y tests de raíz/subruta
+
+### F34 — CMS adaptado (`godian-cms`) — referencia
+- [x] Copia de Astro CMS dentro de godian, sin tocar el original
+- [x] Schema compartido `content.schema.json` + comando `godian schema`
+- [x] Colecciones, campos, tipos y taxonomías desde el schema y `site.yaml`
+- [x] Editor genérico por campos, autores/series YAML y uploads a `assets/uploads`
+- [x] `godian-cms` ejecutable con npm, `config.yml` copiado al build y test del schema
+
+> Sustituido por el admin nativo de F35. `godian-cms/` queda como referencia local, fuera del build y de git.
+
+### F35 — Admin nativo (`/admin`)
+- [x] `godian serve` sirve el sitio en `/` y el admin en `/admin/`, mismo puerto
+- [x] Plantillas, CSS y JS embebidos con `go:embed`; sin npm ni build de frontend
+- [x] Admin theme-aware: CSS global, chunks, tokens, iconos y `assets/css/admin.css`
+- [x] Formularios schema-driven desde `content.BuildSchema` (blog/docs/pages/authors/series)
+- [x] Crear/editar, guardado atómico, vista previa server-side y subida de imágenes
+- [x] CSRF, solo loopback, validación de rutas y `/uploads` público
+- [x] Tests del handler, CSRF, traversal, fechas sin comillas, tema y uploads
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

@@ -17,6 +17,12 @@ var (
 
 // Dist recorre el directorio de salida y devuelve las referencias que no resuelven.
 func Dist(dir string) ([]string, error) {
+	return DistBase(dir, "")
+}
+
+// DistBase es como Dist pero tolera que las URLs internas lleven un base path
+// (por ejemplo /godian) y lo elimina antes de resolver contra dist/.
+func DistBase(dir, basePath string) ([]string, error) {
 	seen := map[string]bool{}
 	var problems []string
 
@@ -45,7 +51,7 @@ func Dist(dir string) ([]string, error) {
 			if skip(ref) {
 				continue
 			}
-			if resolve(dir, ref) {
+			if resolve(dir, ref, basePath) {
 				continue
 			}
 			key := filepath.ToSlash(page) + " -> " + ref
@@ -77,11 +83,18 @@ func skip(ref string) bool {
 	return false
 }
 
-func resolve(root, ref string) bool {
+func resolve(root, ref, basePath string) bool {
 	ref = strings.SplitN(ref, "#", 2)[0]
 	ref = strings.SplitN(ref, "?", 2)[0]
 	if ref == "" {
 		return true
+	}
+	if basePath != "" {
+		if ref == basePath {
+			ref = "/"
+		} else if strings.HasPrefix(ref, basePath+"/") {
+			ref = strings.TrimPrefix(ref, basePath)
+		}
 	}
 	clean := strings.TrimPrefix(filepath.ToSlash(ref), "/")
 	full := filepath.Join(root, filepath.FromSlash(clean))

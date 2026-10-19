@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -81,5 +82,20 @@ func TestHandleStaticNotFound(t *testing.T) {
 	s.handleStatic(rec, httptest.NewRequest("GET", "/nope", nil))
 	if rec.Code != 404 {
 		t.Errorf("status = %d, want 404", rec.Code)
+	}
+}
+
+func TestAdminRoutes(t *testing.T) {
+	s := New(":0", t.TempDir(), nil, nil)
+	s.SetAdmin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+
+	for _, path := range []string{"/admin/", "/admin/edit", "/uploads/foto.png"} {
+		rec := httptest.NewRecorder()
+		s.handler().ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+		if rec.Code != http.StatusNoContent {
+			t.Errorf("%s: status = %d, want %d", path, rec.Code, http.StatusNoContent)
+		}
 	}
 }

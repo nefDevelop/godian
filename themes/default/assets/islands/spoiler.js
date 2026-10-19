@@ -1,4 +1,4 @@
-import { prefersReducedMotion, motionMs, motionValue } from '/assets/js/motion.js';
+import { prefersReducedMotion, motionMs, motionValue } from '../js/motion.js';
 
 // Isla spoiler: oculta el texto hasta pulsar el botón.
 export function mount(el, props) {

@@ -24,72 +24,12 @@ import (
 )
 
 func TestBuildEndToEnd(t *testing.T) {
-	out := t.TempDir()
-
 	cfg := domain.DefaultConfig()
 	cfg.Site = domain.SiteConfig{Title: "Test", URL: "https://example.com", Language: "es"}
 	cfg.Build.ContentDir = "testdata/content"
-	cfg.Build.OutputDir = out
-	cfg.Build.AssetsDir = filepath.Join(out, "no-assets") // no existe: se ignora
 	cfg.Collections = domain.DefaultCollections()
 	cfg.Taxonomies = domain.DefaultTaxonomies()
-
-	th, err := theme.Load("")
-	if err != nil {
-		t.Fatalf("theme.Load: %v", err)
-	}
-	tmplFS, err := th.TemplateFS()
-	if err != nil {
-		t.Fatal(err)
-	}
-	reg := islands.New(th.FS())
-	iconReg, err := icons.New()
-	if err != nil {
-		t.Fatalf("icons.New: %v", err)
-	}
-	if err := iconReg.LoadDir(th.FS(), "icons"); err != nil {
-		t.Fatalf("icons.LoadDir: %v", err)
-	}
-	funcs := template.FuncMap{
-		"t":    func(k string) string { return i18n.T("es", k) },
-		"dict": dictFunc,
-		"icon": func(name string, label ...string) (template.HTML, error) {
-			return iconReg.HTML(name, firstString(label))
-		},
-		"island": func(name string, props ...map[string]string) (template.HTML, error) {
-			return reg.Island(name, firstMap(props))
-		},
-		"partial": func(name string, props ...map[string]string) (template.HTML, error) {
-			return reg.Partial(name, firstMap(props))
-		},
-	}
-	renderer, err := render.New(tmplFS, funcs)
-	if err != nil {
-		t.Fatalf("render.New: %v", err)
-	}
-	reg.SetRenderer(renderer)
-	assetsFS, err := th.AssetsFS()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	builder := application.NewBuild(
-		content.NewLoader(cfg),
-		markdown.New(markdown.WithIslandResolver(reg.Resolve), markdown.WithBlockResolver(reg.ResolveBlock)),
-		renderer,
-		output.NewWriter(out),
-		feed.New(),
-		application.Options{
-			Site:        cfg.Site,
-			Taxonomies:  cfg.Taxonomies,
-			CSS:         th.Manifest.Assets.CSS,
-			JS:          th.Manifest.Assets.JS,
-			ChunkDeps:   th.Manifest.Chunks,
-			AssetsFS:    assetsFS,
-			Minify:      true,
-			Fingerprint: true,
-		},
-	)
+	out, builder := newBuilder(t, cfg)
 
 	summary, err := builder.Run()
 	if err != nil {
@@ -189,6 +129,63 @@ func TestBuildEndToEnd(t *testing.T) {
 	}
 }
 
+func TestBuildBasePath(t *testing.T) {
+	cfg := domain.DefaultConfig()
+	cfg.Site = domain.SiteConfig{Title: "Test", URL: "https://example.com/godian", Language: "es"}
+	cfg.Build.ContentDir = "testdata/content"
+	cfg.Collections = domain.DefaultCollections()
+	cfg.Taxonomies = domain.DefaultTaxonomies()
+	out, builder := newBuilder(t, cfg)
+
+	if _, err := builder.Run(); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	hello := readFile(t, filepath.Join(out, "blog/hello/index.html"))
+	for _, want := range []string{
+		`window.__BASE_PATH__="/godian"`,
+		`href="/godian/blog/adios/"`,
+		`href="/godian/assets/css/styles.`,
+		`https://example.com/godian/og/hello.png`,
+	} {
+		if !strings.Contains(hello, want) {
+			t.Errorf("blog/hello no contiene %q", want)
+		}
+	}
+	if strings.Contains(hello, `href="/blog/adios/"`) {
+		t.Error("blog/hello conserva un enlace interno sin prefijo")
+	}
+
+	search := readFile(t, filepath.Join(out, "search-index.json"))
+	if !strings.Contains(search, `"url":"/godian/blog/hello/"`) {
+		t.Errorf("search-index.json sin prefijo: %s", search)
+	}
+	dates := readFile(t, filepath.Join(out, "content-dates.json"))
+	if !strings.Contains(dates, `"url":"/godian/blog/hello/"`) {
+		t.Errorf("content-dates.json sin prefijo: %s", dates)
+	}
+	manifest := readFile(t, filepath.Join(out, "assets/islands/manifest.json"))
+	if !strings.Contains(manifest, `"/godian/assets/islands/`) {
+		t.Errorf("manifest de islas sin prefijo: %s", manifest)
+	}
+	webmanifest := readFile(t, filepath.Join(out, "site.webmanifest"))
+	if !strings.Contains(webmanifest, `"start_url":"/godian/"`) || !strings.Contains(webmanifest, `"/godian/favicon.svg"`) {
+		t.Errorf("site.webmanifest sin prefijo: %s", webmanifest)
+	}
+	sitemap := readFile(t, filepath.Join(out, "sitemap.xml"))
+	if !strings.Contains(sitemap, "https://example.com/godian/blog/hello/") {
+		t.Error("sitemap sin la URL pública con subruta")
+	}
+	if strings.Contains(sitemap, "example.com/godian/godian") {
+		t.Error("sitemap con doble prefijo")
+	}
+	if problems, err := verify.DistBase(out, "/godian"); err != nil {
+		t.Fatalf("verify: %v", err)
+	} else if len(problems) > 0 {
+		t.Errorf("referencias rotas: %v", problems)
+	}
+}
+
 func firstMap(maps []map[string]string) map[string]string {
 	if len(maps) > 0 && maps[0] != nil {
 		return maps[0]
@@ -225,4 +222,69 @@ func readFile(t *testing.T, path string) string {
 		t.Fatalf("leyendo %s: %v", path, err)
 	}
 	return string(data)
+}
+
+func newBuilder(t *testing.T, cfg domain.Config) (string, *application.Build) {
+	t.Helper()
+	out := t.TempDir()
+	cfg.Build.OutputDir = out
+	cfg.Build.AssetsDir = filepath.Join(out, "no-assets") // no existe: se ignora
+
+	th, err := theme.Load("")
+	if err != nil {
+		t.Fatalf("theme.Load: %v", err)
+	}
+	tmplFS, err := th.TemplateFS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	reg := islands.New(th.FS())
+	iconReg, err := icons.New()
+	if err != nil {
+		t.Fatalf("icons.New: %v", err)
+	}
+	if err := iconReg.LoadDir(th.FS(), "icons"); err != nil {
+		t.Fatalf("icons.LoadDir: %v", err)
+	}
+	funcs := template.FuncMap{
+		"t":    func(k string) string { return i18n.T("es", k) },
+		"dict": dictFunc,
+		"icon": func(name string, label ...string) (template.HTML, error) {
+			return iconReg.HTML(name, firstString(label))
+		},
+		"island": func(name string, props ...map[string]string) (template.HTML, error) {
+			return reg.Island(name, firstMap(props))
+		},
+		"partial": func(name string, props ...map[string]string) (template.HTML, error) {
+			return reg.Partial(name, firstMap(props))
+		},
+	}
+	renderer, err := render.New(tmplFS, funcs)
+	if err != nil {
+		t.Fatalf("render.New: %v", err)
+	}
+	reg.SetRenderer(renderer)
+	assetsFS, err := th.AssetsFS()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	builder := application.NewBuild(
+		content.NewLoader(cfg),
+		markdown.New(markdown.WithIslandResolver(reg.Resolve), markdown.WithBlockResolver(reg.ResolveBlock)),
+		renderer,
+		output.NewWriter(out),
+		feed.New(),
+		application.Options{
+			Site:        cfg.Site,
+			Taxonomies:  cfg.Taxonomies,
+			CSS:         th.Manifest.Assets.CSS,
+			JS:          th.Manifest.Assets.JS,
+			ChunkDeps:   th.Manifest.Chunks,
+			AssetsFS:    assetsFS,
+			Minify:      true,
+			Fingerprint: true,
+		},
+	)
+	return out, builder
 }

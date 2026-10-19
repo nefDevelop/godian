@@ -38,3 +38,24 @@ func mustWrite(t *testing.T, path, content string) {
 		t.Fatal(err)
 	}
 }
+
+func TestDistBase(t *testing.T) {
+	dir := t.TempDir()
+	mustWrite(t, filepath.Join(dir, "index.html"),
+		`<link rel="stylesheet" href="/godian/assets/css/x.css">`+
+			`<a href="/godian/blog/post/">ok</a>`+
+			`<a href="/godian/blog/missing/">bad</a>`)
+	mustWrite(t, filepath.Join(dir, "assets/css/x.css"), "body{}")
+	mustWrite(t, filepath.Join(dir, "blog/post/index.html"), "ok")
+
+	problems, err := DistBase(dir, "/godian")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(problems) != 1 {
+		t.Fatalf("DistBase() = %v, want 1 problema", problems)
+	}
+	if got := problems[0]; got != "index.html -> /godian/blog/missing/" {
+		t.Errorf("problema = %q", got)
+	}
+}

@@ -85,3 +85,23 @@ GOFLAGS="-tags=nodynamic,avif" go build -o bin/godian ./cmd/godian
 ```
 
 > Nota: el encode AVIF es **pesado** (libavif/aom vía wazero). Recomendado en escritorio/CI.
+
+## Subruta de despliegue
+
+Si el sitio se publica en una subruta (`https://usuario.github.io/godian/`),
+indica la URL pública completa:
+
+```yaml
+site:
+  url: https://usuario.github.io/godian
+```
+
+Godian deriva `base_path: /godian` y prefija enlaces internos, assets, feeds,
+sitemap, búsqueda y manifests. También puedes forzarlo:
+
+```yaml
+site:
+  base_path: /godian
+```
+
+En raíz (dominio propio, Cloudflare, Vercel, Netlify) no hace falta.

@@ -1,0 +1,21 @@
+/* Ajustes del admin para el tema default.
+   El CSS core del admin ya usa los tokens del tema; este archivo es el punto
+   de personalización para que cada tema adapte el panel a su estética. */
+
+.admin-header {
+	background: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+.admin-hero h1,
+.admin-edit-head h1,
+.admin-card-head h2 {
+	font-family: var(--font-heading);
+}
+
+.admin-card {
+	box-shadow: 0 1px 0 color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+.admin-preview {
+	font-size: .95rem;
+}

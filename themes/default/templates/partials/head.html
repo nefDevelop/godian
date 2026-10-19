@@ -34,6 +34,7 @@
 		})();
 	</script>
 	<script>window.__i18n = {"copied": {{ t "ui.copied" | js }}, "no_results": {{ t "ui.no_results" | js }}, "copy_link": {{ t "ui.copy_link" | js }}};</script>
+	<script>window.__BASE_PATH__ = {{ .Site.BasePath | js }};</script>
 	{{ range .CSS }}<link rel="stylesheet" href="{{ . }}">
 	{{ end }}{{ range .JS }}<script src="{{ . }}" defer></script>
 	{{ end }}{{ if eq .Analytics.Provider "plausible" }}<script defer data-domain="{{ .Analytics.ID }}" src="https://plausible.io/js/script.js"></script>

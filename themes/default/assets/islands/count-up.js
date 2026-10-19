@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from '/assets/js/motion.js';
+import { prefersReducedMotion } from '../js/motion.js';
 
 // Isla count-up: número que se anima hasta el valor indicado.
 export function mount(el, props) {

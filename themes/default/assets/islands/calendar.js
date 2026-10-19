@@ -1,6 +1,8 @@
 // Isla calendar: calendario mensual con eventos y fechas de contenido.
 // - props.events = "5:Reunión,12:Entrega" (eventos manuales del mes mostrado)
 // - props.source = "site" (usa /content-dates.json) o URL a un JSON [{date,title,url}]
+var BASE = window.__BASE_PATH__ || '';
+
 export function mount(el, props) {
 	var now = new Date();
 	var year = Number(props.year || now.getFullYear());
@@ -47,6 +49,7 @@ function parseManual(spec, year, month) {
 // fetchSource obtiene las fechas de contenido (source="site" → content-dates.json).
 function fetchSource(source, ok, fail) {
 	var url = source === 'site' ? '/content-dates.json' : source;
+	if (url.charAt(0) === '/' && url.charAt(1) !== '/') url = BASE + url;
 	fetch(url).then(function (r) { return r.ok ? r.json() : []; }).then(ok).catch(fail);
 }
 

@@ -21,7 +21,7 @@ GOSEC_EXCLUDE := G301,G306,G304,G703,G203,G705,G122
 # "nodynamic" usa el libwebp transpilado a Go (sin cgo ni dependencias de runtime).
 export GOFLAGS := -tags=nodynamic
 
-.PHONY: all build release test test-unit vet cover staticcheck vuln gosec security lint fmt tidy run serve clean
+.PHONY: all build release test test-unit vet cover staticcheck vuln gosec security lint fmt tidy schema run serve clean
 
 all: build
 
@@ -62,6 +62,9 @@ fmt:
 
 tidy:
 	$(GO) mod tidy
+
+schema:
+	$(GO) run ./cmd/godian schema -config site.yaml -o content.schema.json
 
 run:
 	$(GO) run ./cmd/godian build

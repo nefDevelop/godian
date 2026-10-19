@@ -74,7 +74,7 @@ document.addEventListener('click', function (e) {
 
 // Carga diferida de librerías (vendorizadas localmente, sin CDN).
 (function () {
-	var BASE = '/assets/vendor/';
+	var BASE = (window.__BASE_PATH__ || '') + '/assets/vendor/';
 
 	function loadStyle(href) {
 		var l = document.createElement('link');

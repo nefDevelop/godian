@@ -108,6 +108,10 @@ type Build struct {
 
 // NewBuild construye el caso de uso con sus puertos.
 func NewBuild(content ContentLoader, md MarkdownRenderer, render PageRenderer, out Output, feeds FeedGenerator, opts Options) *Build {
+	domain.NormalizeSite(&opts.Site)
+	if opts.Site.BasePath != "" {
+		out = basePathOutput{out: out, base: opts.Site.BasePath}
+	}
 	nav := navFor(opts.I18n, opts.Site.Language)
 	if len(opts.Nav) > 0 {
 		nav = navFromLinks(opts.Nav)
@@ -565,7 +569,7 @@ func (b *Build) renderSearch(posts []domain.BlogPost, docs []domain.Doc) error {
 	for _, p := range posts {
 		items = append(items, SearchDoc{
 			Title:       p.Title,
-			URL:         "/blog/" + p.Slug + "/",
+			URL:         b.withBase("/blog/" + p.Slug + "/"),
 			Description: p.Description,
 			Tags:        p.Tags,
 			Text:        plainText(p.Body),
@@ -575,7 +579,7 @@ func (b *Build) renderSearch(posts []domain.BlogPost, docs []domain.Doc) error {
 	for _, d := range docs {
 		items = append(items, SearchDoc{
 			Title:       d.Title,
-			URL:         "/docs/" + d.Slug + "/",
+			URL:         b.withBase("/docs/" + d.Slug + "/"),
 			Description: d.Description,
 			Tags:        d.Tags,
 			Text:        plainText(d.Body),
@@ -604,7 +608,7 @@ func (b *Build) writeContentDates(posts []domain.BlogPost, docs []domain.Doc) er
 		dates = append(dates, ContentDate{
 			Date:  p.Published.Format("2006-01-02"),
 			Title: p.Title,
-			URL:   "/blog/" + p.Slug + "/",
+			URL:   b.withBase("/blog/" + p.Slug + "/"),
 			Type:  "post",
 		})
 	}
@@ -615,7 +619,7 @@ func (b *Build) writeContentDates(posts []domain.BlogPost, docs []domain.Doc) er
 		dates = append(dates, ContentDate{
 			Date:  d.PubDate.Format("2006-01-02"),
 			Title: d.Title,
-			URL:   "/docs/" + d.Slug + "/",
+			URL:   b.withBase("/docs/" + d.Slug + "/"),
 			Type:  "doc",
 		})
 	}
@@ -1057,12 +1061,12 @@ func (b *Build) writeSiteMeta() error {
 	manifest, err := json.Marshal(map[string]any{
 		"name":             title,
 		"short_name":       title,
-		"start_url":        "/",
+		"start_url":        b.withBase("/"),
 		"display":          "standalone",
 		"background_color": "#ffffff",
 		"theme_color":      accent,
 		"icons": []map[string]any{
-			{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"},
+			{"src": b.withBase("/favicon.svg"), "sizes": "any", "type": "image/svg+xml"},
 		},
 	})
 	if err != nil {
@@ -1302,6 +1306,21 @@ func (b *Build) writeRobots() error {
 	return b.output.Write("robots.txt", []byte(sb.String()))
 }
 
+// withBase prefija una ruta root-absolute con el base path del sitio.
+func (b *Build) withBase(p string) string {
+	base := b.opts.Site.BasePath
+	if base == "" {
+		return p
+	}
+	if p == "" || p == "/" {
+		return base + "/"
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return base + p
+}
+
 func (b *Build) newPage(title, desc string) PageData {
 	og := ""
 	if b.opts.Site.URL != "" {
@@ -1461,7 +1480,7 @@ func (b *Build) writeIslandManifest() error {
 			return nil
 		}
 		base := strings.TrimSuffix(path.Base(p), path.Ext(p))
-		url := "/assets/" + p
+		url := b.withBase("/assets/" + p)
 		e := m[base]
 		switch path.Ext(p) {
 		case ".js":

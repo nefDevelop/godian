@@ -176,6 +176,14 @@ El tema usa tres roles tipográficos:
 las familias en `fonts:` de `site.yaml`; el build genera `/assets/css/fonts.css`.
 Si no hay red, se usan las pilas de fallback.
 
+## Base path del sitio
+
+Si `site.url` incluye una subruta (o se define `site.base_path`), el core
+prefija las URLs internas. El `<head>` expone `window.__BASE_PATH__` y las islas
+deben usar **imports relativos** (`../js/motion.js`, `../vendor/...`) para
+funcionar tanto en raíz como en subruta. En JS propio, usa
+`window.__BASE_PATH__` para `fetch`/`import` de rutas absolutas.
+
 ## Movimiento
 
 La escala vive en `assets/css/motion.css` (se carga después de `styles.css`).
@@ -282,6 +290,32 @@ godian new-theme --minimal mi-tema
 Crea `theme.yaml`, `templates/home.html`, `templates/post.html`,
 `assets/css/custom.css` y un README. El resto de plantillas y assets caen al
 tema embebido por overlay. Es la forma más rápida de empezar sin copiar todo.
+
+## Admin nativo
+
+`godian serve` expone `/admin`. El admin no usa las plantillas públicas
+(`home`, `post`, `header`), pero sí la estética del tema:
+
+- Carga `assets.css` de `theme.yaml`, los `assets/css/chunks/*.css` y los tokens
+  (`--bg`, `--fg`, `--card`, `--border`, `--accent`, `--radius`, `--font-*`,
+  `--motion-*`).
+- Carga los iconos del tema (`icons/`) y el `admin.css` del tema si existe.
+- **No** carga el JS público (`theme.js`, `search.js`, `islands.js`).
+
+Para ajustar el panel a tu tema, crea `assets/css/admin.css`. Se detecta
+automáticamente y se carga **después** del CSS core del admin; no hace falta
+declararlo en `theme.yaml`.
+
+```css
+/* assets/css/admin.css */
+.admin-header {
+	background: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+.admin-card {
+	border-radius: calc(var(--radius) * 1.2);
+}
+```
 
 ## Checklist para un tema nuevo
 

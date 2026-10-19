@@ -1,11 +1,12 @@
 // Runtime de islas: carga bajo demanda los componentes [data-island].
 (function () {
+	var BASE = window.__BASE_PATH__ || '';
 	var manifest = null;
 	var loaded = {};
 
 	function loadManifest() {
 		if (manifest) return Promise.resolve(manifest);
-		return fetch('/assets/islands/manifest.json')
+		return fetch(BASE + '/assets/islands/manifest.json')
 			.then(function (r) { return r.ok ? r.json() : {}; })
 			.then(function (m) { manifest = m; return m; })
 			.catch(function () { manifest = {}; return manifest; });

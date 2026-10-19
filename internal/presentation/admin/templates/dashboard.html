@@ -1,0 +1,43 @@
+{{ define "content" -}}
+<section class="admin-hero">
+	<div>
+		<p class="admin-eyebrow">Contenido</p>
+		<h1>Panel de edición</h1>
+		<p class="admin-lead">
+			Edita el contenido local de <strong>{{ .Site.Title }}</strong>.
+			Los cambios se guardan en <code>{{ .ContentDir }}</code> y el sitio se reconstruye al detectarlos.
+		</p>
+	</div>
+</section>
+
+{{ if .Error }}<div class="admin-alert admin-alert-error">{{ .Error }}</div>{{ end }}
+
+<div class="admin-collections">
+	{{ range .Collections }}
+	<section class="admin-card">
+		<header class="admin-card-head">
+			<div>
+				<h2>{{ .Label }}</h2>
+				<p class="admin-muted">{{ .Folder }} · .{{ .Extension }}</p>
+			</div>
+			<a class="admin-button admin-button-primary" href="{{ .NewURL }}">Nuevo</a>
+		</header>
+		{{ if .Files }}
+		<ul class="admin-file-list">
+			{{ range .Files }}
+			<li class="admin-file-row">
+				<a class="admin-file" href="{{ .EditURL }}">
+					<span class="admin-file-title">{{ .Title }}</span>
+					<span class="admin-file-meta">{{ .Path }}{{ if .Date }} · {{ .Date }}{{ end }}</span>
+				</a>
+				{{ if .URL }}<a class="admin-file-open" href="{{ .URL }}" target="_blank" rel="noopener" aria-label="Ver en el sitio">{{ icon "external-link" }}</a>{{ end }}
+			</li>
+			{{ end }}
+		</ul>
+		{{ else }}
+		<p class="admin-empty">No hay archivos todavía.</p>
+		{{ end }}
+	</section>
+	{{ end }}
+</div>
+{{- end }}

@@ -3,6 +3,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -33,6 +34,7 @@ import (
 	"github.com/nefdevelop/godian/internal/infrastructure/render"
 	"github.com/nefdevelop/godian/internal/infrastructure/theme"
 	"github.com/nefdevelop/godian/internal/infrastructure/verify"
+	"github.com/nefdevelop/godian/internal/presentation/admin"
 	"github.com/nefdevelop/godian/internal/presentation/server"
 )
 
@@ -43,10 +45,11 @@ const usage = `godian — generador de blog estático en Go
 
 Uso:
   godian build [-config site.yaml] [-drafts]      Genera el sitio estático
-  godian serve [-config site.yaml] [-addr :4321]  Dev server con recarga
+  godian serve [-config site.yaml] [-addr :4321]  Dev server con recarga y admin en /admin/
   godian new [-collection blog] [-title "..."] <slug>  Crea un post nuevo
   godian new-theme [--minimal] <dir>              Copia el tema default o crea uno mínimo
   godian check [-config site.yaml]                Valida el contenido
+  godian schema [-config site.yaml] [-o file]     Exporta el schema de contenido (JSON)
   godian version                                  Muestra la versión
 `
 
@@ -67,6 +70,8 @@ func Run(args []string) int {
 		return runNewTheme(args[2:])
 	case "check":
 		return runCheck(args[2:])
+	case "schema":
+		return runSchema(args[2:])
 	case "version", "-v", "--version":
 		fmt.Printf("godian %s\n", Version)
 		return 0
@@ -145,7 +150,14 @@ func runServe(args []string) int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	adminHandler, err := admin.New(*configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error preparando el admin: %v\n", err)
+		return 1
+	}
+
 	srv := server.New(*addr, filepath.FromSlash(cfg.Build.OutputDir), watch, rebuild)
+	srv.SetAdmin(adminHandler)
 	if err := srv.Run(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "servidor: %v\n", err)
 		return 1
@@ -436,7 +448,8 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 	}
 	summary.Warnings = append(summary.Warnings, i18nWarnings...)
 	summary.Warnings = append(summary.Warnings, iconWarnings...)
-	if problems, verr := verify.Dist(filepath.FromSlash(cfg.Build.OutputDir)); verr == nil {
+	domain.NormalizeSite(&cfg.Site)
+	if problems, verr := verify.DistBase(filepath.FromSlash(cfg.Build.OutputDir), cfg.Site.BasePath); verr == nil {
 		summary.Errors = problems
 	}
 	return summary, nil
@@ -455,6 +468,36 @@ func fontSpecs(cfg []domain.FontConfig) []fonts.Spec {
 		})
 	}
 	return out
+}
+
+func runSchema(args []string) int {
+	fs := flag.NewFlagSet("schema", flag.ContinueOnError)
+	configPath := fs.String("config", "site.yaml", "ruta a la configuración del sitio")
+	outPath := fs.String("o", "", "archivo de salida (por defecto stdout)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error cargando configuración: %v\n", err)
+		return 1
+	}
+	data, err := json.MarshalIndent(content.BuildSchema(cfg), "", "  ")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error generando schema: %v\n", err)
+		return 1
+	}
+	data = append(data, '\n')
+	if *outPath != "" {
+		if err := os.WriteFile(*outPath, data, 0o644); err != nil {
+			fmt.Fprintf(os.Stderr, "error escribiendo schema: %v\n", err)
+			return 1
+		}
+		fmt.Println("schema escrito en:", *outPath)
+		return 0
+	}
+	fmt.Print(string(data))
+	return 0
 }
 
 func runCheck(args []string) int {

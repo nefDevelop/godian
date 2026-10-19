@@ -1,4 +1,4 @@
-import { animate } from '/assets/js/motion.js';
+import { animate } from '../js/motion.js';
 
 // Isla carrusel: props.images = "url1,url2,url3", props.alt (opcional).
 export function mount(el, props) {

@@ -3,6 +3,10 @@ site:
   title: godian
   description: Blog y documentación de ejemplo, generados con godian (Go).
   url: https://godian.pages.dev
+  # Si se sirve en una subruta (GitHub Pages proyecto), pon la URL completa:
+  #   url: https://usuario.github.io/godian
+  # o fuerza la subruta:
+  # base_path: /godian
   language: en
   color: "#2563eb"   # color de acento del tema por defecto
 

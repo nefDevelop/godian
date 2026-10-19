@@ -30,6 +30,7 @@ func Load(path string) (domain.Config, error) {
 
 // applyDefaults completa las colecciones y taxonomías estándar cuando no se declaran.
 func applyDefaults(cfg *domain.Config) {
+	domain.NormalizeSite(&cfg.Site)
 	if len(cfg.Collections) == 0 {
 		cfg.Collections = domain.DefaultCollections()
 	}

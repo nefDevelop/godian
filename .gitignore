@@ -1,2 +1,8 @@
 /bin/
 /dist/
+
+# Copia local del CMS Svelte como referencia; el admin oficial es nativo.
+/godian-cms/
+
+# Configuración local de Command Code.
+/.commandcode/

@@ -1,4 +1,4 @@
-import { prefersReducedMotion, motionMs, motionValue } from '/assets/js/motion.js';
+import { prefersReducedMotion, motionMs, motionValue } from '../js/motion.js';
 
 // Isla acordeón. Con contenido hijo usa los encabezados `##` como secciones;
 // sin contenido, usa props.items = "Título=Cuerpo;Otro=Cuerpo".

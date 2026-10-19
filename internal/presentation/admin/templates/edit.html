@@ -1,0 +1,72 @@
+{{ define "content" -}}
+<nav class="admin-breadcrumb">
+	<a href="/admin/">Contenido</a>
+	<span>/</span>
+	<span>{{ .Collection.Label }}</span>
+</nav>
+
+<section class="admin-edit-head">
+	<div>
+		<p class="admin-eyebrow">{{ .Collection.Label }}</p>
+		<h1>{{ .Title }}</h1>
+		<p class="admin-muted">
+			{{ if .IsNew }}{{ .Collection.Folder }}/{{ .Filename }}{{ else }}{{ .Path }}{{ end }}
+		</p>
+	</div>
+	<div class="admin-actions">
+		{{ if .PublicURL }}<a class="admin-button" href="{{ .PublicURL }}" target="_blank" rel="noopener">Ver en el sitio</a>{{ end }}
+		<button class="admin-button admin-button-primary" type="submit" form="admin-form">Guardar</button>
+	</div>
+</section>
+
+{{ if .Saved }}<div class="admin-alert admin-alert-ok">Guardado. El sitio se reconstruirá automáticamente.</div>{{ end }}
+{{ if .Error }}<div class="admin-alert admin-alert-error">{{ .Error }}</div>{{ end }}
+
+<form id="admin-form" class="admin-form" method="post" action="/admin/save" enctype="multipart/form-data">
+	<input type="hidden" name="csrf" value="{{ .CSRF }}">
+	<input type="hidden" name="collection" value="{{ .Collection.Name }}">
+	<input type="hidden" name="path" value="{{ .Path }}">
+
+	{{ if .IsNew }}
+	<div class="admin-field">
+		<label for="filename">Nombre del archivo</label>
+		<input id="filename" name="filename" value="{{ .Filename }}" placeholder="mi-entrada">
+		<p class="admin-hint">Sin extensión; se añade <code>.{{ .Collection.Extension }}</code>.</p>
+	</div>
+	{{ end }}
+
+	<div class="admin-form-grid">
+		{{ range .Fields }}{{ template "field" . }}{{ end }}
+	</div>
+
+	{{ if .IsMarkdown }}
+	<div class="admin-editor">
+		<div class="admin-editor-pane">
+			<label for="body">Cuerpo Markdown</label>
+			<textarea id="body" name="body" class="admin-editor-textarea" spellcheck="false">{{ .Body }}</textarea>
+		</div>
+		<div class="admin-editor-pane">
+			<div class="admin-editor-preview-head">
+				<span>Vista previa</span>
+				<span class="admin-muted" data-preview-status>—</span>
+			</div>
+			<div id="admin-preview" class="admin-preview prose">
+				<p class="admin-empty">Escribe para ver la vista previa.</p>
+			</div>
+		</div>
+	</div>
+	<div class="admin-editor-tools">
+		<label class="admin-button admin-file-button">
+			Insertar imagen
+			<input type="file" accept="image/*" data-body-image>
+		</label>
+		<span class="admin-muted">Se sube a <code>{{ .UploadsDir }}</code> y se inserta como Markdown.</span>
+	</div>
+	{{ end }}
+
+	<div class="admin-form-actions">
+		<a class="admin-button" href="/admin/">Cancelar</a>
+		<button class="admin-button admin-button-primary" type="submit">Guardar</button>
+	</div>
+</form>
+{{- end }}

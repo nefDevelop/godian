@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from '/assets/js/motion.js';
+import { prefersReducedMotion } from '../js/motion.js';
 
 // Isla anillo de progreso (SVG circular).
 export function mount(el, props) {

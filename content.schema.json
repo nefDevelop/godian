@@ -1,0 +1,371 @@
+{
+  "version": 1,
+  "content_dir": "content",
+  "assets_dir": "assets",
+  "uploads_dir": "assets/uploads",
+  "collections": [
+    {
+      "name": "blog",
+      "label": "Blog",
+      "folder": "content/blog",
+      "extension": "md",
+      "format": "frontmatter",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Título",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "published",
+          "label": "Fecha de publicación",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "updated",
+          "label": "Última actualización",
+          "type": "datetime"
+        },
+        {
+          "name": "description",
+          "label": "Descripción",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "image",
+          "label": "Imagen de portada",
+          "type": "image"
+        },
+        {
+          "name": "tags",
+          "label": "Etiquetas",
+          "type": "list",
+          "source": "taxonomy:tags",
+          "item": "string"
+        },
+        {
+          "name": "categories",
+          "label": "Categorías",
+          "type": "list",
+          "source": "taxonomy:categories",
+          "item": "string"
+        },
+        {
+          "name": "author",
+          "label": "Autor(es)",
+          "type": "list",
+          "source": "authors",
+          "item": "string"
+        },
+        {
+          "name": "difficulty",
+          "label": "Dificultad",
+          "type": "select",
+          "options": [
+            "beginner",
+            "intermediate",
+            "advanced"
+          ]
+        },
+        {
+          "name": "draft",
+          "label": "Borrador",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "pinned",
+          "label": "Fijado",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "series",
+          "label": "Serie",
+          "type": "select",
+          "source": "series"
+        },
+        {
+          "name": "order",
+          "label": "Orden en la serie",
+          "type": "number"
+        },
+        {
+          "name": "links",
+          "label": "Enlaces",
+          "type": "object",
+          "fields": [
+            {
+              "name": "website",
+              "label": "Sitio web",
+              "type": "url"
+            },
+            {
+              "name": "github",
+              "label": "GitHub",
+              "type": "url"
+            }
+          ]
+        },
+        {
+          "name": "downloads",
+          "label": "Descargas",
+          "type": "list",
+          "fields": [
+            {
+              "name": "id",
+              "label": "ID",
+              "type": "string"
+            },
+            {
+              "name": "label",
+              "label": "Etiqueta",
+              "type": "string"
+            },
+            {
+              "name": "url",
+              "label": "URL",
+              "type": "url"
+            }
+          ]
+        },
+        {
+          "name": "aliases",
+          "label": "Aliases",
+          "type": "list",
+          "item": "string"
+        }
+      ]
+    },
+    {
+      "name": "docs",
+      "label": "Documentación",
+      "folder": "content/docs",
+      "extension": "md",
+      "format": "frontmatter",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Título",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "label": "Descripción",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "pubDate",
+          "label": "Fecha de publicación",
+          "type": "datetime"
+        },
+        {
+          "name": "updatedDate",
+          "label": "Última actualización",
+          "type": "datetime"
+        },
+        {
+          "name": "order",
+          "label": "Orden",
+          "type": "number",
+          "default": 0
+        },
+        {
+          "name": "section",
+          "label": "Sección",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "label": "Etiquetas",
+          "type": "list",
+          "source": "taxonomy:tags",
+          "item": "string"
+        },
+        {
+          "name": "heroImage",
+          "label": "Imagen principal",
+          "type": "image"
+        },
+        {
+          "name": "aliases",
+          "label": "Aliases",
+          "type": "list",
+          "item": "string"
+        }
+      ]
+    },
+    {
+      "name": "authors",
+      "label": "Autores",
+      "folder": "content/authors",
+      "extension": "yaml",
+      "format": "yaml",
+      "fields": [
+        {
+          "name": "name",
+          "label": "Nombre",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "avatar",
+          "label": "Avatar",
+          "type": "image"
+        },
+        {
+          "name": "bio",
+          "label": "Biografía",
+          "type": "text"
+        },
+        {
+          "name": "website",
+          "label": "Sitio web",
+          "type": "url"
+        },
+        {
+          "name": "github",
+          "label": "GitHub",
+          "type": "url"
+        },
+        {
+          "name": "twitter",
+          "label": "Twitter/X",
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "name": "series",
+      "label": "Series",
+      "folder": "content/series",
+      "extension": "yaml",
+      "format": "yaml",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Título",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "label": "Descripción",
+          "type": "text"
+        },
+        {
+          "name": "cover",
+          "label": "Portada",
+          "type": "image"
+        },
+        {
+          "name": "author",
+          "label": "Autor(es)",
+          "type": "list",
+          "source": "authors",
+          "item": "string"
+        },
+        {
+          "name": "chapters",
+          "label": "Capítulos",
+          "type": "list",
+          "item": "string"
+        }
+      ]
+    },
+    {
+      "name": "pages",
+      "label": "Páginas",
+      "folder": "content/pages",
+      "extension": "md",
+      "format": "frontmatter",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Título",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "label": "Descripción",
+          "type": "text"
+        },
+        {
+          "name": "stack",
+          "label": "Stack",
+          "type": "list",
+          "item": "string"
+        }
+      ]
+    }
+  ],
+  "taxonomies": [
+    {
+      "name": "tags",
+      "label": "Tags",
+      "field": "tags",
+      "url": "/tags",
+      "hierarchical": true,
+      "strict": true,
+      "terms": [
+        {
+          "name": "go",
+          "description": "Posts sobre el lenguaje Go."
+        },
+        {
+          "name": "test",
+          "description": "Posts de prueba y experimentos con el tema."
+        },
+        {
+          "name": "code",
+          "description": "Ejemplos de código en múltiples lenguajes."
+        },
+        {
+          "name": "markdown",
+          "description": "Características y sintaxis de Markdown."
+        },
+        {
+          "name": "math",
+          "description": "Contenido matemático con KaTeX."
+        },
+        {
+          "name": "mermaid",
+          "description": "Diagramas y gráficos con Mermaid."
+        },
+        {
+          "name": "guide",
+          "description": "Guías y tutoriales paso a paso."
+        }
+      ]
+    },
+    {
+      "name": "categories",
+      "label": "Categories",
+      "field": "categories",
+      "url": "/categories",
+      "terms": [
+        {
+          "name": "dev",
+          "description": "Desarrollo de software y programación."
+        },
+        {
+          "name": "design",
+          "description": "Diseño UI/UX y recursos visuales."
+        },
+        {
+          "name": "guide",
+          "description": "Guías y tutoriales."
+        },
+        {
+          "name": "media",
+          "description": "Contenido multimedia y vídeos."
+        }
+      ]
+    }
+  ]
+}
