@@ -22,7 +22,7 @@ Hay dos modos:
 - Un PAT (token) con permiso de escritura sobre el repositorio de contenido.
   - **Gitea**: `Settings → Applications → Generate token` con permiso de
     repositorio (lectura/escritura). Ejemplo:
-    `https://ggit.734038.xyz/user/settings/applications`.
+    `https://gitea.example.com/user/settings/applications`.
   - **GitHub**: token fine-grained, acceso solo a ese repositorio, permiso
     `Contents: Read and write`.
 - Un hosting que sirva el sitio y, si quieres evitar CORS, que ejecute
@@ -34,6 +34,23 @@ Hay dos modos:
 pública.** El token se introduce en el navegador y se guarda en
 `sessionStorage` de esa pestaña.
 
+### Dónde vive el PAT
+
+- **No** está en `site.yaml`, `config.json`, el repositorio, los assets
+  desplegados ni las variables de entorno del proxy. El proxy **no** tiene un
+  PAT configurado.
+- En **`api_mode: proxy`**, el navegador envía el PAT en `Authorization` a
+  `/admin/api`; el proxy (Go local o Pages Function) lo **ve en memoria** y lo
+  reenvía al proveedor. No lo persiste, pero el proxy y el host pueden ver la
+  petición. Es el precio de evitar CORS.
+- En **`api_mode: direct`**, el navegador habla directamente con Gitea/GitHub;
+  el proxy no ve el PAT. A cambio, el proveedor debe permitir CORS. Algunos
+  despliegues de Gitea no lo hacen; comprueba el tuyo.
+- Si quieres que el PAT **no esté en el navegador**, la opción es el **admin de
+  servidor (A)**: el PAT vive en el servidor/secret manager y el navegador solo
+  tiene una sesión/SSO. Ese es el modelo más seguro si el admin es multiusuario
+  o público.
+
 ---
 
 ## 2. Configurar `site.yaml`
@@ -44,9 +61,9 @@ Descomenta y ajusta el bloque `admin`:
 admin:
   mode: remote
   provider: gitea
-  base_url: https://ggit.734038.xyz
-  owner: pi
-  repo: godian
+  base_url: https://gitea.example.com
+  owner: my-org
+  repo: my-site
   branch: main
   api_mode: proxy
 ```
@@ -59,9 +76,8 @@ admin:
   - `proxy` (**recomendado**): el navegador llama a `/admin/api` en el mismo
     origen; no hay CORS. Requiere el proxy local o un Pages Function.
   - `direct`: el navegador llama al API del proveedor. Solo si el proveedor
-    envía CORS. **El Gitea actual no lo envía** (comprobado: el preflight no
-    devuelve `Access-Control-Allow-Origin`), así que no uses `direct` con
-    Gitea.
+    envía CORS. Comprueba el preflight: si no devuelve
+    `Access-Control-Allow-Origin`, usa `proxy`.
 - `mode: local` o vacío mantiene el admin nativo de `godian serve`.
 - `mode: off` lo desactiva.
 
@@ -84,7 +100,7 @@ Abre `http://127.0.0.1:4323/admin/`.
 - `godian serve` construye el sitio (incluido `dist/admin`).
 - En modo remoto no monta el admin nativo; sirve el admin estático.
 - Monta el proxy Go en `/admin/api`, que reenvía el `Authorization` al
-  proveedor. No guarda el token.
+  proveedor. Ve el token en memoria, pero no lo guarda ni lo configura.
 - Introduce el PAT en la pantalla de conexión.
 
 Prueba: listar, buscar/ordenar, abrir un post, editar, previsualizar, guardar,
@@ -110,12 +126,13 @@ En el proyecto de Cloudflare Pages:
 | Variable | Ejemplo | Obligatoria |
 |---|---|---|
 | `GIT_PROVIDER` | `gitea` | Sí |
-| `GIT_BASE_URL` | `https://ggit.734038.xyz` | Sí para Gitea |
+| `GIT_BASE_URL` | `https://gitea.example.com` | Sí para Gitea |
 | `GIT_OWNER` | `pi` | Sí |
 | `GIT_REPO` | `godian` | Sí |
 
-El proxy no necesita un token propio: reenvía el `Authorization` del navegador
-y solo permite `contents/` del repo configurado.
+El proxy no necesita un token propio: recibe el `Authorization` del navegador,
+lo reenvía al proveedor y solo permite `contents/` del repo configurado. El PAT
+pasa por el proxy en memoria; no se guarda ni se configura en él.
 
 ### 4.2. Desplegar
 
@@ -169,7 +186,7 @@ GitHub Pages **no ejecuta `functions/`**. Opciones:
 3. Poner el proxy en otro host (Cloudflare Worker, VPS, etc.) y apuntar
    `api_base` a él.
 
-El Gitea actual no envía CORS, así que la opción 1 requiere configurarlo.
+Comprueba tu Gitea: si no envía CORS, la opción 1 requiere configurarlo o usar el proxy.
 
 ### Netlify / Vercel
 
@@ -227,6 +244,8 @@ Si prefieres no exponer el token al navegador:
 ---
 
 ## 8. Seguridad y límites
+
+Política de seguridad del proyecto: [`../SECURITY.md`](../SECURITY.md).
 
 - Un editor de confianza; no hay roles, multiusuario ni auditoría propia.
 - El token está en el navegador: un XSS o una dependencia comprometida podría

@@ -9,13 +9,31 @@ Generador de blog/documentación **estático, minimalista y zero-framework, escr
 
 Diseño y decisiones: `PLAN.md`. Estado por fases: `ROADMAP.md`.
 
+> **Estado: `0.x`.** El CLI, la configuración y el contrato de temas pueden
+> cambiar antes de `1.0`. Para una guía paso a paso, empieza por
+> [`QUICKSTART.md`](QUICKSTART.md).
+
+Proyecto open source con licencia MIT. Contribuciones, seguridad y cambios:
+[`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md),
+[`CHANGELOG.md`](CHANGELOG.md) y [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
 ---
 
 ## Requisitos
 
 - Go **>= 1.26** (se recomienda **>= 1.27.2**, que corrige vulnerabilidades de la stdlib reportadas por `govulncheck`).
+- `make` para los targets de desarrollo y CI.
 
 ## Instalación y build
+
+Con una release publicada:
+
+```sh
+go install github.com/nefdevelop/godian/cmd/godian@latest
+godian version
+```
+
+Desde el repositorio:
 
 ```sh
 git clone <repo> && cd godian
@@ -547,15 +565,19 @@ vendorizadas.
 admin:
   mode: remote
   provider: gitea
-  base_url: https://ggit.734038.xyz
-  owner: pi
-  repo: godian
+  base_url: https://gitea.example.com
+  owner: my-org
+  repo: my-site
   branch: main
   api_mode: proxy   # proxy = same-origin, evita CORS
 ```
 
-- **Token**: PAT con escritura del repo, en `sessionStorage`; nunca en el
-  repositorio, la URL ni los logs.
+- **Token**: PAT con escritura del repo, en `sessionStorage`; nunca en
+  `site.yaml`, el repositorio, `config.json` ni los logs. Con
+  `api_mode: proxy`, el navegador lo envía a `/admin/api` y el proxy lo ve en
+  memoria para reenviarlo (no lo guarda). Si quieres que el PAT no pase por el
+  proxy, usa `direct` + CORS; si quieres que no esté en el navegador, usa el
+  admin de servidor.
 - **Proxy same-origin** `/admin/api`: `godian serve` lo monta en local y
   `functions/admin/api/[[path]].js` en Cloudflare Pages. Gitea no necesita Pages.
 - **Cabeceras**: el build escribe `_headers` (`X-Frame-Options: DENY` en
@@ -573,10 +595,8 @@ admin:
 Guía completa de configuración, PAT, Cloudflare Pages, seguridad y
 troubleshooting: [`deploy/admin-remoto.md`](deploy/admin-remoto.md).
 
-`godian-cms/` queda como referencia local de la etapa Svelte; no forma parte del
-build ni se commitea (ver `.gitignore`). El admin nativo/remoto es la vía
-soportada. `content.schema.json` se sigue generando con `make schema` para
-consumidores externos.
+El admin nativo/remoto es la vía soportada. `content.schema.json` se sigue
+generando con `make schema` para consumidores externos.
 
 ## Despliegue
 
@@ -596,6 +616,16 @@ Godian deriva `base_path: /godian` y prefija enlaces internos, assets, feeds,
 sitemap, búsqueda y manifests. También puedes forzarlo con `site.base_path`.
 En raíz (dominio propio, Cloudflare, Vercel, Netlify) no hace falta.
 
+## Contribuir y seguridad
+
+- Guía de contribución: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- Conducta: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+- Vulnerabilidades: [`SECURITY.md`](SECURITY.md); no abras issues públicos con
+  detalles explotables.
+- Historial de cambios: [`CHANGELOG.md`](CHANGELOG.md).
+- Publicación de versiones: [`RELEASING.md`](RELEASING.md).
+
 ## Licencia
 
-MIT
+MIT. Consulta [`LICENSE`](LICENSE) y los avisos de terceros en
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

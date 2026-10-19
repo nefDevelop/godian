@@ -6,3 +6,19 @@
 
 # Configuración local de Command Code.
 /.commandcode/
+
+# Secretos y entorno local (nunca commitear tokens/PAT).
+.env
+.env.*
+!.env.example
+
+# Artefactos de desarrollo y cobertura.
+coverage.out
+*.test
+*.prof
+*.log
+
+# Editores y sistema.
+.DS_Store
+.idea/
+.vscode/

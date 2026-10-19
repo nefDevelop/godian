@@ -6,7 +6,8 @@ Gitea **no necesita Pages**. El admin estático se publica con el sitio
 ## Modo recomendado: proxy same-origin
 
 El navegador llama a `/admin/api/...` en el mismo origen del sitio. El proxy
-reenvía a Gitea/GitHub y no guarda tokens.
+reenvía el `Authorization` a Gitea/GitHub. El proxy ve el PAT en memoria, pero
+no lo guarda ni lo configura.
 
 ### En local
 
@@ -17,9 +18,9 @@ proxy Go en `/admin/api/`. No hay CORS:
 admin:
   mode: remote
   provider: gitea
-  base_url: https://ggit.734038.xyz
-  owner: pi
-  repo: godian
+  base_url: https://gitea.example.com
+  owner: my-org
+  repo: my-site
   branch: main
   api_mode: proxy
 ```
@@ -30,9 +31,9 @@ El repo incluye `functions/admin/api/[[path]].js`. Configura las variables de
 entorno del proyecto Pages:
 
 - `GIT_PROVIDER=gitea` (o `github`)
-- `GIT_BASE_URL=https://ggit.734038.xyz` (solo Gitea)
-- `GIT_OWNER=pi`
-- `GIT_REPO=godian`
+- `GIT_BASE_URL=https://gitea.example.com` (solo Gitea)
+- `GIT_OWNER=my-org`
+- `GIT_REPO=my-site`
 
 Cloudflare Pages detecta `functions/` con la integración Git. Si haces subida
 directa, incluye el directorio de functions al desplegar (o usa `wrangler pages
@@ -52,21 +53,21 @@ GitHub Pages es estático puro: no ejecuta `functions/`. Tienes dos opciones:
 ## Modo directo: CORS en Gitea
 
 Solo si no puedes usar el proxy. El navegador llamará a
-`https://ggit.734038.xyz/api/v1/...` desde el origen del sitio.
+`https://gitea.example.com/api/v1/...` desde el origen del sitio.
 
 Habilita CORS en Gitea o, preferiblemente, en el reverse proxy. Ejemplo Nginx:
 
 ```nginx
 location /api/ {
     if ($request_method = OPTIONS) {
-        add_header Access-Control-Allow-Origin "https://godian.pages.dev" always;
+        add_header Access-Control-Allow-Origin "https://site.example.com" always;
         add_header Access-Control-Allow-Methods "GET, PUT, DELETE, OPTIONS" always;
         add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept" always;
         add_header Access-Control-Max-Age 86400 always;
         return 204;
     }
 
-    add_header Access-Control-Allow-Origin "https://godian.pages.dev" always;
+    add_header Access-Control-Allow-Origin "https://site.example.com" always;
     add_header Access-Control-Allow-Methods "GET, PUT, DELETE, OPTIONS" always;
     add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept" always;
 
@@ -90,6 +91,10 @@ Puntos importantes:
 - Gitea: token con permiso de escritura del repositorio.
 - GitHub: token fine-grained con `Contents: Read and write`.
 - Se guarda en `sessionStorage` de la pestaña; no va al repositorio ni a la URL.
+- En `api_mode: proxy`, el navegador lo envía a `/admin/api` y el proxy lo ve en
+  memoria para reenviarlo. No se persiste. Si quieres que no pase por el proxy,
+  usa `direct` + CORS; si quieres que no esté en el navegador, usa el admin de
+  servidor.
 - El admin no tiene OAuth sin servidor. Para un equipo, usa el admin de servidor
   con autenticación.
 

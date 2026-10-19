@@ -21,7 +21,7 @@ GOSEC_EXCLUDE := G301,G306,G304,G703,G203,G705,G122
 # "nodynamic" usa el libwebp transpilado a Go (sin cgo ni dependencias de runtime).
 export GOFLAGS := -tags=nodynamic
 
-.PHONY: all build release test test-unit vet cover staticcheck vuln gosec security lint fmt tidy schema run serve clean
+.PHONY: all build release test test-unit test-race vet cover staticcheck vuln gosec security lint fmt fmt-check tidy schema run serve checksums ci clean
 
 all: build
 
@@ -37,6 +37,9 @@ test:
 
 test-unit:
 	$(GO) test ./internal/...
+
+test-race:
+	CGO_ENABLED=1 $(GO) test -race $(PKG)
 
 vet:
 	$(GO) vet $(PKG)
@@ -60,6 +63,14 @@ lint: fmt vet staticcheck
 fmt:
 	$(GO) fmt $(PKG)
 
+fmt-check:
+	@files="$$(gofmt -l $$(go list -f '{{.Dir}}' $(PKG)))"; \
+	if [ -n "$$files" ]; then \
+		echo "Archivos sin gofmt:"; \
+		echo "$$files"; \
+		exit 1; \
+	fi
+
 tidy:
 	$(GO) mod tidy
 
@@ -71,6 +82,13 @@ run:
 
 serve:
 	$(GO) run ./cmd/godian serve
+
+checksums:
+	cd bin && sha256sum $(BINARY) > $(BINARY).sha256
+
+ci: fmt-check vet test-race staticcheck vuln gosec build
+	./bin/$(BINARY) check -config site.yaml
+	./bin/$(BINARY) build -config site.yaml
 
 clean:
 	rm -rf bin

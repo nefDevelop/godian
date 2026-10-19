@@ -303,6 +303,15 @@
 - [x] Media library: listar, subir, copiar URL, borrar y seleccionar imágenes
 - [x] Tests de build/config y proxy; verificación UI en Chromium con API mock
 
+### F37 — Base open source
+- [x] Licencia MIT y avisos de terceros
+- [x] `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` y plantillas de issues/PR
+- [x] CI (`make ci`) con tests/race, vet, staticcheck, govulncheck, gosec, build y check/build del sitio
+- [x] `QUICKSTART.md`, `CHANGELOG.md`, `RELEASING.md`
+- [x] README con instalación, estado 0.x, licencia, contribución y seguridad
+- [ ] Contrato/versionado de temas y galería (siguiente fase)
+- [ ] Admin de servidor con SSO/RBAC para equipos (siguiente fase)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

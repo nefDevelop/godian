@@ -4,14 +4,23 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
-env:
-  GOFLAGS: -tags=nodynamic
-  CGO_ENABLED: "0"
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # El sitio usa el tag nodynamic; -race necesita cgo en el runner.
+      GOFLAGS: -tags=nodynamic
+      CGO_ENABLED: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -21,17 +30,5 @@ jobs:
           go-version: "1.27.2"
           cache: true
 
-      - name: gofmt
-        run: test -z "$(gofmt -l ./cmd ./internal ./tools)"
-
-      - name: vet
-        run: go vet ./...
-
-      - name: staticcheck
-        run: go run honnef.co/go/tools/cmd/staticcheck@v0.8.2 ./...
-
-      - name: build
-        run: go build ./...
-
-      - name: test
-        run: go test ./...
+      - name: CI
+        run: make ci

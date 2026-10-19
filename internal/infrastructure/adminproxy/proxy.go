@@ -103,6 +103,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		target += "?" + r.URL.RawQuery
 	}
 
+	// #nosec G704 -- target usa el host fijo del proveedor y solo permite
+	// contents/ del owner/repo configurado; la ruta se valida arriba.
 	req, err := http.NewRequestWithContext(r.Context(), r.Method, target, r.Body)
 	if err != nil {
 		http.Error(w, "petición inválida", http.StatusBadRequest)
@@ -115,6 +117,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Header.Set("User-Agent", "godian-admin-proxy")
 
+	// #nosec G704 -- la petición ya está restringida al host y repo configurados.
 	resp, err := p.client.Do(req)
 	if err != nil {
 		http.Error(w, "no se pudo contactar con el proveedor Git", http.StatusBadGateway)
