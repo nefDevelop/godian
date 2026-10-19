@@ -14,6 +14,7 @@ godian es **Obsidian-first**: entiende wikilinks, embeds y backlinks de forma na
 
 - `[[components]]` → `/docs/components/` (por basename)
 - `[[markdown-demo|Ver demo]]` → con alias de texto
+- `[[components#Contrato de una isla]]` → ancla dentro de la nota
 - `[[guias/guide]]` → por ruta completa
 
 Si no se encuentra, cae al comportamiento por defecto (`/blog/<nota>/`).

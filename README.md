@@ -258,7 +258,7 @@ Además de GFM (tablas, tachado, listas de tareas, autolinks):
 
 | Sintaxis | Resultado |
 |---|---|
-| `[[destino]]`, `[[destino\|alias]]` | wikilink interno |
+| `[[destino]]`, `[[destino\|alias]]`, `[[destino#ancla]]` | wikilink interno (con alias/ancla) |
 | `![[imagen.png]]` | embed (imagen) |
 | `==texto==` | resaltado (`<mark>`) |
 | `> [!note] Título` | callout Obsidian (`note`, `tip`, `warning`, `danger`, `important`); `[!note]-` plegable |

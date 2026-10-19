@@ -160,10 +160,21 @@ func (r *customRenderer) renderWiki(w util.BufWriter, source []byte, node ast.No
 	}
 	n := node.(*wikiNode)
 	label := n.Label
-	if label == "" {
+	if label == "" || label == n.Target {
 		label = n.Target
+		if i := strings.Index(label, "#"); i >= 0 {
+			label = label[:i]
+		}
 	}
-	href := "/blog/" + slugify(n.Target) + "/"
+	target, anchor := n.Target, ""
+	if i := strings.Index(target, "#"); i >= 0 {
+		anchor = target[i+1:]
+		target = target[:i]
+	}
+	href := "/blog/" + slugify(target) + "/"
+	if anchor != "" {
+		href += "#" + slugify(anchor)
+	}
 	if r.wikilinks != nil {
 		if u, ok := r.wikilinks(n.Target); ok {
 			href = u

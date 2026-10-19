@@ -73,6 +73,13 @@ func TestWikilinks(t *testing.T) {
 	}
 }
 
+func TestWikilinkAnchor(t *testing.T) {
+	out := render(t, "Ver [[nota#seccion]].")
+	if !strings.Contains(out, `<a href="/blog/nota/#seccion">nota</a>`) {
+		t.Errorf("wikilink con ancla no generado: %s", out)
+	}
+}
+
 func TestHighlight(t *testing.T) {
 	out := render(t, "Texto ==resaltado== aquí.")
 	if !strings.Contains(out, "<mark>resaltado</mark>") {

@@ -65,9 +65,16 @@ func (l *LinkIndex) resolve(target string) (string, noteRef, bool) {
 	return "", noteRef{}, false
 }
 
-// Wikilink resuelve [[target]] a una URL (o false si no existe).
+// Wikilink resuelve [[target]] o [[target#ancla]] a una URL.
 func (l *LinkIndex) Wikilink(target string) (string, bool) {
-	if _, r, ok := l.resolve(target); ok {
+	base, anchor := splitAnchor(target)
+	if base == "" && anchor != "" {
+		return "#" + anchorSlug(anchor), true
+	}
+	if _, r, ok := l.resolve(base); ok {
+		if anchor != "" {
+			return r.URL + "#" + anchorSlug(anchor), true
+		}
 		return r.URL, true
 	}
 	return "", false
@@ -75,7 +82,8 @@ func (l *LinkIndex) Wikilink(target string) (string, bool) {
 
 // Embed resuelve ![[target]] como transclusión de nota (o false si no es nota).
 func (l *LinkIndex) Embed(target string) (template.HTML, bool) {
-	if _, r, ok := l.resolve(target); ok {
+	base, _ := splitAnchor(target)
+	if _, r, ok := l.resolve(base); ok {
 		var body string
 		if l.renderer != nil {
 			if out, _, err := l.renderer.Render(r.Body); err == nil {
@@ -107,11 +115,26 @@ func (l *LinkIndex) Build(posts []domain.BlogPost, docs []domain.Doc) {
 	}
 	for key, ref := range l.notes {
 		for _, m := range wikilinkScanRe.FindAllStringSubmatch(ref.Body, -1) {
-			if tk, _, ok := l.resolve(m[1]); ok && tk != key {
+			base, _ := splitAnchor(m[1])
+			if tk, _, ok := l.resolve(base); ok && tk != key {
 				l.backlinks[tk] = append(l.backlinks[tk], PostNav{Title: ref.Title, URL: ref.URL})
 			}
 		}
 	}
+}
+
+// splitAnchor separa "nota#seccion" en ("nota", "seccion").
+func splitAnchor(target string) (string, string) {
+	target = strings.TrimSpace(target)
+	if i := strings.Index(target, "#"); i >= 0 {
+		return strings.TrimSpace(target[:i]), strings.TrimSpace(target[i+1:])
+	}
+	return target, ""
+}
+
+// anchorSlug normaliza el texto del ancla al id de encabezado (minúsculas y guiones).
+func anchorSlug(s string) string {
+	return strings.Join(strings.Fields(strings.ToLower(strings.TrimSpace(s))), "-")
 }
 
 func baseName(slug string) string {

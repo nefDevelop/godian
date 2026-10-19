@@ -111,6 +111,16 @@ Lista de tareas **visual** (sin la clase):
 - [ ] Solo visual
 - [x] Solo visual marcada
 
+Cita normal:
+
+> Una cita sin callout.
+
+Lista anidada:
+
+- Nivel 1
+  - Nivel 2
+    - Nivel 3
+
 ---
 
 ## Código con título y plegable
@@ -180,6 +190,10 @@ Componente estático (partial):
 
 {{partial cta text="Ir a la documentación" url="/docs/"}}
 
+{{partial embed src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" title="Vídeo embebido" ratio="16x9"}}
+
+{{partial tooltip text="Esto es una ayuda emergente." label="¿Qué es esto?"}}
+
 ## Imágenes (LQIP + presets)
 
 Imagen normal (con LQIP y `srcset`):
@@ -193,6 +207,8 @@ Con el preset `thumb` (recorte 16:9 con foco centrado):
 ## Obsidian: enlaces, transclusión y backlinks
 
 Enlace entre colecciones (a un doc): [[components|Componentes]].
+
+Enlace con ancla: [[components#Contrato de una isla|Contrato de una isla]].
 
 Transclusión de una nota de documentación:
 

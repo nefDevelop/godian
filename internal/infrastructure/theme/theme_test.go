@@ -80,7 +80,9 @@ func TestScaffoldMinimal(t *testing.T) {
 	for _, f := range []string{
 		"theme.yaml",
 		"templates/home.html",
+		"templates/blog.html",
 		"templates/post.html",
+		"templates/404.html",
 		"assets/css/custom.css",
 		"README.md",
 	} {

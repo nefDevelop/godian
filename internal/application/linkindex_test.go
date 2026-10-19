@@ -30,3 +30,23 @@ func TestLinkIndex(t *testing.T) {
 		t.Error("Wikilink(nope) no debería resolver")
 	}
 }
+
+func TestLinkIndexAnchors(t *testing.T) {
+	l := NewLinkIndex()
+	posts := []domain.BlogPost{{Slug: "hello", Title: "Hello", Body: "ver [[guide#intro]] y [[#local]]"}}
+	docs := []domain.Doc{{Slug: "guias/guide", Title: "Guide", Body: "contenido"}}
+	l.Build(posts, docs)
+
+	if u, ok := l.Wikilink("guide#intro"); !ok || u != "/docs/guias/guide/#intro" {
+		t.Errorf("Wikilink(guide#intro) = %q, %v", u, ok)
+	}
+	if u, ok := l.Wikilink("#local"); !ok || u != "#local" {
+		t.Errorf("Wikilink(#local) = %q, %v", u, ok)
+	}
+	if bl := l.Backlinks("guide"); len(bl) != 1 {
+		t.Errorf("Backlinks(guide) = %+v", bl)
+	}
+	if _, ok := l.Embed("guide#intro"); !ok {
+		t.Error("Embed(guide#intro) debería transcluir la nota")
+	}
+}

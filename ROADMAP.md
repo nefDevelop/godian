@@ -38,7 +38,7 @@
 
 ### F3 — Markdown extendido
 - [x] Callouts estilo Obsidian (note/tip/warning/danger/important, plegables)
-- [x] Wikilinks `[[destino|alias]]` y `==highlight==`
+- [x] Wikilinks `[[destino|alias]]`, `[[destino#ancla]]` y `==highlight==`
 - [x] Embeds Obsidian `![[recurso]]`
 - [x] Atributos `{.clase}` / `{attr}` aplicados al bloque anterior (tablas incluidas)
 - [x] Figuras automáticas con `figcaption` desde el alt
