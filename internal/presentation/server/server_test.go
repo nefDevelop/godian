@@ -85,6 +85,31 @@ func TestHandleStaticNotFound(t *testing.T) {
 	}
 }
 
+func TestAdminStaticRedirect(t *testing.T) {
+	s := New(":0", t.TempDir(), nil, nil)
+	s.SetAdminEnabled()
+	rec := httptest.NewRecorder()
+	s.handler().ServeHTTP(rec, httptest.NewRequest("GET", "/admin", nil))
+	if rec.Code != http.StatusMovedPermanently {
+		t.Fatalf("status = %d, want 301", rec.Code)
+	}
+	if loc := rec.Header().Get("Location"); loc != "/admin/" {
+		t.Errorf("Location = %q", loc)
+	}
+}
+
+func TestAdminProxyRoute(t *testing.T) {
+	s := New(":0", t.TempDir(), nil, nil)
+	s.SetAdminProxy(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	rec := httptest.NewRecorder()
+	s.handler().ServeHTTP(rec, httptest.NewRequest("GET", "/admin/api/repos/pi/godian", nil))
+	if rec.Code != http.StatusNoContent {
+		t.Errorf("status = %d, want %d", rec.Code, http.StatusNoContent)
+	}
+}
+
 func TestAdminRoutes(t *testing.T) {
 	s := New(":0", t.TempDir(), nil, nil)
 	s.SetAdmin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

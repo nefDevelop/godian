@@ -6,9 +6,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
+	"net/url"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -19,6 +21,7 @@ import (
 
 	"github.com/nefdevelop/godian/internal/domain"
 	"github.com/nefdevelop/godian/internal/i18n"
+	"github.com/nefdevelop/godian/internal/infrastructure/adminui"
 	"github.com/nefdevelop/godian/internal/infrastructure/minify"
 )
 
@@ -88,6 +91,10 @@ type Options struct {
 	// ficheros (ruta relativa al output → datos).
 	FontsCSS  []byte
 	FontFiles map[string][]byte
+
+	// Admin estático (mode: remote): configuración y schema serializado.
+	Admin       domain.AdminConfig
+	AdminSchema []byte
 }
 
 // Build orquesta la construcción del sitio estático.
@@ -150,6 +157,9 @@ func (b *Build) Run() (Summary, error) {
 		if err := b.prepareAssets(); err != nil {
 			return Summary{}, err
 		}
+	}
+	if err := b.writeAdmin(c); err != nil {
+		return Summary{}, err
 	}
 
 	posts := b.published(c.Posts)
@@ -1300,10 +1310,204 @@ func (b *Build) writeRedirect(alias, target string) error {
 func (b *Build) writeRobots() error {
 	var sb strings.Builder
 	sb.WriteString("User-agent: *\nAllow: /\n")
+	if b.opts.Admin.Mode == "remote" {
+		sb.WriteString("Disallow: " + b.withBase("/admin/") + "\n")
+	}
 	if base := strings.TrimRight(b.opts.Site.URL, "/"); base != "" {
 		sb.WriteString("\nSitemap: " + base + "/sitemap.xml\n")
 	}
 	return b.output.Write("robots.txt", []byte(sb.String()))
+}
+
+type adminConfigFile struct {
+	Provider   string `json:"provider"`
+	APIMode    string `json:"api_mode"`
+	APIBase    string `json:"api_base"`
+	Owner      string `json:"owner"`
+	Repo       string `json:"repo"`
+	Branch     string `json:"branch"`
+	UploadsURL string `json:"uploads_url"`
+	VendorBase string `json:"vendor_base"`
+	SchemaURL  string `json:"schema_url"`
+	OptionsURL string `json:"options_url"`
+	SiteTitle  string `json:"site_title"`
+	SiteURL    string `json:"site_url"`
+	BasePath   string `json:"base_path"`
+	MaxUpload  int64  `json:"max_upload"`
+}
+
+type adminOptionsFile struct {
+	Taxonomies map[string][]string `json:"taxonomies"`
+	Authors    []string            `json:"authors"`
+	Series     []string            `json:"series"`
+}
+
+// writeAdmin genera el admin estático cuando admin.mode = remote.
+func (b *Build) writeAdmin(c domain.Content) error {
+	a := b.opts.Admin
+	if err := domain.NormalizeAdmin(&a); err != nil {
+		return err
+	}
+	if a.Mode != "remote" {
+		return nil
+	}
+	if len(b.opts.AdminSchema) == 0 {
+		return fmt.Errorf("admin remoto: falta el schema de contenido")
+	}
+
+	css := make([]string, 0, len(b.css)+len(b.chunkURLs))
+	for _, u := range b.css {
+		css = append(css, b.withBase(u))
+	}
+	chunkNames := make([]string, 0, len(b.chunkURLs))
+	for name := range b.chunkURLs {
+		chunkNames = append(chunkNames, name)
+	}
+	sort.Strings(chunkNames)
+	for _, name := range chunkNames {
+		css = append(css, b.withBase(b.chunkURLs[name]))
+	}
+	adminCSS := ""
+	if b.opts.AssetsFS != nil {
+		if _, err := fs.Stat(b.opts.AssetsFS, "css/admin.css"); err == nil {
+			adminCSS = b.withBase("/assets/css/admin.css")
+		}
+	}
+
+	connect := "'self'"
+	if a.APIMode == "direct" {
+		if origin := adminConnectSource(a); origin != "" {
+			connect = "'self' " + origin
+		}
+	}
+
+	index, err := adminui.RenderIndex(adminui.IndexData{
+		Lang:       b.opts.Site.Language,
+		SiteTitle:  b.opts.Site.Title,
+		AdminBase:  b.withBase("/admin/"),
+		Favicon:    b.withBase("/favicon.svg"),
+		CSS:        css,
+		AdminCSS:   adminCSS,
+		ConnectSrc: connect,
+	})
+	if err != nil {
+		return err
+	}
+	if err := b.output.Write("admin/index.html", index); err != nil {
+		return err
+	}
+
+	ui := adminui.FS()
+	if err := fs.WalkDir(ui, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || p == "index.html" {
+			return nil
+		}
+		data, err := fs.ReadFile(ui, p)
+		if err != nil {
+			return err
+		}
+		return b.output.Write("admin/"+p, data)
+	}); err != nil {
+		return err
+	}
+
+	apiBase := a.APIBase
+	if a.APIMode == "proxy" {
+		// El proxy vive en la raíz del dominio (Go local o Pages Function),
+		// independientemente de site.base_path.
+		apiBase = "/admin/api"
+	}
+	cfg := adminConfigFile{
+		Provider:   a.Provider,
+		APIMode:    a.APIMode,
+		APIBase:    apiBase,
+		Owner:      a.Owner,
+		Repo:       a.Repo,
+		Branch:     a.Branch,
+		UploadsURL: b.withBase("/uploads"),
+		VendorBase: b.withBase("/assets/vendor/"),
+		SchemaURL:  "schema.json",
+		OptionsURL: "options.json",
+		SiteTitle:  b.opts.Site.Title,
+		SiteURL:    b.opts.Site.URL,
+		BasePath:   b.opts.Site.BasePath,
+		MaxUpload:  10 << 20,
+	}
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := b.output.Write("admin/config.json", append(data, '\n')); err != nil {
+		return err
+	}
+	if err := b.output.Write("admin/schema.json", b.opts.AdminSchema); err != nil {
+		return err
+	}
+	// Cloudflare Pages y Netlify leen este archivo; GitHub Pages lo ignora.
+	headers := "/admin/*\n" +
+		"  X-Frame-Options: DENY\n" +
+		"  X-Content-Type-Options: nosniff\n" +
+		"  Referrer-Policy: no-referrer\n"
+	if err := b.output.Write("_headers", []byte(headers)); err != nil {
+		return err
+	}
+
+	options := adminOptionsFile{Taxonomies: map[string][]string{}}
+	for _, tax := range b.opts.Taxonomies {
+		terms := make([]string, 0, len(tax.Terms))
+		for _, term := range tax.Terms {
+			if term.Name != "" {
+				terms = append(terms, term.Name)
+			}
+		}
+		options.Taxonomies[tax.Name] = terms
+	}
+	for _, author := range c.Authors {
+		if author.Name != "" {
+			options.Authors = append(options.Authors, author.Name)
+		}
+	}
+	for _, series := range c.Series {
+		if series.Title != "" {
+			options.Series = append(options.Series, series.Title)
+		}
+	}
+	options.Authors = uniqueSorted(options.Authors)
+	options.Series = uniqueSorted(options.Series)
+	data, err = json.MarshalIndent(options, "", "  ")
+	if err != nil {
+		return err
+	}
+	return b.output.Write("admin/options.json", append(data, '\n'))
+}
+
+func adminConnectSource(a domain.AdminConfig) string {
+	raw := a.APIBase
+	if raw == "" {
+		raw = a.BaseURL
+	}
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host
+}
+
+func uniqueSorted(values []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		if value == "" || seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // withBase prefija una ruta root-absolute con el base path del sitio.

@@ -19,14 +19,16 @@ const reloadSnippet = `<script>new EventSource('/__reload').onmessage=function()
 
 // Server sirve el sitio generado y lo reconstruye al detectar cambios.
 type Server struct {
-	addr      string
-	dir       string
-	watch     []string
-	rebuild   func() error
-	admin     http.Handler
-	mu        sync.Mutex
-	clients   map[chan struct{}]struct{}
-	signature string
+	addr         string
+	dir          string
+	watch        []string
+	rebuild      func() error
+	admin        http.Handler
+	adminProxy   http.Handler
+	adminEnabled bool
+	mu           sync.Mutex
+	clients      map[chan struct{}]struct{}
+	signature    string
 }
 
 // New crea un Server. watch son las rutas a vigilar; rebuild se invoca al cambiar.
@@ -40,19 +42,36 @@ func New(addr, dir string, watch []string, rebuild func() error) *Server {
 	}
 }
 
-// SetAdmin registra el panel de edición. Debe llamarse antes de Run.
+// SetAdmin registra el panel de edición nativo. Debe llamarse antes de Run.
 func (s *Server) SetAdmin(h http.Handler) {
 	s.admin = h
+}
+
+// SetAdminProxy registra el proxy /admin/api del admin estático.
+func (s *Server) SetAdminProxy(h http.Handler) {
+	s.adminProxy = h
+}
+
+// SetAdminEnabled indica que el admin estático se sirve desde dist/admin.
+func (s *Server) SetAdminEnabled() {
+	s.adminEnabled = true
 }
 
 // handler construye el mux del sitio y, si existe, del admin.
 func (s *Server) handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/__reload", s.handleReload)
+	if s.adminProxy != nil {
+		mux.Handle("/admin/api/", s.adminProxy)
+	}
 	if s.admin != nil {
 		mux.Handle("/admin", s.admin)
 		mux.Handle("/admin/", s.admin)
 		mux.Handle("/uploads/", s.admin)
+	} else if s.adminEnabled {
+		mux.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/", http.StatusMovedPermanently)
+		})
 	}
 	mux.HandleFunc("/", s.handleStatic)
 	return mux
@@ -79,7 +98,7 @@ func (s *Server) Run(ctx context.Context) error {
 		host = "localhost" + host
 	}
 	fmt.Printf("Dev server en http://%s\n", host)
-	if s.admin != nil {
+	if s.admin != nil || s.adminProxy != nil || s.adminEnabled {
 		fmt.Printf("Admin en http://%s/admin/\n", host)
 	}
 	return srv.ListenAndServe()
@@ -164,11 +183,15 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 	ct := ""
 	if strings.HasSuffix(full, ".html") {
 		ct = "text/html; charset=utf-8"
-		index := strings.LastIndex(string(data), "</body>")
-		if index >= 0 {
-			data = []byte(string(data[:index]) + reloadSnippet + string(data[index:]))
-		} else {
-			data = append(data, reloadSnippet...)
+		// El admin estático tiene una CSP estricta y edita el remoto; no necesita
+		// el snippet de recarga (sería un script inline bloqueado).
+		if !strings.HasPrefix(r.URL.Path, "/admin/") {
+			index := strings.LastIndex(string(data), "</body>")
+			if index >= 0 {
+				data = []byte(string(data[:index]) + reloadSnippet + string(data[index:]))
+			} else {
+				data = append(data, reloadSnippet...)
+			}
 		}
 	} else {
 		ct = contentType(full)

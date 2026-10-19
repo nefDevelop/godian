@@ -35,6 +35,23 @@ Godian deriva `base_path: /godian` y prefija enlaces, assets, feeds, sitemap,
 búsqueda y manifests. También puedes forzarlo con `site.base_path: /godian`.
 En raíz (dominio propio, Cloudflare, Vercel, Netlify) no hace falta.
 
+## Admin remoto
+
+Guía paso a paso: [`admin-remoto.md`](admin-remoto.md).
+
+El admin nativo se sirve en local con `godian serve`. Para publicar el admin
+estático con el sitio:
+
+1. Activa `admin.mode: remote` en `site.yaml` (ver el ejemplo comentado).
+2. Usa `admin.api_mode: proxy` para evitar CORS: `godian serve` monta el proxy
+   en local y Cloudflare Pages usa `functions/admin/api/[[path]].js`.
+3. Configura `GIT_PROVIDER`, `GIT_BASE_URL`, `GIT_OWNER` y `GIT_REPO` en Pages.
+4. El admin queda en `/admin/` de `dist`, con `noindex` y `Disallow`.
+
+Si el hosting no ejecuta Functions (GitHub Pages puro), necesitas CORS en Gitea
+o usar el admin de servidor. Detalle y ejemplo Nginx:
+[`gitea-cors.md`](gitea-cors.md).
+
 ## Alternativa sin Go en el CI
 
 Genera `dist/` en local (`make build && ./bin/godian build`) y publica la carpeta

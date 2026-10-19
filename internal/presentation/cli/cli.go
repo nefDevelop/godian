@@ -19,6 +19,7 @@ import (
 	"github.com/nefdevelop/godian/internal/application"
 	"github.com/nefdevelop/godian/internal/domain"
 	"github.com/nefdevelop/godian/internal/i18n"
+	"github.com/nefdevelop/godian/internal/infrastructure/adminproxy"
 	"github.com/nefdevelop/godian/internal/infrastructure/check"
 	"github.com/nefdevelop/godian/internal/infrastructure/config"
 	"github.com/nefdevelop/godian/internal/infrastructure/content"
@@ -150,14 +151,28 @@ func runServe(args []string) int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	adminHandler, err := admin.New(*configPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error preparando el admin: %v\n", err)
-		return 1
-	}
-
 	srv := server.New(*addr, filepath.FromSlash(cfg.Build.OutputDir), watch, rebuild)
-	srv.SetAdmin(adminHandler)
+	switch cfg.Admin.Mode {
+	case "remote":
+		srv.SetAdminEnabled()
+		if cfg.Admin.APIMode == "proxy" {
+			proxy, err := adminproxy.New(cfg.Admin)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error preparando el proxy del admin: %v\n", err)
+				return 1
+			}
+			srv.SetAdminProxy(proxy)
+		}
+	case "off":
+		// Sin admin.
+	default:
+		adminHandler, err := admin.New(*configPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error preparando el admin: %v\n", err)
+			return 1
+		}
+		srv.SetAdmin(adminHandler)
+	}
 	if err := srv.Run(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "servidor: %v\n", err)
 		return 1
@@ -420,6 +435,14 @@ func generate(cfg domain.Config, drafts bool) (application.Summary, error) {
 		Minify:        cfg.Build.Minify,
 		Fingerprint:   cfg.Build.Fingerprint,
 		Clean:         clean,
+		Admin:         cfg.Admin,
+	}
+	if cfg.Admin.Mode == "remote" {
+		data, err := json.MarshalIndent(content.BuildSchema(cfg), "", "  ")
+		if err != nil {
+			return application.Summary{}, fmt.Errorf("generando schema del admin: %w", err)
+		}
+		opts.AdminSchema = append(data, '\n')
 	}
 
 	// Fuentes autohospedadas: se descargan en el build; si falla, se avisa y sigue.

@@ -537,10 +537,46 @@ y el JS del admin van embebidos en el binario.
 - **Arranque**: `make serve` o `godian serve`; abre
   `http://localhost:4321/admin/`.
 
+### Admin remoto (`admin.mode: remote`)
+
+El admin también puede publicarse con el sitio en `dist/admin` y editar el
+repositorio Git desde cualquier navegador. Sin npm: JS vanilla y librerías
+vendorizadas.
+
+```yaml
+admin:
+  mode: remote
+  provider: gitea
+  base_url: https://ggit.734038.xyz
+  owner: pi
+  repo: godian
+  branch: main
+  api_mode: proxy   # proxy = same-origin, evita CORS
+```
+
+- **Token**: PAT con escritura del repo, en `sessionStorage`; nunca en el
+  repositorio, la URL ni los logs.
+- **Proxy same-origin** `/admin/api`: `godian serve` lo monta en local y
+  `functions/admin/api/[[path]].js` en Cloudflare Pages. Gitea no necesita Pages.
+- **Cabeceras**: el build escribe `_headers` (`X-Frame-Options: DENY` en
+  `/admin/*`) para Cloudflare Pages/Netlify; GitHub Pages lo ignora.
+- **Alternativa**: `api_mode: direct` + CORS en Gitea; en GitHub Pages puro no hay
+  Functions. Detalle: [`deploy/gitea-cors.md`](deploy/gitea-cors.md).
+- **Ergonomía**: búsqueda/orden, toolbar Markdown, preview con KaTeX, media
+  library, crear/editar/borrar/duplicar/renombrar, publicar y detección de
+  conflictos por `sha`.
+- **Límites**: un editor de confianza; el CI/build es la validación final; el
+  preview de islas/shortcodes es aproximado; no hay OAuth sin servidor.
+- `admin.mode` local (por defecto) mantiene el admin nativo de `godian serve`;
+  `off` lo desactiva.
+
+Guía completa de configuración, PAT, Cloudflare Pages, seguridad y
+troubleshooting: [`deploy/admin-remoto.md`](deploy/admin-remoto.md).
+
 `godian-cms/` queda como referencia local de la etapa Svelte; no forma parte del
-build ni se commitea (ver `.gitignore`). El admin nativo es la vía soportada.
-`content.schema.json` se sigue generando con `make schema` para consumidores
-externos.
+build ni se commitea (ver `.gitignore`). El admin nativo/remoto es la vía
+soportada. `content.schema.json` se sigue generando con `make schema` para
+consumidores externos.
 
 ## Despliegue
 

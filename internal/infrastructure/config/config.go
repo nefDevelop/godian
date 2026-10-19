@@ -24,12 +24,14 @@ func Load(path string) (domain.Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return cfg, fmt.Errorf("configuración inválida en %q: %w", path, err)
 	}
-	applyDefaults(&cfg)
+	if err := applyDefaults(&cfg); err != nil {
+		return cfg, err
+	}
 	return cfg, nil
 }
 
 // applyDefaults completa las colecciones y taxonomías estándar cuando no se declaran.
-func applyDefaults(cfg *domain.Config) {
+func applyDefaults(cfg *domain.Config) error {
 	domain.NormalizeSite(&cfg.Site)
 	if len(cfg.Collections) == 0 {
 		cfg.Collections = domain.DefaultCollections()
@@ -42,4 +44,5 @@ func applyDefaults(cfg *domain.Config) {
 			cfg.Taxonomies[i].URL = "/" + cfg.Taxonomies[i].Name
 		}
 	}
+	return domain.NormalizeAdmin(&cfg.Admin)
 }

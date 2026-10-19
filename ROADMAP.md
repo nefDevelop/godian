@@ -291,6 +291,18 @@
 - [x] CSRF, solo loopback, validación de rutas y `/uploads` público
 - [x] Tests del handler, CSRF, traversal, fechas sin comillas, tema y uploads
 
+### F36 — Admin remoto estático (`admin.mode: remote`)
+- [x] `admin.mode` local/remote/off y `AdminConfig` (provider, owner, repo, branch, api_mode)
+- [x] Build de `dist/admin` con schema, opciones, config y CSS del tema
+- [x] Admin estático sin npm: vanilla JS + js-yaml, marked y DOMPurify vendorizados
+- [x] Login con PAT en `sessionStorage`; CSP, noindex y `Disallow: /admin/`
+- [x] Providers Gitea/GitHub con contents API, SHA, conflictos y commit URL
+- [x] Proxy same-origin `/admin/api` en `godian serve` y Cloudflare Pages Function
+- [x] Dashboard con búsqueda/orden y acciones de duplicar/renombrar/borrar
+- [x] Editor schema-driven, toolbar Markdown, preview con KaTeX, publicar y resolver conflictos
+- [x] Media library: listar, subir, copiar URL, borrar y seleccionar imágenes
+- [x] Tests de build/config y proxy; verificación UI en Chromium con API mock
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

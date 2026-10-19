@@ -46,6 +46,47 @@ func TestLoadInvalid(t *testing.T) {
 	}
 }
 
+func TestLoadAdminRemote(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "site.yaml")
+	yml := `admin:
+  mode: remote
+  provider: gitea
+  base_url: https://git.example.com/
+  owner: pi
+  repo: godian
+  branch: main
+`
+	if err := os.WriteFile(path, []byte(yml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Admin.Mode != "remote" || cfg.Admin.Provider != "gitea" {
+		t.Errorf("admin = %+v", cfg.Admin)
+	}
+	if cfg.Admin.APIMode != "proxy" {
+		t.Errorf("api_mode por defecto = %q, want proxy", cfg.Admin.APIMode)
+	}
+	if cfg.Admin.BaseURL != "https://git.example.com" {
+		t.Errorf("base_url = %q", cfg.Admin.BaseURL)
+	}
+}
+
+func TestLoadAdminRemoteInvalid(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "site.yaml")
+	yml := "admin:\n  mode: remote\n  provider: gitea\n  base_url: https://git.example.com\n"
+	if err := os.WriteFile(path, []byte(yml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(path); err == nil {
+		t.Error("se esperaba error por falta de owner/repo")
+	}
+}
+
 func TestLoadRenderDefaultsAndOverride(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "site.yaml")

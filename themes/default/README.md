@@ -302,6 +302,11 @@ tema embebido por overlay. Es la forma más rápida de empezar sin copiar todo.
 - Carga los iconos del tema (`icons/`) y el `admin.css` del tema si existe.
 - **No** carga el JS público (`theme.js`, `search.js`, `islands.js`).
 
+El **admin remoto** (`admin.mode: remote`) usa el mismo contrato: el build
+genera `dist/admin` con los CSS globales, fuentes y chunks del tema, y carga
+`assets/css/admin.css` al final. El CSS core usa `.admin-*` y tokens, así que un
+tema propio cambia colores, tipografía, radios y transiciones sin tocar Go.
+
 Para ajustar el panel a tu tema, crea `assets/css/admin.css`. Se detecta
 automáticamente y se carga **después** del CSS core del admin; no hace falta
 declararlo en `theme.yaml`.

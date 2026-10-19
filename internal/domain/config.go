@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 )
@@ -18,6 +19,84 @@ type Config struct {
 	Support     []SocialLink       `yaml:"support"`
 	Analytics   AnalyticsConfig    `yaml:"analytics"`
 	Fonts       []FontConfig       `yaml:"fonts"`
+	Admin       AdminConfig        `yaml:"admin"`
+}
+
+// AdminConfig configura el panel de edición.
+// local: admin nativo en godian serve; remote: admin estático en dist/admin.
+type AdminConfig struct {
+	Mode     string `yaml:"mode"`     // local | remote | off
+	Provider string `yaml:"provider"` // gitea | github
+	APIBase  string `yaml:"api_base"` // URL directa del API (modo direct)
+	BaseURL  string `yaml:"base_url"` // URL del proveedor (para el proxy)
+	Owner    string `yaml:"owner"`
+	Repo     string `yaml:"repo"`
+	Branch   string `yaml:"branch"`
+	APIMode  string `yaml:"api_mode"` // proxy | direct
+}
+
+// NormalizeAdmin completa y valida la configuración del admin.
+func NormalizeAdmin(a *AdminConfig) error {
+	a.Mode = strings.ToLower(strings.TrimSpace(a.Mode))
+	if a.Mode == "" {
+		a.Mode = "local"
+	}
+	switch a.Mode {
+	case "local", "off":
+		return nil
+	case "remote":
+	default:
+		return fmt.Errorf("admin.mode inválido: %q (local, remote u off)", a.Mode)
+	}
+
+	a.Provider = strings.ToLower(strings.TrimSpace(a.Provider))
+	if a.Provider == "" {
+		a.Provider = "gitea"
+	}
+	if a.Provider != "gitea" && a.Provider != "github" {
+		return fmt.Errorf("admin.provider inválido: %q", a.Provider)
+	}
+	a.Owner = strings.TrimSpace(a.Owner)
+	a.Repo = strings.TrimSpace(a.Repo)
+	a.Branch = strings.TrimSpace(a.Branch)
+	if a.Branch == "" {
+		a.Branch = "main"
+	}
+	if a.Owner == "" || a.Repo == "" {
+		return fmt.Errorf("admin remoto: faltan owner y repo")
+	}
+	if a.Provider == "gitea" && strings.TrimSpace(a.BaseURL) == "" {
+		return fmt.Errorf("admin remoto con Gitea: falta base_url")
+	}
+	a.BaseURL = strings.TrimRight(strings.TrimSpace(a.BaseURL), "/")
+
+	a.APIMode = strings.ToLower(strings.TrimSpace(a.APIMode))
+	if a.APIMode == "" {
+		if a.Provider == "gitea" {
+			a.APIMode = "proxy"
+		} else {
+			a.APIMode = "direct"
+		}
+	}
+	if a.APIMode != "proxy" && a.APIMode != "direct" {
+		return fmt.Errorf("admin.api_mode inválido: %q (proxy o direct)", a.APIMode)
+	}
+	if a.APIMode == "direct" && strings.TrimSpace(a.APIBase) == "" {
+		a.APIBase = defaultAdminAPI(a.Provider, a.BaseURL)
+	}
+	a.APIBase = strings.TrimRight(strings.TrimSpace(a.APIBase), "/")
+	return nil
+}
+
+func defaultAdminAPI(provider, baseURL string) string {
+	switch provider {
+	case "github":
+		return "https://api.github.com"
+	case "gitea":
+		return strings.TrimRight(baseURL, "/") + "/api/v1"
+	default:
+		return ""
+	}
 }
 
 // FontConfig declara una fuente a descargar y autohospedar durante el build.
@@ -211,6 +290,7 @@ func DefaultConfig() Config {
 			Clean:       true,
 		},
 		Render: DefaultRenderConfig(),
+		Admin:  AdminConfig{Mode: "local"},
 	}
 }
 

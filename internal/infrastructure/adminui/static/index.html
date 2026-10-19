@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{ .Lang }}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="robots" content="noindex,nofollow">
+	<meta name="color-scheme" content="light dark">
+	<meta http-equiv="Content-Security-Policy" content="{{ .CSP }}">
+	<title>Admin · {{ .SiteTitle }}</title>
+	{{ if .Favicon }}<link rel="icon" href="{{ .Favicon }}">
+	{{ end }}<script src="{{ .AdminBase }}assets/theme-init.js"></script>
+	{{ range .CSS }}<link rel="stylesheet" href="{{ . }}">
+	{{ end }}<link rel="stylesheet" href="{{ .AdminBase }}assets/admin.css">
+	{{ if .AdminCSS }}<link rel="stylesheet" href="{{ .AdminCSS }}">
+	{{ end }}<script src="{{ .AdminBase }}vendor/js-yaml.min.js"></script>
+	<script src="{{ .AdminBase }}vendor/marked.min.js"></script>
+	<script src="{{ .AdminBase }}vendor/purify.min.js"></script>
+</head>
+<body class="admin-body">
+	<div id="app" class="admin-app">
+		<p class="admin-empty">Cargando admin…</p>
+	</div>
+	<noscript>
+		<p class="admin-empty">El admin necesita JavaScript.</p>
+	</noscript>
+	<script type="module" src="{{ .AdminBase }}assets/app.js"></script>
+</body>
+</html>

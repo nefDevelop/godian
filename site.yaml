@@ -37,6 +37,17 @@ render:
     decoding: async        # async | sync | "" (sin atributo)
     figure: true           # envuelve imágenes con alt en <figure>/<figcaption>
 
+# Admin nativo en godian serve por defecto. Para publicar el admin estático
+# remoto en dist/admin, descomenta y ajusta:
+# admin:
+#   mode: remote
+#   provider: gitea
+#   base_url: https://ggit.734038.xyz
+#   owner: pi
+#   repo: godian
+#   branch: main
+#   api_mode: proxy   # proxy (recomendado, evita CORS) | direct
+
 # Si se omite, se usan las colecciones estándar (blog, docs, authors, series, pages).
 # collections:
 #   - { name: blog, folder: blog }
