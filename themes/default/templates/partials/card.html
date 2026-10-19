@@ -1,10 +1,19 @@
 {{define "card"}}<article class="card">
+	{{ if .Image }}<a class="card-image" href="{{ .URL }}" tabindex="-1" aria-hidden="true"><img src="{{ .Image }}" alt="" loading="lazy" decoding="async"></a>{{ end }}
 	<div class="card-meta">
 		{{ if .Date }}<time datetime="{{ .Date }}">{{ .Date }}</time>{{ end }}
 		{{ if .ReadingTime }}<span>· {{ .ReadingTime }}</span>{{ end }}
 	</div>
-	<h2 class="card-title"><a href="{{ .URL }}">{{ .Title }}</a></h2>
+	<h2 class="card-title">
+		{{ if .Pinned }}<span class="pinned-badge">{{ t "ui.pinned" }}</span>{{ end }}
+		<a href="{{ .URL }}">{{ .Title }}</a>
+	</h2>
 	{{ if .Description }}<p class="card-desc">{{ .Description }}</p>{{ end }}
+	{{ if or .Categories .Difficulty }}<div class="card-badges">
+		{{ if .Categories }}<a class="cat" href="/categories/{{ index .Categories 0 }}/">{{ index .Categories 0 }}</a>{{ end }}
+		{{ if .Difficulty }}<span class="difficulty difficulty-{{ .Difficulty }}">{{ t (printf "ui.difficulty_%s" .Difficulty) }}</span>{{ end }}
+	</div>{{ end }}
 	{{ if .Tags }}<ul class="tags">{{ range .Tags }}<li><a class="tag" href="/tags/{{ . }}/">#{{ . }}</a></li>{{ end }}</ul>{{ end }}
+	{{ if .AuthorSlugs }}<p class="card-author">{{ t "ui.by" }} {{ range $i, $a := .AuthorSlugs }}{{ if $i }}, {{ end }}<a href="/authors/{{ $a }}/">{{ $a }}</a>{{ end }}</p>{{ end }}
 </article>
 {{end}}

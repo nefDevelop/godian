@@ -6,7 +6,8 @@ export function mount(el, props) {
 		var done = function () {
 			var old = btn.textContent;
 			btn.textContent = (window.__i18n && window.__i18n.copied) || 'Copied!';
-			setTimeout(function () { btn.textContent = old; }, 1500);
+			btn.classList.add('is-copied');
+			setTimeout(function () { btn.textContent = old; btn.classList.remove('is-copied'); }, 1500);
 		};
 		if (navigator.clipboard) {
 			navigator.clipboard.writeText(text).then(done, done);

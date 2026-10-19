@@ -66,3 +66,8 @@
 .carousel-dot.is-active::before {
 	background: var(--accent);
 }
+.carousel-img { transition: opacity var(--motion-fast) ease; }
+.carousel-nav { transition: border-color var(--motion-fast) var(--motion-ease-standard), color var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-spring); }
+.carousel-nav:active { transform: scale(.94); }
+.carousel-dot::before { transition: background var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-spring); }
+.carousel-dot.is-active::before { transform: scale(1.25); }

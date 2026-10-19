@@ -19,3 +19,4 @@
 	margin-top: 0.5rem;
 	color: var(--muted);
 }
+.spoiler-btn { transition: color var(--motion-fast) var(--motion-ease-standard); }

@@ -1,3 +1,6 @@
 .lightbox { display: inline-block; }
 .lightbox img { border-radius: var(--radius); cursor: zoom-in; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .lightbox-caption { font-size: .85rem; color: var(--muted); margin-top: .4rem; }
+.lightbox img { transition: transform var(--motion-fast) var(--motion-ease-spring); }
+.lightbox img:hover,
+.lightbox img:focus-visible { transform: scale(1.02); }

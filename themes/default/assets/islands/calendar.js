@@ -110,17 +110,25 @@ function render(el, year, month, byDate) {
 function showPanel(panel, items) {
 	panel.textContent = '';
 	panel.hidden = false;
+	panel.classList.remove('is-updating');
+	void panel.offsetWidth;
+	panel.classList.add('is-updating');
+	panel.setAttribute('aria-live', 'polite');
 	var ul = document.createElement('ul');
 	items.forEach(function (it) {
 		var li = document.createElement('li');
+		var node;
 		if (it.url) {
-			var a = document.createElement('a');
-			a.href = it.url;
-			a.textContent = it.label;
-			li.appendChild(a);
+			node = document.createElement('a');
+			node.href = it.url;
+			node.className = 'calendar-panel-link';
+			node.textContent = it.label;
 		} else {
-			li.textContent = it.label;
+			node = document.createElement('span');
+			node.className = 'calendar-panel-item';
+			node.textContent = it.label;
 		}
+		li.appendChild(node);
 		ul.appendChild(li);
 	});
 	panel.appendChild(ul);

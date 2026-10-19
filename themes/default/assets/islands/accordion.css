@@ -19,3 +19,6 @@
 	padding: 0.6rem 0.8rem;
 	color: var(--muted);
 }
+/* Animación de apertura del acordeón. */
+.accordion-item summary { transition: color var(--motion-fast) var(--motion-ease-standard); }
+.accordion-item summary:hover { color: var(--accent-text); }

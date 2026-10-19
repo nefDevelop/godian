@@ -32,6 +32,18 @@ func TestPlainText(t *testing.T) {
 	}
 }
 
+func TestPlainTextStripsURLsAndAssetPaths(t *testing.T) {
+	got := plainText("Demo https://example.com /demo-1.jpg demo-2.webp main.go [enlace](https://x) ![alt](/img.png)")
+	for _, bad := range []string{"http", "/demo-1.jpg", "demo-2.webp", "img.png"} {
+		if strings.Contains(got, bad) {
+			t.Errorf("plainText() conserva %q: %s", bad, got)
+		}
+	}
+	if !strings.Contains(got, "Demo") || !strings.Contains(got, "enlace") || !strings.Contains(got, "alt") {
+		t.Errorf("plainText() perdió texto útil: %s", got)
+	}
+}
+
 func TestNavFromLinks(t *testing.T) {
 	links := navFromLinks([]domain.NavLink{
 		{Label: "A", URL: "/a", Children: []domain.NavLink{{Label: "B", URL: "/b"}}},
@@ -150,5 +162,35 @@ func TestSortPinned(t *testing.T) {
 	}
 	if got[1].Title != "newer" {
 		t.Errorf("sortPinned() segundo = %q, want newer", got[1].Title)
+	}
+}
+
+func TestCardOfMetadata(t *testing.T) {
+	p := domain.BlogPost{
+		Title:      "Post",
+		Slug:       "post",
+		Published:  time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC),
+		Body:       "hola mundo",
+		Image:      "/cover.jpg",
+		Authors:    []string{"nef"},
+		Categories: []string{"dev"},
+		Difficulty: domain.DifficultyAdvanced,
+		Pinned:     true,
+	}
+	c := cardOf(p)
+	if c.Image != "/cover.jpg" {
+		t.Errorf("Image = %q, want /cover.jpg", c.Image)
+	}
+	if len(c.AuthorSlugs) != 1 || c.AuthorSlugs[0] != "nef" {
+		t.Errorf("AuthorSlugs = %v, want [nef]", c.AuthorSlugs)
+	}
+	if len(c.Categories) != 1 || c.Categories[0] != "dev" {
+		t.Errorf("Categories = %v, want [dev]", c.Categories)
+	}
+	if c.Difficulty != "advanced" {
+		t.Errorf("Difficulty = %q, want advanced", c.Difficulty)
+	}
+	if !c.Pinned {
+		t.Error("Pinned = false, want true")
 	}
 }

@@ -3,6 +3,7 @@ version: 0.1.0
 assets:
   css:
     - /assets/css/styles.css
+    - /assets/css/motion.css
     - /assets/css/chroma.css
   js:
     - /assets/js/theme.js

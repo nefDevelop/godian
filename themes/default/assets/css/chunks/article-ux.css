@@ -32,7 +32,7 @@
 	cursor: pointer;
 	opacity: 0;
 	visibility: hidden;
-	transition: opacity 0.2s, visibility 0.2s;
+	transition: opacity var(--motion-fast) var(--motion-ease-standard), visibility var(--motion-fast);
 }
 
 .back-to-top.is-visible {
@@ -147,4 +147,80 @@
 .related h2 {
 	font-size: 1.15rem;
 	margin-bottom: 1rem;
+}
+
+
+/* --- Paridad visual con astro-ri: post --- */
+.post-hero {
+	margin: 0 0 1.5rem;
+}
+
+.post-hero img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--radius);
+}
+
+.post-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.post-badges .tags,
+.post-badges .cats {
+	margin: 0;
+}
+
+.post-links,
+.downloads {
+	margin-top: 2rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border);
+}
+
+.post-links h2,
+.downloads h2 {
+	font-size: 1.1rem;
+	margin: 0 0 0.6rem;
+}
+
+.post-links ul,
+.downloads ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.post-links a {
+	color: var(--accent-text);
+}
+
+.downloads li a {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--card);
+	padding: 0.75rem 1rem;
+	text-decoration: none;
+	color: var(--fg);
+}
+
+.downloads li a:hover {
+	border-color: var(--accent);
+}
+
+.download-action {
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--accent-text);
 }

@@ -15,3 +15,6 @@
 .theme-picker .swatch:hover {
 	border-color: var(--fg);
 }
+.theme-picker .swatch { transition: transform var(--motion-fast) var(--motion-ease-spring), border-color var(--motion-fast) var(--motion-ease-standard); }
+.theme-picker .swatch:hover { transform: translateY(-1px) scale(1.06); }
+.theme-picker .swatch:active { transform: scale(.94); }

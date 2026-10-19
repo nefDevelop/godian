@@ -14,6 +14,14 @@ type Link struct {
 	Children []Link
 }
 
+// AuthorRef es una referencia a un autor desde un post.
+type AuthorRef struct {
+	Name   string
+	Slug   string
+	URL    string
+	Avatar string
+}
+
 // PostCard es la vista resumida de un post en listados.
 type PostCard struct {
 	Title       string
@@ -22,6 +30,11 @@ type PostCard struct {
 	Date        string
 	Tags        []string
 	ReadingTime string
+	Image       string
+	AuthorSlugs []string
+	Categories  []string
+	Difficulty  string
+	Pinned      bool
 }
 
 // Term es un término de taxonomía (tag o categoría) con su conteo.
@@ -66,6 +79,16 @@ type DocLink struct {
 type DocSection struct {
 	Section string
 	Docs    []DocLink
+}
+
+// DocCard es la vista resumida de una página de documentación en listados.
+type DocCard struct {
+	Title       string
+	URL         string
+	Description string
+	Date        string
+	HeroImage   string
+	Tags        []string
 }
 
 // SiteStats resume conteos para widgets.
@@ -179,6 +202,7 @@ type PageData struct {
 	Body        template.HTML
 	Stack       []string
 	Date        string
+	Updated     string
 	Tags        []string
 	Categories  []string
 	ReadingTime string
@@ -220,6 +244,21 @@ type PageData struct {
 	Author     *AuthorProfile
 	SeriesList []SeriesCard
 	Series     *SeriesDetail
+
+	// Paridad visual con astro-ri.
+	Image      string
+	AuthorsRef []AuthorRef
+	Difficulty string
+	Downloads  []domain.Download
+	Links      *domain.PostLinks
+	Pinned     bool
+
+	// Documentación.
+	HeroImage   string
+	PubDate     string
+	UpdatedDate string
+	DocTags     []Term
+	Docs        []DocCard
 }
 
 // pageURL construye la URL de una página de listado.

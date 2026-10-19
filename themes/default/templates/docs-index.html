@@ -1,5 +1,5 @@
 {{define "docs-index"}}{{ template "head" . }}{{ template "header" . }}
-<div class="wrap docs-layout" data-css="docs">
+<div class="wrap docs-layout" data-css="docs lists">
 	<aside class="docs-sidebar" aria-label="{{ t "ui.docs_nav" }}">{{ template "docsnav" . }}</aside>
 	<div class="docs-content">
 		{{ template "breadcrumb" . }}
@@ -11,6 +11,10 @@
 			<ul class="docs-list">
 				{{ range .Docs }}<li><a href="{{ .URL }}">{{ .Title }}</a></li>{{ end }}
 			</ul>
+		</section>{{ end }}
+		{{ if .DocTags }}<section class="docs-section">
+			<h2>{{ t "ui.docs_tags" }}</h2>
+			<div class="terms">{{ range .DocTags }}<a class="term" href="{{ .URL }}"><span class="term-name">#{{ .Name }}</span><span class="term-count">{{ .Count }}</span></a>{{ end }}</div>
 		</section>{{ end }}
 	</div>
 </div>

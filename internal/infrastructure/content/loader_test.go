@@ -103,3 +103,36 @@ func TestHiddenFilesIgnored(t *testing.T) {
 		t.Errorf("posts = %+v, want solo 'ok'", posts)
 	}
 }
+
+func TestPostParityFieldsLoaded(t *testing.T) {
+	dir := t.TempDir()
+	write(t, filepath.Join(dir, "blog", "a.md"),
+		"---\ntitle: A\npublished: 2026-01-01\nupdated: 2026-02-01\nimage: /cover.jpg\ndifficulty: advanced\npinned: true\nlinks:\n  website: https://example.com\n  github: https://github.com/example\ndownloads:\n  - id: pdf\n    label: PDF\n    url: https://example.com/a.pdf\n---\nx")
+
+	posts, err := loaderFor(t, dir).LoadPosts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(posts) != 1 {
+		t.Fatalf("posts = %d, want 1", len(posts))
+	}
+	p := posts[0]
+	if p.Updated == nil {
+		t.Error("Updated = nil")
+	}
+	if p.Image != "/cover.jpg" {
+		t.Errorf("Image = %q", p.Image)
+	}
+	if p.Difficulty != domain.DifficultyAdvanced {
+		t.Errorf("Difficulty = %q", p.Difficulty)
+	}
+	if !p.Pinned {
+		t.Error("Pinned = false")
+	}
+	if p.Links == nil || p.Links.Github != "https://github.com/example" {
+		t.Errorf("Links = %+v", p.Links)
+	}
+	if len(p.Downloads) != 1 || p.Downloads[0].ID != "pdf" {
+		t.Errorf("Downloads = %+v", p.Downloads)
+	}
+}

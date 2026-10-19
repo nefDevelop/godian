@@ -8,3 +8,6 @@
 .kanban-card-actions { display: inline-flex; gap: .2rem; flex-shrink: 0; }
 .kanban-move { border: 1px solid var(--border); border-radius: .3rem; background: var(--card); color: var(--fg); cursor: pointer; font-size: .7rem; line-height: 1; min-width: 1.5rem; min-height: 1.5rem; padding: .2rem .35rem; }
 .kanban-move:hover { border-color: var(--accent); color: var(--accent-text); }
+.kanban-column,
+.kanban-card,
+.kanban-cards { transition: background var(--motion-fast) var(--motion-ease-standard), border-color var(--motion-fast) var(--motion-ease-standard); }

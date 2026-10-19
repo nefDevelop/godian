@@ -3,3 +3,6 @@
 .popover-trigger:hover { border-color: var(--accent); color: var(--accent-text); }
 .popover-content { position: absolute; top: 100%; left: 0; margin-top: .4rem; padding: .5rem .75rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,.15); z-index: 10; max-width: 16rem; }
 .popover-content[hidden] { display: none; }
+.popover-trigger { transition: border-color var(--motion-fast) var(--motion-ease-standard), color var(--motion-fast) var(--motion-ease-standard); }
+.popover-content.is-open { animation: popover-in var(--motion-fast) var(--motion-ease-enter); transform-origin: top left; }
+@keyframes popover-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }

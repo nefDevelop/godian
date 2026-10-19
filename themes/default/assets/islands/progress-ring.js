@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from '/assets/js/motion.js';
+
 // Isla anillo de progreso (SVG circular).
 export function mount(el, props) {
   var value = Number(props.value || 0);
@@ -7,6 +9,7 @@ export function mount(el, props) {
   var r = (size - 8) / 2;
   var c = 2 * Math.PI * r;
   var offset = c * (1 - pct);
+  var reduce = prefersReducedMotion();
   el.classList.add('progress-ring');
   el.setAttribute('role', 'progressbar');
   el.setAttribute('aria-label', props.label || 'Progreso');
@@ -26,7 +29,7 @@ export function mount(el, props) {
   fg.setAttribute('fill', 'none'); fg.setAttribute('stroke', 'var(--accent)'); fg.setAttribute('stroke-width', '6');
   fg.setAttribute('stroke-linecap', 'round');
   fg.setAttribute('stroke-dasharray', c);
-  fg.setAttribute('stroke-dashoffset', offset);
+  fg.style.strokeDashoffset = reduce ? String(offset) : String(c);
   fg.setAttribute('transform', 'rotate(-90 ' + size / 2 + ' ' + size / 2 + ')');
   var ttl = document.createElementNS('http://www.w3.org/2000/svg', 'title');
   ttl.textContent = props.label || (value + ' / ' + max);
@@ -38,5 +41,8 @@ export function mount(el, props) {
     lab.className = 'progress-ring-label';
     lab.textContent = props.label;
     el.appendChild(lab);
+  }
+  if (!reduce) {
+    requestAnimationFrame(function () { fg.style.strokeDashoffset = String(offset); });
   }
 }

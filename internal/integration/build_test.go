@@ -124,6 +124,8 @@ func TestBuildEndToEnd(t *testing.T) {
 		"sitemap.xml",
 		"404.html",
 		"docs/index.html",
+		"docs/tags/index.html",
+		"docs/tags/guide/index.html",
 		"about/index.html",
 		"assets/islands/manifest.json",
 		"assets/vendor/mermaid/mermaid.esm.min.mjs",
@@ -136,15 +138,39 @@ func TestBuildEndToEnd(t *testing.T) {
 	}
 
 	hello := readFile(t, filepath.Join(out, "blog/hello/index.html"))
-	for _, want := range []string{"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`, `class="code-block"`, `data-island="counter"`, `class="callout`, "Aviso"} {
+	for _, want := range []string{
+		"Hola mundo", "<mark>resaltado</mark>", `class="callout callout-note"`, `href="/blog/adios/"`,
+		`class="code-block"`, `data-island="counter"`, `class="callout`, "Aviso",
+		`class="post-hero"`, `href="/authors/nef/"`, `class="difficulty difficulty-beginner"`,
+		"Actualizado", `class="post-links"`, `class="downloads"`, `class="pinned-badge"`,
+	} {
 		if !strings.Contains(hello, want) {
 			t.Errorf("blog/hello no contiene %q", want)
 		}
 	}
 
 	blog := readFile(t, filepath.Join(out, "blog/index.html"))
-	if !strings.Contains(blog, `rel="next"`) {
-		t.Errorf("blog/index.html sin rel=next (paginación)")
+	for _, want := range []string{`rel="next"`, `class="card-image"`, `class="card-badges"`, `class="card-author"`, `class="pinned-badge"`} {
+		if !strings.Contains(blog, want) {
+			t.Errorf("blog/index.html no contiene %q", want)
+		}
+	}
+
+	docTag := readFile(t, filepath.Join(out, "docs/tags/guide/index.html"))
+	if !strings.Contains(docTag, "Guía de prueba") {
+		t.Errorf("docs/tags/guide/index.html no lista la guía")
+	}
+
+	doc := readFile(t, filepath.Join(out, "docs/guia/index.html"))
+	for _, want := range []string{`class="docs-hero"`, `class="tags docs-tags"`, `href="/docs/tags/guide/"`, "Actualizado"} {
+		if !strings.Contains(doc, want) {
+			t.Errorf("docs/guia/index.html no contiene %q", want)
+		}
+	}
+
+	search := readFile(t, filepath.Join(out, "search-index.json"))
+	if !strings.Contains(search, `"url":"/docs/guia/"`) {
+		t.Errorf("search-index.json no incluye el doc")
 	}
 
 	about := readFile(t, filepath.Join(out, "about/index.html"))

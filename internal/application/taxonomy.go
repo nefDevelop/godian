@@ -20,6 +20,8 @@ var (
 	reSpaces     = regexp.MustCompile(`\s+`)
 	reMath       = regexp.MustCompile(`\$\$?[^$]+\$\$?|\\\(.+?\\\)|\\\[.+?\\\]`)
 	reFence      = regexp.MustCompile("(?m)^\\s*(```|~~~)\\s*(\\w*)")
+	reURL        = regexp.MustCompile(`https?://[^\s<>"']+`)
+	reAssetPath  = regexp.MustCompile(`/?[A-Za-z0-9._~!$&'()*+,;=:@%/\\-]+\.(?:jpg|jpeg|png|webp|avif|gif|svg|mp3|mp4|webm|pdf)`)
 )
 
 // needsMath indica si el cuerpo contiene fórmulas (KaTeX).
@@ -59,6 +61,8 @@ func plainText(md string) string {
 		return g[1]
 	})
 	s = reInlineHTML.ReplaceAllString(s, " ")
+	s = reURL.ReplaceAllString(s, " ")
+	s = reAssetPath.ReplaceAllString(s, " ")
 	s = reMarkers.ReplaceAllString(s, " ")
 	s = reSpaces.ReplaceAllString(s, " ")
 	s = strings.TrimSpace(s)
@@ -80,6 +84,11 @@ func cardOf(p domain.BlogPost) PostCard {
 		Date:        formatDate(p.Published),
 		Tags:        p.Tags,
 		ReadingTime: readingTime(p.Body),
+		Image:       p.Image,
+		AuthorSlugs: p.Authors,
+		Categories:  p.Categories,
+		Difficulty:  string(p.Difficulty),
+		Pinned:      p.Pinned,
 	}
 }
 

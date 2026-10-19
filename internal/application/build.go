@@ -91,12 +91,12 @@ type Options struct {
 
 // Build orquesta la construcción del sitio estático.
 type Build struct {
-	content ContentLoader
-	md      MarkdownRenderer
-	render  PageRenderer
-	output  Output
-	feeds   FeedGenerator
-	opts    Options
+	content   ContentLoader
+	md        MarkdownRenderer
+	render    PageRenderer
+	output    Output
+	feeds     FeedGenerator
+	opts      Options
 	nav       []Link
 	css       []string
 	js        []string
@@ -152,7 +152,7 @@ func (b *Build) Run() (Summary, error) {
 	paths = append(paths, "/")
 
 	// Páginas individuales de post.
-	postPaths, err := b.renderPosts(posts, c.Series)
+	postPaths, err := b.renderPosts(posts, c.Series, c.Authors)
 	if err != nil {
 		return Summary{}, err
 	}
@@ -190,7 +190,7 @@ func (b *Build) Run() (Summary, error) {
 	paths = append(paths, taxPaths...)
 
 	// Búsqueda (índice + página).
-	if err := b.renderSearch(posts); err != nil {
+	if err := b.renderSearch(posts, c.Docs); err != nil {
 		return Summary{}, err
 	}
 	paths = append(paths, "/search/")
@@ -259,7 +259,7 @@ func (b *Build) Run() (Summary, error) {
 	return summary, nil
 }
 
-func (b *Build) renderPosts(posts []domain.BlogPost, series []domain.Series) ([]string, error) {
+func (b *Build) renderPosts(posts []domain.BlogPost, series []domain.Series, authors []domain.Author) ([]string, error) {
 	ordered := sortByDate(posts) // más recientes primero
 	bySlug := make(map[string]domain.BlogPost, len(posts))
 	for _, p := range posts {
@@ -279,9 +279,16 @@ func (b *Build) renderPosts(posts []domain.BlogPost, series []domain.Series) ([]
 		data := b.newPage(p.Title, p.Description)
 		data.Body = body
 		data.Date = formatDate(p.Published)
+		data.Updated = formatDatePtr(p.Updated)
 		data.Tags = p.Tags
 		data.Categories = p.Categories
 		data.ReadingTime = readingTime(p.Body)
+		data.Image = p.Image
+		data.AuthorsRef = authorRefs(p.Authors, authors)
+		data.Difficulty = string(p.Difficulty)
+		data.Downloads = p.Downloads
+		data.Links = p.Links
+		data.Pinned = p.Pinned
 		data.TOC = tocItems(headings)
 		data.NeedsMath = needsMath(p.Body)
 		data.NeedsCode = needsCode(p.Body)
@@ -539,9 +546,10 @@ type SearchDoc struct {
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
 	Text        string   `json:"text"`
+	Type        string   `json:"type"` // post | doc
 }
 
-func (b *Build) renderSearch(posts []domain.BlogPost) error {
+func (b *Build) renderSearch(posts []domain.BlogPost, docs []domain.Doc) error {
 	lang := b.opts.Site.Language
 	if lang == "" {
 		lang = "en"
@@ -551,17 +559,28 @@ func (b *Build) renderSearch(posts []domain.BlogPost) error {
 		return err
 	}
 
-	docs := make([]SearchDoc, 0, len(posts))
+	items := make([]SearchDoc, 0, len(posts)+len(docs))
 	for _, p := range posts {
-		docs = append(docs, SearchDoc{
+		items = append(items, SearchDoc{
 			Title:       p.Title,
 			URL:         "/blog/" + p.Slug + "/",
 			Description: p.Description,
 			Tags:        p.Tags,
 			Text:        plainText(p.Body),
+			Type:        "post",
 		})
 	}
-	encoded, err := json.Marshal(docs)
+	for _, d := range docs {
+		items = append(items, SearchDoc{
+			Title:       d.Title,
+			URL:         "/docs/" + d.Slug + "/",
+			Description: d.Description,
+			Tags:        d.Tags,
+			Text:        plainText(d.Body),
+			Type:        "doc",
+		})
+	}
+	encoded, err := json.Marshal(items)
 	if err != nil {
 		return err
 	}
@@ -762,11 +781,18 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 	// Índice.
 	index := b.newPage(i18n.T(langOf(b.opts.Site), "nav.docs"), "Documentation.")
 	index.DocsNav = buildNav("")
+	index.DocTags = docTagTerms(docs)
 	index.Breadcrumb = []Link{{Label: i18n.T(langOf(b.opts.Site), "nav.home"), URL: "/"}}
 	if err := b.writeTemplate("docs-index", "docs/index.html", index); err != nil {
 		return nil, err
 	}
 	paths := []string{"/docs/"}
+
+	tagPaths, err := b.renderDocTags(docs, buildNav(""))
+	if err != nil {
+		return nil, err
+	}
+	paths = append(paths, tagPaths...)
 
 	// Páginas.
 	for _, sec := range order {
@@ -779,6 +805,10 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 			data.Body = body
 			data.NeedsCode = needsCode(d.Body)
 			data.TOC = tocItems(headings)
+			data.HeroImage = d.HeroImage
+			data.PubDate = formatDatePtr(d.PubDate)
+			data.UpdatedDate = formatDatePtr(d.UpdatedDate)
+			data.DocTags = docTagsOf(d)
 			data.DocsNav = buildNav(d.Slug)
 			if b.opts.Links != nil {
 				data.Backlinks = b.opts.Links.Backlinks(d.Slug)
@@ -799,6 +829,134 @@ func (b *Build) renderDocs(docs []domain.Doc) ([]string, error) {
 			}
 			paths = append(paths, url)
 		}
+	}
+	return paths, nil
+}
+
+// authorRefs resuelve los datos visibles de los autores de un post.
+func authorRefs(slugs []string, authors []domain.Author) []AuthorRef {
+	if len(slugs) == 0 {
+		return nil
+	}
+	bySlug := make(map[string]domain.Author, len(authors))
+	for _, a := range authors {
+		bySlug[a.Slug] = a
+	}
+	out := make([]AuthorRef, 0, len(slugs))
+	for _, slug := range slugs {
+		ref := AuthorRef{Name: slug, Slug: slug, URL: "/authors/" + slug + "/"}
+		if a, ok := bySlug[slug]; ok {
+			if a.Name != "" {
+				ref.Name = a.Name
+			}
+			ref.Avatar = a.Avatar
+		}
+		out = append(out, ref)
+	}
+	return out
+}
+
+// docTagTerms devuelve los tags de documentación con su conteo.
+func docTagTerms(docs []domain.Doc) []Term {
+	counts := map[string]int{}
+	for _, d := range docs {
+		for _, t := range d.Tags {
+			counts[t]++
+		}
+	}
+	terms := make([]Term, 0, len(counts))
+	for name, count := range counts {
+		terms = append(terms, Term{Name: name, URL: "/docs/tags/" + name + "/", Count: count})
+	}
+	sort.Slice(terms, func(i, j int) bool { return terms[i].Name < terms[j].Name })
+	return terms
+}
+
+// docTagsOf devuelve los tags de un doc como términos enlazables.
+func docTagsOf(d domain.Doc) []Term {
+	terms := make([]Term, 0, len(d.Tags))
+	for _, t := range d.Tags {
+		terms = append(terms, Term{Name: t, URL: "/docs/tags/" + t + "/"})
+	}
+	sort.Slice(terms, func(i, j int) bool { return terms[i].Name < terms[j].Name })
+	return terms
+}
+
+// sortedDocs ordena docs por orden y título.
+func sortedDocs(docs []domain.Doc) []domain.Doc {
+	out := make([]domain.Doc, len(docs))
+	copy(out, docs)
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Order != out[j].Order {
+			return out[i].Order < out[j].Order
+		}
+		return out[i].Title < out[j].Title
+	})
+	return out
+}
+
+// docCardsOf convierte docs en tarjetas de vista.
+func docCardsOf(docs []domain.Doc) []DocCard {
+	out := make([]DocCard, 0, len(docs))
+	for _, d := range docs {
+		out = append(out, DocCard{
+			Title:       d.Title,
+			URL:         "/docs/" + d.Slug + "/",
+			Description: d.Description,
+			Date:        formatDatePtr(d.PubDate),
+			HeroImage:   d.HeroImage,
+			Tags:        d.Tags,
+		})
+	}
+	return out
+}
+
+// renderDocTags genera el índice y las páginas de tags de documentación.
+func (b *Build) renderDocTags(docs []domain.Doc, nav []DocSection) ([]string, error) {
+	terms := docTagTerms(docs)
+	if len(terms) == 0 {
+		return nil, nil
+	}
+
+	label := i18n.T(langOf(b.opts.Site), "ui.docs_tags")
+	index := b.newPage(label, "Documentation tags.")
+	index.Terms = terms
+	index.DocsNav = nav
+	index.Breadcrumb = []Link{
+		{Label: i18n.T(langOf(b.opts.Site), "nav.home"), URL: "/"},
+		{Label: i18n.T(langOf(b.opts.Site), "nav.docs"), URL: "/docs/"},
+		{Label: label, URL: "/docs/tags/"},
+	}
+	if err := b.writeTemplate("docs-tags", "docs/tags/index.html", index); err != nil {
+		return nil, err
+	}
+	paths := []string{"/docs/tags/"}
+
+	for _, term := range terms {
+		var list []domain.Doc
+		for _, d := range docs {
+			for _, t := range d.Tags {
+				if t == term.Name {
+					list = append(list, d)
+					break
+				}
+			}
+		}
+		data := b.newPage("#"+term.Name, "Documentation tagged with "+term.Name+".")
+		data.Docs = docCardsOf(sortedDocs(list))
+		data.Total = len(list)
+		data.DocsNav = nav
+		data.Breadcrumb = []Link{
+			{Label: i18n.T(langOf(b.opts.Site), "nav.home"), URL: "/"},
+			{Label: i18n.T(langOf(b.opts.Site), "nav.docs"), URL: "/docs/"},
+			{Label: label, URL: "/docs/tags/"},
+			{Label: term.Name, URL: term.URL},
+		}
+		rel := strings.TrimPrefix(term.URL, "/") + "index.html"
+		if err := b.writeTemplate("docs-tag", rel, data); err != nil {
+			return nil, err
+		}
+		paths = append(paths, term.URL)
 	}
 	return paths, nil
 }
@@ -962,19 +1120,25 @@ func (b *Build) ogImage(slug string) string {
 }
 
 func (b *Build) jsonLD(p domain.BlogPost) template.JS {
-	author := ""
-	if len(p.Authors) > 0 {
-		author = p.Authors[0]
-	}
 	doc := map[string]any{
 		"@context":      "https://schema.org",
 		"@type":         "BlogPosting",
 		"headline":      p.Title,
 		"description":   p.Description,
 		"datePublished": p.Published.Format(time.RFC3339),
-		"author":        map[string]any{"@type": "Person", "name": author},
 		"keywords":      strings.Join(p.Tags, ", "),
 		"url":           strings.TrimRight(b.opts.Site.URL, "/") + "/blog/" + p.Slug + "/",
+	}
+	if len(p.Authors) > 0 {
+		people := make([]map[string]any, 0, len(p.Authors))
+		for _, a := range p.Authors {
+			people = append(people, map[string]any{"@type": "Person", "name": a})
+		}
+		if len(people) == 1 {
+			doc["author"] = people[0]
+		} else {
+			doc["author"] = people
+		}
 	}
 	if p.Updated != nil {
 		doc["dateModified"] = p.Updated.Format(time.RFC3339)
@@ -1013,7 +1177,7 @@ func (b *Build) writeTemplate(name, relPath string, data PageData) error {
 	return b.output.Write(relPath, out)
 }
 
-var reDataCSS = regexp.MustCompile(`data-css="([a-zA-Z0-9_-]+)"`)
+var reDataCSS = regexp.MustCompile(`data-css="([^"]+)"`)
 
 // injectChunks añade al <head> un <link> por cada bloque referenciado con
 // data-css="<name>" en la página (sincrónico, sin FOUC).
@@ -1021,12 +1185,14 @@ func injectChunks(html []byte, chunks map[string]string) []byte {
 	seen := map[string]bool{}
 	var links []string
 	for _, m := range reDataCSS.FindAllSubmatch(html, -1) {
-		url, ok := chunks[string(m[1])]
-		if !ok || seen[url] {
-			continue
+		for _, name := range strings.Fields(string(m[1])) {
+			url, ok := chunks[name]
+			if !ok || seen[url] {
+				continue
+			}
+			seen[url] = true
+			links = append(links, `<link rel="stylesheet" href="`+url+`">`)
 		}
-		seen[url] = true
-		links = append(links, `<link rel="stylesheet" href="`+url+`">`)
 	}
 	if len(links) == 0 {
 		return html
@@ -1425,6 +1591,14 @@ func formatDate(t time.Time) string {
 		return ""
 	}
 	return t.Format("2006-01-02")
+}
+
+// formatDatePtr formatea una fecha opcional.
+func formatDatePtr(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return formatDate(*t)
 }
 
 // Summary resume el contenido cargado y generado.

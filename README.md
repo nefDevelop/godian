@@ -270,6 +270,11 @@ Además de GFM (tablas, tachado, listas de tareas, autolinks):
 | `{{youtube id}}` | shortcode integrado |
 | `{{icon play}}` | icono Lucide (o propio del tema) |
 | HTML crudo | se preserva (`<details>`, `<iframe>`…) |
+| `- [ ]` + `{.checklist-interactive}` | checklist pulsable; el estado se guarda en `localStorage` (sin la clase, solo visual) |
+
+Las **task lists** son visuales por defecto. Para hacerlas pulsables, añade
+`{.checklist-interactive}` en una línea después de la lista. El estado se guarda en
+`localStorage`; no se modifica el Markdown fuente.
 
 ---
 
@@ -277,16 +282,18 @@ Además de GFM (tablas, tachado, listas de tareas, autolinks):
 
 Un **tema** es una carpeta con plantillas, assets y un manifiesto. El tema por defecto va **embebido en el binario**; si defines `build.theme_dir`, se **superpone archivo a archivo** (los que falten caen al tema por defecto).
 
+> Guía completa de autoría: [`themes/default/README.md`](themes/default/README.md).
+
 ```
 themes/<nombre>/
 ├── theme.yaml            # manifiesto
 ├── templates/            # plantillas html/template
-│   ├── base/páginas .html (home, blog, post, terms, taxonomy, authors, author, series, series-detail, archive, search, docs, docs-index, 404)
-│   ├── partials/         # head, header, footer, card, toc, pagination, breadcrumb, docsnav, searchmodal
+│   ├── base/páginas .html (home, blog, post, terms, taxonomy, authors, author, series, series-detail, archive, search, docs, docs-index, docs-tags, docs-tag, page, 404)
+│   ├── partials/         # head, header, footer, card, toc, toc-float, pagination, breadcrumb, docsnav, searchmodal, callout
 │   └── islands/          # HTML SSR de islas (opcional)
 ├── icons/                # iconos propios (opcional; sobrescriben Lucide)
 └── assets/
-    ├── css/              # estilos (styles.css + chunks/<n>.css)
+    ├── css/              # estilos (styles.css + motion.css + chunks/<n>.css)
     ├── js/               # scripts
     └── islands/          # módulos JS de islas (+ css)
 ```
@@ -299,6 +306,7 @@ version: 0.1.0
 assets:
   css:
     - /assets/css/styles.css
+    - /assets/css/motion.css
     - /assets/css/chroma.css
   js:
     - /assets/js/theme.js
@@ -307,8 +315,9 @@ assets:
 ```
 
 - **CSS**: el generador no compila CSS; el tema aporta el suyo (Tailwind precompilado, CSS plano, etc.).
-- **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre>"` (p. ej. `article-ux` en posts, `docs` en `/docs/`, `lists` en listados). El generador los fingerprinta y añade el `<link>` en el `<head>` (sincrónico, sin FOUC).
+- **CSS por bloques (chunks)**: los ficheros en `assets/css/chunks/<nombre>.css` **no** se cargan en todas las páginas; se inyectan solo donde el HTML tenga `data-css="<nombre> [<nombre>…]"` (p. ej. `article-ux lists` en posts y `docs lists` en documentación). El generador los fingerprinta y añade los `<link>` en el `<head>` (sincrónico, sin FOUC). `lists` aporta tarjetas, tags, términos y badges: cualquier plantilla que use esas clases debe declararlo.
 - **Overlay**: puedes sobrescribir un template/asset concreto sin copiar todo el tema.
+- **Movimiento**: `assets/css/motion.css` define duraciones, curvas y utilidades (`.collapse`, `.motion-fade-in`, `.motion-slide-up`); las islas usan esos tokens.
 - **Fingerprinting/minify** se aplican a los assets del tema.
 
 ### Iconos
@@ -428,6 +437,7 @@ Partials estáticos: `cta`, `badge`, `kbd`.
 - **Navegación**: TOC (sticky), paginación, archivo, búsqueda (índice propio en Go + JS) con **modal Ctrl/⌘K**, **docs** con sidebar y breadcrumbs, y **menús anidados** (config).
 - **Publicación programada**: los posts con `published` futura no se publican hasta su fecha (`-drafts` los incluye).
 - **Artículo**: progreso de lectura, volver arriba, prev/next, relacionados, navegación de serie y compartir.
+- **Paridad visual con `astro-ri`**: portada, autor(es), dificultad, `updated`, `links`/`downloads`, badge de fijado, tarjetas enriquecidas y tags de documentación (`/docs/tags/<tag>/`); la búsqueda indexa posts y docs.
 - **Home**: post destacado (pinned) y widgets (tags, categorías, stats).
 - **UI**: dark mode con persistencia, View Transitions, Giscus, KaTeX/Mermaid/PhotoSwipe (carga diferida).
 - **SEO/Meta**: canonical por página, favicon + manifest + `theme-color` generados, JSON-LD (WebSite/BlogPosting/**CollectionPage**/**Person**), **`rel=prev/next`** en paginación, **`sizes`** en `srcset`, OG/Twitter y **OG images nativas**, RSS/**Atom**/**JSON Feed**, sitemap y **`robots.txt`**.

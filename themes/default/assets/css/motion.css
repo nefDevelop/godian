@@ -1,0 +1,121 @@
+/* Escala de movimiento del tema.
+   Regla: no inventes curvas en cada componente; usa estos tokens. */
+
+:root {
+	--motion-instant: 90ms;
+	--motion-fast: 140ms;
+	--motion-base: 220ms;
+	--motion-slow: 360ms;
+	--motion-slower: 520ms;
+
+	/* Curvas */
+	--motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);   /* general */
+	--motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);          /* entra en escena */
+	--motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);           /* sale de escena */
+	--motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);     /* movimientos amplios */
+	--motion-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);  /* pop / rebote suave */
+
+	/* Alias históricos (compatibilidad con temas/terceros) */
+	--motion-ease: var(--motion-ease-standard);
+	--motion-ease-out: var(--motion-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}
+
+/* Transición de tema: se activa solo durante el cambio de modo/acento.
+   Sin !important para que prefers-reduced-motion siga mandando. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+	transition:
+		background-color var(--motion-base) var(--motion-ease-standard),
+		color var(--motion-base) var(--motion-ease-standard),
+		border-color var(--motion-base) var(--motion-ease-standard),
+		outline-color var(--motion-base) var(--motion-ease-standard),
+		fill var(--motion-base) var(--motion-ease-standard),
+		stroke var(--motion-base) var(--motion-ease-standard),
+		box-shadow var(--motion-base) var(--motion-ease-standard),
+		accent-color var(--motion-base) var(--motion-ease-standard);
+}
+
+/* Utilidades opt-in para plantillas y componentes. */
+.motion-fade-in {
+	animation: motion-fade-in var(--motion-base) var(--motion-ease-enter) both;
+}
+
+.motion-slide-up {
+	animation: motion-slide-up var(--motion-base) var(--motion-ease-enter) both;
+}
+
+@keyframes motion-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes motion-slide-up {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: none; }
+}
+
+/* Patrón de colapso por grid. Requiere un wrapper:
+   <div class="collapse is-open"><div>contenido</div></div> */
+.collapse {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows var(--motion-base) var(--motion-ease-standard);
+}
+
+.collapse > * {
+	overflow: hidden;
+	min-height: 0;
+}
+
+.collapse.is-open {
+	grid-template-rows: 1fr;
+}
+
+/* Mejora progresiva para <details> nativos (sin JS).
+   El accordion usa su propia animación de altura y se excluye. */
+@supports (interpolate-size: allow-keywords) {
+	.prose details:not(.accordion-item):not(.smooth-js),
+	details.smooth:not(.smooth-js) {
+		interpolate-size: allow-keywords;
+	}
+
+	.prose details:not(.accordion-item):not(.smooth-js)::details-content,
+	details.smooth:not(.smooth-js)::details-content {
+		block-size: 0;
+		overflow: hidden;
+		transition:
+			block-size var(--motion-base) var(--motion-ease-standard),
+			content-visibility var(--motion-base) allow-discrete;
+	}
+
+	.prose details:not(.accordion-item):not(.smooth-js)[open]::details-content,
+	details.smooth:not(.smooth-js)[open]::details-content {
+		block-size: auto;
+	}
+}
+
+
+/* Wrapper que crea theme.js para animar la altura de <details> nativos. */
+.details-body {
+	overflow: hidden;
+}

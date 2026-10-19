@@ -1,3 +1,5 @@
+import { animate } from '/assets/js/motion.js';
+
 // Isla carrusel: props.images = "url1,url2,url3", props.alt (opcional).
 export function mount(el, props) {
 	var imgs = (props.images || '')
@@ -54,6 +56,7 @@ export function mount(el, props) {
 
 	function render() {
 		img.src = imgs[i];
+		animate(img, [{ opacity: 0.35 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
 		dotsBtns.forEach(function (d, idx) { d.classList.toggle('is-active', idx === i); });
 		// Texto alternativo (no aria-label, para no chocar con alt vacío).
 		img.alt = (props.alt ? props.alt + ' — ' : '') + 'Imagen ' + (i + 1) + ' de ' + imgs.length;

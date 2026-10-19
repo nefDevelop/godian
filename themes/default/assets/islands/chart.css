@@ -3,3 +3,7 @@
 .chart-legend { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; font-size: .8rem; }
 .chart-legend-item { display: inline-flex; align-items: center; gap: .3rem; }
 .chart-legend-dot { width: .6rem; height: .6rem; border-radius: 50%; display: inline-block; }
+.chart svg { animation: chart-in var(--motion-slow) var(--motion-ease-enter); }
+.chart svg rect { transform-box: fill-box; transform-origin: bottom; animation: chart-bar-in var(--motion-slow) var(--motion-ease-enter); }
+@keyframes chart-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes chart-bar-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }

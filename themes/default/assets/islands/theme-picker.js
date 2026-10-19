@@ -14,7 +14,11 @@ export function mount(el, props) {
 		b.style.background = c;
 		b.setAttribute('aria-label', c);
 		b.addEventListener('click', function () {
-			document.documentElement.style.setProperty('--accent', c);
+			var apply = function () {
+				document.documentElement.style.setProperty('--accent', c);
+			};
+			if (window.godianThemeTransition) window.godianThemeTransition(apply);
+			else apply();
 			try { localStorage.setItem('accent', c); } catch (e) {}
 		});
 		el.appendChild(b);

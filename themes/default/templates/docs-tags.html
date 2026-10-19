@@ -1,0 +1,11 @@
+{{define "docs-tags"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap docs-layout" data-css="docs lists">
+	<aside class="docs-sidebar" aria-label="{{ t "ui.docs_nav" }}">{{ template "docsnav" . }}</aside>
+	<div class="docs-content">
+		{{ template "breadcrumb" . }}
+		<h1>{{ .Title }}</h1>
+		{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+		<div class="terms">{{ range .Terms }}<a class="term" href="{{ .URL }}"><span class="term-name">#{{ .Name }}</span><span class="term-count">{{ .Count }}</span></a>{{ end }}</div>
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

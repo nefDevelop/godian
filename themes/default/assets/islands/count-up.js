@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from '/assets/js/motion.js';
+
 // Isla count-up: número que se anima hasta el valor indicado.
 export function mount(el, props) {
   var target = Number(props.value || 0);
@@ -9,6 +11,10 @@ export function mount(el, props) {
   span.className = 'count-up-value';
   span.textContent = prefix + '0' + suffix;
   el.appendChild(span);
+  if (prefersReducedMotion()) {
+    span.textContent = prefix + target.toLocaleString() + suffix;
+    return;
+  }
   var start = (typeof performance !== 'undefined') ? performance.now() : Date.now();
   function step(now) {
     var t = Math.min(1, (now - start) / duration);

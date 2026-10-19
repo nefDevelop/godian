@@ -234,6 +234,29 @@
 - [x] Iconos **propios del tema** en `icons/*.svg` (sobrescriben Lucide por nombre); icono desconocido → aviso + placeholder visible
 - [x] Glifos del tema migrados a Lucide (menú, toggle de tema, play del vídeo, TOC flotante)
 
+### F28 — Paridad visual con astro-ri
+- [x] Portada del post (`image`) en el post y en las tarjetas
+- [x] Autor(es) visibles en post y tarjetas, enlazados a `/authors/<slug>/`
+- [x] Badge de dificultad y de “fijado” en post y tarjetas
+- [x] Fecha de actualización (`updated`) en el post
+- [x] Cajas de `links` (website/github) y `downloads` en el post
+- [x] Tarjetas con imagen, categoría, dificultad, autor y tags
+- [x] Tags de documentación: `/docs/tags/` y `/docs/tags/<tag>/`; `heroImage` y fechas en docs
+- [x] `search-index.json` incluye docs
+
+### F29 — Animaciones y autoría de temas
+- [x] Escala de movimiento en `assets/css/motion.css`: duraciones (`instant/fast/base/slow/slower`) y curvas (`standard/enter/exit/emphasized/spring`) + `prefers-reduced-motion` global
+- [x] Utilidad compartida `assets/js/motion.js` (`prefersReducedMotion`, `animate`, `motionValue`, `motionMs`)
+- [x] Colapso suave: islas `accordion` y `spoiler` con WAAPI; `.collapse` por grid y mejora progresiva para `<details>` nativos
+- [x] Animaciones en islas con estado: accordion, modal, popover, toast, tabs, carousel, lightbox, spoiler, calendar, progress-ring, video, chart, rating, theme-picker, gallery, copy/share
+- [x] `count-up`, carousel y progress-ring respetan movimiento reducido
+- [x] Guía de autoría `themes/default/README.md` (plantillas, `PageData`, chunks, islas, i18n)
+
+### F30 — Interacción y pulido
+- [x] Task lists interactivas con `{.checklist-interactive}` y persistencia en `localStorage` (por defecto, visuales)
+- [x] Borde único en bloques de código (sin doble borde/redondeo interior)
+- [x] Cambio de tema claro/oscuro y de acento con transición (`html.theme-transition` + `--motion-base`)
+
 ## 🧭 Backlog (competencias y mejoras)
 
 > Comparado con Hugo / Zola / Eleventy / Jekyll / Astro. Cada ítem con una nota de qué es.

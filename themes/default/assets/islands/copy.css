@@ -13,3 +13,6 @@
 	border-color: var(--accent);
 	color: var(--accent-text);
 }
+.copy-btn { transition: border-color var(--motion-fast) var(--motion-ease-standard), color var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-spring); }
+.copy-btn:active { transform: scale(.97); }
+.copy-btn.is-copied { border-color: var(--accent); color: var(--accent-text); }

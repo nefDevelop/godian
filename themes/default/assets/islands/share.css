@@ -22,3 +22,8 @@
 	border-color: var(--accent);
 	color: var(--accent-text);
 }
+.share-island a,
+.share-island .share-copy { transition: border-color var(--motion-fast) var(--motion-ease-standard), color var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-spring); }
+.share-island a:active,
+.share-island .share-copy:active { transform: scale(.97); }
+.share-island .share-copy.is-copied { border-color: var(--accent); color: var(--accent-text); }

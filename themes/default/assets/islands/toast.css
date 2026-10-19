@@ -1,7 +1,7 @@
 .toast-trigger { display: inline-block; padding: .4rem .8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--fg); cursor: pointer; font: inherit; font-size: .9rem; }
 .toast-trigger:hover { border-color: var(--accent); color: var(--accent-text); }
 .toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: .5rem; }
-.toast { padding: .6rem 1rem; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,.15); opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; max-width: 20rem; }
+.toast { padding: .6rem 1rem; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,.15); opacity: 0; transform: translateY(10px); transition: opacity var(--motion-base) var(--motion-ease-standard), transform var(--motion-base) var(--motion-ease-enter); max-width: 20rem; }
 .toast.is-visible { opacity: 1; transform: translateY(0); }
 .toast-success { border-left: 3px solid #16a34a; }
 .toast-error { border-left: 3px solid #dc2626; }

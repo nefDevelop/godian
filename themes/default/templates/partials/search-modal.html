@@ -1,8 +1,8 @@
 {{define "searchmodal"}}<div class="search-modal" id="search-modal" hidden>
 	<div class="search-overlay" data-search-close></div>
 	<div class="search-panel" role="dialog" aria-modal="true" aria-label="{{ t "ui.search" }}" data-search-scope>
-		<input class="search-input" data-search-input type="search" placeholder="{{ t "ui.search" }}…" autocomplete="off">
-		<div data-search-results class="search-results"></div>
-		<p class="search-hint muted">Esc {{ t "ui.search" }} · Ctrl/⌘K</p>
+		<input class="search-input" data-search-input type="search" placeholder="{{ t "ui.search" }}…" aria-label="{{ t "ui.search" }}" autocomplete="off">
+		<div data-search-results class="search-results" aria-live="polite"></div>
+		<p class="search-hint muted">Esc · Ctrl/⌘K</p>
 	</div>
 </div>{{end}}

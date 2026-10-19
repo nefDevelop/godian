@@ -5,4 +5,5 @@
 			{{ range .Docs }}<li><a href="{{ .URL }}"{{ if .Active }} class="is-active" aria-current="page"{{ end }}>{{ .Title }}</a></li>{{ end }}
 		</ul>
 	</div>{{ end }}
+	<a class="docs-nav-tags" href="/docs/tags/">#{{ t "ui.docs_tags" }}</a>
 </nav>{{ end }}

@@ -3,9 +3,9 @@
 	<h1>{{ .Title }}</h1>
 	<div data-search-scope>
 		<form class="search-form" role="search" action="/search/">
-			<input data-search-input type="search" name="q" placeholder="{{ t "ui.search" }}…" autocomplete="off" autofocus>
+			<input data-search-input type="search" name="q" placeholder="{{ t "ui.search" }}…" aria-label="{{ t "ui.search" }}" autocomplete="off" autofocus>
 		</form>
-		<div data-search-results class="search-results"></div>
+		<div data-search-results class="search-results" aria-live="polite"></div>
 	</div>
 </div>
 {{ template "footer" . }}{{ end }}

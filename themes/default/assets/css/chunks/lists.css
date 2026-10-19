@@ -12,7 +12,7 @@
 	border-radius: var(--radius);
 	background: var(--card);
 	padding: 1.15rem 1.25rem;
-	transition: border-color 0.15s, transform 0.15s;
+	transition: border-color var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-standard);
 }
 
 .card:hover {
@@ -190,7 +190,7 @@
 	padding: 1rem 1.25rem;
 	text-decoration: none;
 	color: inherit;
-	transition: border-color 0.15s;
+	transition: border-color var(--motion-fast) var(--motion-ease-standard);
 }
 
 .author-card:hover,
@@ -365,19 +365,99 @@
 	font-size: 1rem;
 }
 
-.search-results {
-	display: grid;
-	gap: 1rem;
+
+/* --- Paridad visual con astro-ri: tarjetas --- */
+.card-image {
+	display: block;
+	margin: -1.15rem -1.25rem 0.9rem;
+	overflow: hidden;
+	border-radius: var(--radius) var(--radius) 0 0;
+	background: var(--border);
 }
 
-.search-hit {
+.card-image img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	transition: transform var(--motion-slow) var(--motion-ease-standard);
+}
+
+.card:hover .card-image img {
+	transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card:hover .card-image img {
+		transform: none;
+	}
+}
+
+.card-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	margin-top: 0.7rem;
+}
+
+.pinned-badge {
+	display: inline-block;
+	background: var(--accent-strong);
+	color: #fff;
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	border-radius: 999px;
+	padding: 0.1rem 0.5rem;
+	vertical-align: middle;
+}
+
+.difficulty {
+	display: inline-block;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-radius: 999px;
+	padding: 0.1rem 0.55rem;
 	border: 1px solid var(--border);
-	border-radius: var(--radius);
-	background: var(--card);
-	padding: 1rem 1.25rem;
+	color: var(--muted);
 }
 
-.search-hit h2 {
-	margin: 0 0 0.25rem;
-	font-size: 1.05rem;
+.difficulty-beginner {
+	color: #15803d;
+	border-color: color-mix(in srgb, #16a34a 45%, var(--border));
+	background: color-mix(in srgb, #16a34a 12%, transparent);
+}
+
+.difficulty-intermediate {
+	color: var(--accent-text);
+	border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+	background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.difficulty-advanced {
+	color: #b91c1c;
+	border-color: color-mix(in srgb, #dc2626 45%, var(--border));
+	background: color-mix(in srgb, #dc2626 12%, transparent);
+}
+
+.dark .difficulty-beginner { color: #86efac; }
+.dark .difficulty-advanced { color: #fca5a5; }
+
+.card-author {
+	margin: 0.75rem 0 0;
+	font-size: 0.8rem;
+	color: var(--muted);
+}
+
+.card-author a {
+	color: var(--muted);
+	text-decoration: none;
+}
+
+.card-author a:hover {
+	color: var(--accent-text);
 }

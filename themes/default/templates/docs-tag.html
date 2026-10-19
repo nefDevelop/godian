@@ -1,0 +1,19 @@
+{{define "docs-tag"}}{{ template "head" . }}{{ template "header" . }}
+<div class="wrap docs-layout" data-css="docs lists">
+	<aside class="docs-sidebar" aria-label="{{ t "ui.docs_nav" }}">{{ template "docsnav" . }}</aside>
+	<div class="docs-content">
+		{{ template "breadcrumb" . }}
+		<h1>{{ .Title }}</h1>
+		{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+		<p class="muted">{{ .Total }} {{ t "nav.docs" }}</p>
+		<div class="docs-grid">
+			{{ range .Docs }}<a class="doc-card" href="{{ .URL }}">
+				{{ if .HeroImage }}<img class="doc-card-image" src="{{ .HeroImage }}" alt="" loading="lazy" decoding="async">{{ end }}
+				<h2>{{ .Title }}</h2>
+				{{ if .Description }}<p>{{ .Description }}</p>{{ end }}
+				{{ if .Tags }}<span class="doc-card-tags">{{ range .Tags }}#{{ . }} {{ end }}</span>{{ end }}
+			</a>{{ end }}
+		</div>
+	</div>
+</div>
+{{ template "footer" . }}{{ end }}

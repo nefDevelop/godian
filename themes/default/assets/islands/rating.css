@@ -21,3 +21,7 @@
 .rating .star.is-on {
 	color: #f59e0b;
 }
+.rating .star { transition: color var(--motion-fast) var(--motion-ease-standard), transform var(--motion-fast) var(--motion-ease-spring); }
+.rating .star:hover,
+.rating .star:focus-visible { transform: scale(1.12); }
+.rating .star:active { transform: scale(.92); }

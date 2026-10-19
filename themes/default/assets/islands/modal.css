@@ -1,7 +1,7 @@
 .modal { display: inline-block; }
 .modal-trigger { display: inline-block; padding: .45rem .9rem; border: 1px solid var(--accent-strong); border-radius: var(--radius); background: var(--accent-strong); color: #fff; cursor: pointer; font: inherit; font-size: .9rem; font-weight: 600; }
 .modal-trigger:hover { opacity: .9; }
-.modal-dialog { border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: var(--radius); padding: 0; background: var(--card); color: var(--fg); width: calc(100vw - 2rem); max-width: 32rem; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: modal-in .18s ease-out; overflow: hidden; }
+.modal-dialog { border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: var(--radius); padding: 0; background: var(--card); color: var(--fg); width: calc(100vw - 2rem); max-width: 32rem; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: modal-in var(--motion-base) var(--motion-ease-enter); overflow: hidden; }
 .modal-dialog.modal-sm { max-width: 24rem; }
 .modal-dialog.modal-lg { max-width: 48rem; }
 .modal-dialog::backdrop { background: rgba(0,0,0,.5); backdrop-filter: blur(2px); }
@@ -14,4 +14,6 @@
 .modal-action { padding: .45rem 1rem; border: 1px solid var(--accent-strong); border-radius: var(--radius); background: var(--accent-strong); color: #fff; cursor: pointer; font: inherit; font-size: .9rem; font-weight: 600; }
 .modal-action:hover { opacity: .9; }
 @keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .modal-dialog { animation: none; } }
+.modal-dialog[open]::backdrop { animation: modal-backdrop-in var(--motion-base) var(--motion-ease-enter); }
+@keyframes modal-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .modal-dialog, .modal-dialog[open]::backdrop { animation: none; } }

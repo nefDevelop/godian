@@ -38,15 +38,37 @@
 	}
 })();
 
+// Aplica un cambio de tema con transición de colores y la retira al terminar.
+var themeTransitionTimer = null;
+window.godianThemeTransition = function (apply) {
+	var root = document.documentElement;
+	root.classList.add('theme-transition');
+	try { apply(); } catch (e) {}
+	clearTimeout(themeTransitionTimer);
+	var duration = 260;
+	try {
+		var raw = getComputedStyle(root).getPropertyValue('--motion-base').trim();
+		var n = parseFloat(raw);
+		if (!isNaN(n)) duration = raw.indexOf('ms') >= 0 ? n : n * 1000;
+	} catch (e) {}
+	themeTransitionTimer = setTimeout(function () {
+		root.classList.remove('theme-transition');
+	}, duration + 30);
+};
+
 // Toggle de tema claro/oscuro.
 document.addEventListener('click', function (e) {
 	var btn = e.target.closest('.theme-toggle');
 	if (!btn) return;
 	var root = document.documentElement;
 	var next = root.classList.contains('dark') ? 'light' : 'dark';
-	root.classList.remove('light', 'dark');
-	root.classList.add(next);
-	root.dataset.theme = next;
+	var apply = function () {
+		root.classList.remove('light', 'dark');
+		root.classList.add(next);
+		root.dataset.theme = next;
+	};
+	if (window.godianThemeTransition) window.godianThemeTransition(apply);
+	else apply();
 	try { localStorage.setItem('theme', next); } catch (err) {}
 });
 
@@ -92,7 +114,8 @@ document.addEventListener('click', function (e) {
 		}
 	}
 
-	// KaTeX (matemáticas): se carga solo cuando la marca [data-math] entra en pantalla.
+	// KaTeX (matemáticas): se carga cuando el contenido entra en pantalla.
+	// El marcador [data-math] está oculto, así que se observa .prose (tiene tamaño).
 	var mathEl = document.querySelector('[data-math]');
 	if (mathEl && !window.renderMathInElement) {
 		var loadMath = function () {
@@ -115,13 +138,11 @@ document.addEventListener('click', function (e) {
 				});
 			});
 		};
-		if ('IntersectionObserver' in window) {
-			var mathObs = new IntersectionObserver(function (entries) {
-				if (entries.some(function (e) { return e.isIntersecting; })) { mathObs.disconnect(); loadMath(); }
-			}, { rootMargin: '300px' });
-			mathObs.observe(mathEl);
+		// Carga diferida pero garantizada: idle con timeout; si no hay API, inmediata.
+		if ('requestIdleCallback' in window) {
+			requestIdleCallback(loadMath, { timeout: 1200 });
 		} else {
-			loadMath();
+			setTimeout(loadMath, 0);
 		}
 	}
 
@@ -277,3 +298,98 @@ document.addEventListener('click', function (e) {
 	});
 	rows.forEach(function (r) { tbody.appendChild(r); });
 });
+
+// Animación de altura para <details> de contenido (callouts plegables, bloques
+// de código plegables y <details> nativos). La isla accordion tiene su propio
+// controlador y se excluye.
+(function () {
+	if (typeof Element === 'undefined' || !Element.prototype.animate) return;
+	if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+	function token(name, fallback) {
+		var value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+		return value || fallback;
+	}
+	function ms(name, fallback) {
+		var value = token(name, '');
+		var n = parseFloat(value);
+		if (!isNaN(n)) return value.indexOf('ms') >= 0 ? n : n * 1000;
+		return fallback;
+	}
+
+	var details = document.querySelectorAll('.prose details:not(.accordion-item), details.smooth:not(.accordion-item)');
+	details.forEach(function (d) {
+		var summary = d.querySelector(':scope > summary');
+		if (!summary || d.classList.contains('smooth-js')) return;
+
+		// El contenido nativo de <details> son los nodos posteriores al summary.
+		// Se agrupan para poder animar su altura.
+		var body = document.createElement('div');
+		body.className = 'details-body';
+		var node = summary.nextSibling;
+		while (node) {
+			var next = node.nextSibling;
+			body.appendChild(node);
+			node = next;
+		}
+		d.appendChild(body);
+		d.classList.add('smooth-js');
+
+		var anim = null;
+		summary.addEventListener('click', function (e) {
+			e.preventDefault();
+			if (anim) return;
+
+			var opening = !d.open;
+			if (opening) d.open = true;
+			var height = body.scrollHeight;
+			body.style.overflow = 'hidden';
+
+			var duration = opening ? ms('--motion-base', 220) : ms('--motion-fast', 140);
+			var easing = opening
+				? token('--motion-ease-enter', 'cubic-bezier(0, 0, 0.2, 1)')
+				: token('--motion-ease-exit', 'cubic-bezier(0.4, 0, 1, 1)');
+			var frames = opening
+				? [{ height: '0px', opacity: 0 }, { height: height + 'px', opacity: 1 }]
+				: [{ height: height + 'px', opacity: 1 }, { height: '0px', opacity: 0 }];
+
+			anim = body.animate(frames, { duration: duration, easing: easing });
+			anim.onfinish = function () {
+				if (!opening) d.open = false;
+				body.style.overflow = '';
+				body.style.height = '';
+				anim = null;
+			};
+			anim.oncancel = function () {
+				body.style.overflow = '';
+				body.style.height = '';
+				anim = null;
+			};
+		});
+	});
+})();
+
+// Task lists interactivas: solo se activan con la clase checklist-interactive.
+// El estado se guarda en localStorage; el Markdown fuente no cambia.
+(function () {
+	var lists = document.querySelectorAll('.prose ul.checklist-interactive');
+	lists.forEach(function (ul, listIndex) {
+		var boxes = ul.querySelectorAll('input[type="checkbox"]');
+		if (!boxes.length) return;
+		var key = 'checklist:' + location.pathname + ':' + listIndex;
+		var saved = [];
+		try { saved = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+		boxes.forEach(function (box, i) {
+			box.disabled = false;
+			var li = box.closest('li');
+			var text = li ? li.textContent.trim() : '';
+			if (text) box.setAttribute('aria-label', text);
+			if (saved[i] !== undefined) box.checked = !!saved[i];
+			box.addEventListener('change', function () {
+				var state = [];
+				boxes.forEach(function (b) { state.push(b.checked); });
+				try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) {}
+			});
+		});
+	});
+})();

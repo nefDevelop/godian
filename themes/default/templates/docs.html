@@ -1,11 +1,17 @@
 {{define "docs"}}{{ template "head" . }}{{ template "header" . }}
-<div class="wrap docs-layout" data-css="docs">
+<div class="wrap docs-layout" data-css="docs lists">
 	<aside class="docs-sidebar" aria-label="{{ t "ui.docs_nav" }}">{{ template "docsnav" . }}</aside>
 	<div class="docs-content">
 		{{ template "breadcrumb" . }}
 		<article class="prose">
+			{{ if .HeroImage }}<img class="docs-hero" src="{{ .HeroImage }}" alt="" loading="lazy" decoding="async">{{ end }}
 			<h1>{{ .Title }}</h1>
 			{{ if .Description }}<p class="muted">{{ .Description }}</p>{{ end }}
+			{{ if or .PubDate .UpdatedDate }}<p class="muted doc-dates">
+				{{ if .PubDate }}<time datetime="{{ .PubDate }}">{{ .PubDate }}</time>{{ end }}
+				{{ if .UpdatedDate }}<span>· {{ t "ui.updated" }} <time datetime="{{ .UpdatedDate }}">{{ .UpdatedDate }}</time></span>{{ end }}
+			</p>{{ end }}
+			{{ if .DocTags }}<ul class="tags docs-tags">{{ range .DocTags }}<li><a class="tag" href="{{ .URL }}">#{{ .Name }}</a></li>{{ end }}</ul>{{ end }}
 			{{ if .NeedsMath }}<div data-math hidden></div>{{ end }}
 			{{ .Body }}
 		</article>
