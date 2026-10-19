@@ -21,7 +21,7 @@ godian version
 Desde el código:
 
 ```sh
-git clone https://github.com/nefdevelop/godian
+git clone https://github.com/nefDevelop/godian
 cd godian
 make build
 ./bin/godian version

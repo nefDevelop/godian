@@ -36,7 +36,7 @@ godian version
 Desde el repositorio:
 
 ```sh
-git clone <repo> && cd godian
+git clone https://github.com/nefDevelop/godian && cd godian
 make build          # compila a bin/godian (usa -tags nodynamic)
 ```
 

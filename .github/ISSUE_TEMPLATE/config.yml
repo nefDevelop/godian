@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: https://github.com/nefdevelop/godian/security/advisories/new
+    url: https://github.com/nefDevelop/godian/security/advisories/new
     about: Reporta vulnerabilidades en privado; no abras un issue público con detalles explotables.
   - name: Documentation and quickstart
-    url: https://github.com/nefdevelop/godian/blob/main/QUICKSTART.md
+    url: https://github.com/nefDevelop/godian/blob/main/QUICKSTART.md
     about: Instalación, estructura, temas y despliegue.

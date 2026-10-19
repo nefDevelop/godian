@@ -16,7 +16,7 @@ El tag `nodynamic` usa el libwebp transpilado a Go (sin cgo ni dependencias de r
 
 | Plataforma | Archivo | Notas |
 |---|---|---|
-| GitHub Pages | `.github/workflows/pages.yml` | Ya en el repo; se dispara en `main` |
+| GitHub Pages | `.github/workflows/pages.yml` | Manual; ajusta `site.url`/`base_path` a Pages antes de ejecutarlo |
 | Netlify | `deploy/netlify.toml` | Copiar a la raíz del repo |
 | Cloudflare Pages | `deploy/wrangler.toml` | Copiar a la raíz y ajustar `name` |
 | Vercel | `deploy/vercel.json` | Copiar a la raíz |

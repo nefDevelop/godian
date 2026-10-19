@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages
 
+# Manual: el sitio canónico se despliega en Cloudflare Pages.
+# Para GitHub Pages, ajusta site.url/base_path a la URL de Pages antes de
+# ejecutarlo; si no, los enlaces apuntarán al dominio de Cloudflare.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
